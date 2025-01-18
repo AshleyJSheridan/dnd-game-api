@@ -16,4 +16,4 @@ Route::get('/characters/classes', [CharClassController::class, 'getCharacterClas
 Route::get('/characters/backgrounds', [CharBackgroundController::class, 'getCharacterBackgrounds']);
 Route::get('/characters/races', [CharRaceController::class, 'getCharacterRaces']);
 
-Route::any('/game/dice', [DiceController::class, 'rollDice']);
+Route::post('/game/dice', [DiceController::class, 'rollDice']);
