@@ -10,7 +10,6 @@ class CharClassResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
-        //return parent::toArray($request);
         return [
             'id' => $this->id,
             'name' => $this->name,
@@ -23,8 +22,6 @@ class CharClassResource extends JsonResource
             'tool_proficiencies' => CharToolOptionsProficiencyResource::make($this),
             'class_features' => CharFeatureResource::collection($this->ClassFeatures),
             'starting_equipment' => CharStarterPackResource::collection($this->StartingEquipmentPacks),
-            /*
-            'subclasses' => $this->subclasses,*/
         ];
     }
 
