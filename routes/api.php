@@ -4,6 +4,7 @@ use App\Http\Controllers\CharBackgroundController;
 use App\Http\Controllers\CharRaceController;
 use App\Http\Controllers\DiceController;
 use App\Http\Controllers\ItemController;
+use App\Http\Controllers\SpellController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CharClassController;
@@ -20,5 +21,6 @@ Route::get('/characters/races', [CharRaceController::class, 'getCharacterRaces']
 Route::get('/game/items', [ItemController::class, 'getItems']);
 Route::get('/game/items/{itemType}', [ItemController::class, 'getItems'])
     ->where('itemType', '(armor|book|clothing|food|other|pack|potion|projectile|weapon)');
+Route::get('/game/spells', [SpellController::class, 'getSpells']);
 
 Route::post('/game/dice', [DiceController::class, 'rollDice']);
