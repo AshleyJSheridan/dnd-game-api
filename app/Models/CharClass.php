@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
-class CharClasses extends Model
+class CharClass extends Model
 {
     protected $table = 'char_classes';
     protected $primaryKey = 'id';

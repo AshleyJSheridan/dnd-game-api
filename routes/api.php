@@ -13,16 +13,30 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
-
+// characters
 Route::get('/characters/classes', [CharClassController::class, 'getCharacterClasses']);
 Route::get('/characters/backgrounds', [CharBackgroundController::class, 'getCharacterBackgrounds']);
 Route::get('/characters/races', [CharRaceController::class, 'getCharacterRaces']);
 
+// items
 Route::get('/game/items', [ItemController::class, 'getItems']);
 Route::get('/game/items/{itemType}', [ItemController::class, 'getItems'])
     ->where('itemType', '(armor|book|clothing|food|other|pack|potion|projectile|weapon)');
-Route::get('/game/spells', [SpellController::class, 'getSpells']);
-Route::get('/game/spells/{school}', [SpellController::class, 'getSpells'])
-    ->where('school', '(abjuration|conjuration|divination|enchantment|evocation|illusion|necromancy|transmutation)');
 
+// spells
+Route::get('/game/spells', [SpellController::class, 'getSpells']);
+Route::get('/game/spells/level/{level}', [SpellController::class, 'getSpells'])
+    ->where('level', '[0-9]+');
+Route::get('/game/spells/school/{school}', [SpellController::class, 'getSpellsBySchool'])
+    ->where('school', '(abjuration|conjuration|divination|enchantment|evocation|illusion|necromancy|transmutation)');
+Route::get('/game/spells/school/{school}/level/{level}', [SpellController::class, 'getSpellsBySchool'])
+    ->where('school', '(abjuration|conjuration|divination|enchantment|evocation|illusion|necromancy|transmutation)')
+    ->where('level', '[0-9]+');
+Route::get('/game/spells/class/{classId}', [SpellController::class, 'getSpellsForClass'])
+    ->where('classId', '[0-9]+');
+Route::get('/game/spells/class/{classId}/level/{level}', [SpellController::class, 'getSpellsForClass'])
+    ->where('classId', '[0-9]+')
+    ->where('level', '[0-9]+');
+
+// dice
 Route::post('/game/dice', [DiceController::class, 'rollDice']);
