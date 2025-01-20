@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\GameSpellResource;
+use App\Http\Resources\GameSpellSchoolResource;
 use App\Models\GameSpell;
+use App\Models\GameSpellSchool;
 
 class SpellController extends Controller
 {
@@ -12,6 +14,6 @@ class SpellController extends Controller
         if (!$school)
             return GameSpellResource::collection(GameSpell::all());
 
-        //return GameSpellResource::collection(GameSpell::where('school', $school)->get());
+        return GameSpellResource::collection(GameSpellSchool::where('name', ucfirst($school))->first()->Spells);
     }
 }

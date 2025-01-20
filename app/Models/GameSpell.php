@@ -10,7 +10,7 @@ class GameSpell extends Model
     protected $table = 'game_spells';
     protected $primaryKey = 'id';
 
-    public function School(): HasOne
+    public function SpellSchool(): HasOne
     {
         return $this->hasOne(GameSpellSchool::class, 'id', 'school');
     }

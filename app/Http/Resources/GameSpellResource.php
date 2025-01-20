@@ -13,7 +13,7 @@ class GameSpellResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'level' => $this->level,
-            'school' => GameSpellSchoolResource::make($this->School),
+            'school' => GameSpellSchoolResource::make($this->SpellSchool),
             'cast_time' => $this->getParsedCastTime($this->cast_time),
             'duration' => $this->getParsedDuration($this->duration),
             'range' => $this->range,
