@@ -33,6 +33,6 @@ class SpellController extends Controller
 
         return GameSpellResource::collection(GameSpell::whereHas('CharClasses', function ($query) use ($classId) {
             $query->where('class_id', $classId);
-        })->where('level', $level)->get());
+        })->where('level', '<=', $level)->orderBy('level')->orderBy('name')->get());
     }
 }
