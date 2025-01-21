@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CharactersController;
 use App\Http\Controllers\CharBackgroundController;
 use App\Http\Controllers\CharRaceController;
 use App\Http\Controllers\DiceController;
@@ -14,6 +16,7 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:sanctum');
 
 // characters
+Route::get('/characters', [CharactersController::class, 'getUserCharacters']);
 Route::get('/characters/classes', [CharClassController::class, 'getCharacterClasses']);
 Route::get('/characters/backgrounds', [CharBackgroundController::class, 'getCharacterBackgrounds']);
 Route::get('/characters/races', [CharRaceController::class, 'getCharacterRaces']);
@@ -40,3 +43,6 @@ Route::get('/game/spells/class/{classId}/level/{level}', [SpellController::class
 
 // dice
 Route::post('/game/dice', [DiceController::class, 'rollDice']);
+
+// users
+Route::get('/users/create_temp', [AuthController::class, 'tempNewFirstUser']);
