@@ -21,6 +21,11 @@ Route::get('/characters/classes', [CharClassController::class, 'getCharacterClas
 Route::get('/characters/backgrounds', [CharBackgroundController::class, 'getCharacterBackgrounds']);
 Route::get('/characters/races', [CharRaceController::class, 'getCharacterRaces']);
 
+// names
+Route::get('/characters/name', [CharactersController::class, 'generateName']);
+Route::get('/characters/name/{nameType}', [CharactersController::class, 'generateName'])
+    ->where('nameType', '(generic|goblin|orc|ogre|dwarf|halfling|gnome|elf|fey|demon|angel)');
+
 // items
 Route::get('/game/items', [ItemController::class, 'getItems']);
 Route::get('/game/items/{itemType}', [ItemController::class, 'getItems'])
