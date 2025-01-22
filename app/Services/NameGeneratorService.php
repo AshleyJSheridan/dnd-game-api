@@ -17,7 +17,7 @@ class NameGeneratorService
         $this->buildChain($sourceNames);
     }
 
-    public function generateName(int $minLength = 3, int $maxLength = 19): string
+    public function generateName(int $minLength = 5, int $maxLength = 19): string
     {
         do {
             $key = array_rand($this->chain); // Random starting point
