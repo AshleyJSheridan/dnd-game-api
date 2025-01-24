@@ -10,6 +10,8 @@ class Character extends Model
     protected $table = 'characters';
     protected $primaryKey = 'id';
 
+    protected $fillable = ['guid', 'name', 'user_id', 'created_at', 'level'];
+
     public function CharacterClass(): HasOne
     {
         return $this->hasOne(CharClass::class, 'id', 'class_id');

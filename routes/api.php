@@ -17,6 +17,7 @@ Route::get('/user', function (Request $request) {
 
 // characters
 Route::get('/characters', [CharactersController::class, 'getUserCharacters']);
+Route::post('/characters', [CharactersController::class, 'createCharacter']);
 Route::get('/characters/classes', [CharClassController::class, 'getCharacterClasses']);
 Route::get('/characters/backgrounds', [CharBackgroundController::class, 'getCharacterBackgrounds']);
 Route::get('/characters/races', [CharRaceController::class, 'getCharacterRaces']);
