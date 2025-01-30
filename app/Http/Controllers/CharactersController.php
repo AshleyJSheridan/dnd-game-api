@@ -13,9 +13,6 @@ use Illuminate\Support\Str;
 
 class CharactersController extends Controller
 {
-    /*public function __construct(private NameGeneratorService $nameGeneratorService)
-    {}*/
-
     public function getUserCharacters()
     {
         $userId = 1; // TODO this will come from user auth/session
@@ -55,7 +52,31 @@ class CharactersController extends Controller
         } catch (\Exception $e) {
             // TODO do something here, probably means invalid JSON input
         }
+    }
 
+    public function updateCharacter(Request $request)
+    {
+        $userId = 1; // TODO this will come from user auth/session
+        
+        try {
+            $jsonData = json_decode($request->getContent());
 
+            $character = Character::where('guid', $jsonData->charGuid)->first();
+
+            switch ($jsonData->updateType)
+            {
+                case 'class':
+                    if ($character->class_id === 0)
+                    {
+                        $character->class_id = $jsonData->charClassId;
+                    }
+                    break;
+            }
+
+            $character->save();
+        } catch (\Exception $e) {
+            var_dump($e->getMessage());
+            // TODO do something here, probably means invalid JSON input
+        }
     }
 }
