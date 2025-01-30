@@ -18,10 +18,11 @@ Route::get('/user', function (Request $request) {
 // characters
 Route::get('/characters', [CharactersController::class, 'getUserCharacters']);
 Route::post('/characters', [CharactersController::class, 'createCharacter']);
-Route::patch('/characters', [CharactersController::class, 'updateCharacter']);
 Route::get('/characters/classes', [CharClassController::class, 'getCharacterClasses']);
 Route::get('/characters/backgrounds', [CharBackgroundController::class, 'getCharacterBackgrounds']);
 Route::get('/characters/races', [CharRaceController::class, 'getCharacterRaces']);
+Route::get('/characters/{guid}', [CharactersController::class, 'getCharacter']);
+Route::patch('/characters/{guid}', [CharactersController::class, 'updateCharacter']);
 
 // names
 Route::get('/characters/name', [CharactersController::class, 'generateName']);

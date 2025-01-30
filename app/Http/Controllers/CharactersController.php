@@ -54,14 +54,14 @@ class CharactersController extends Controller
         }
     }
 
-    public function updateCharacter(Request $request)
+    public function updateCharacter(string $guid, Request $request)
     {
         $userId = 1; // TODO this will come from user auth/session
-        
+
         try {
             $jsonData = json_decode($request->getContent());
 
-            $character = Character::where('guid', $jsonData->charGuid)->first();
+            $character = Character::where('guid', $guid)->first();
 
             switch ($jsonData->updateType)
             {
@@ -74,9 +74,19 @@ class CharactersController extends Controller
             }
 
             $character->save();
+
+            // retrieve character again as calculated and related values may have changed since update
+            return CharacterResource::make(Character::where('guid', $guid)->first());
         } catch (\Exception $e) {
             var_dump($e->getMessage());
             // TODO do something here, probably means invalid JSON input
         }
+    }
+
+    public function getCharacter(string $guid)
+    {
+        $userId = 1; // TODO this will come from user auth/session
+
+        return CharacterResource::make(Character::where('guid', $guid)->first());
     }
 }
