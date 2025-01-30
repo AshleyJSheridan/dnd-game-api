@@ -21,4 +21,9 @@ class Character extends Model
     {
         return $this->hasOne(CharRace::class, 'id', 'race_id');
     }
+
+    public function CharacterBackground(): HasOne
+    {
+        return $this->hasOne(CharBackground::class, 'id', 'background_id');
+    }
 }
