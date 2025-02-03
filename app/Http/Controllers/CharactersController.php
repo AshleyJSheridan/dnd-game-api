@@ -71,6 +71,11 @@ class CharactersController extends Controller
                         $character->class_id = $jsonData->charClassId;
                     }
                     break;
+                case 'background':
+                    if ($character->background_id === 0)
+                    {
+
+                    }
             }
 
             $character->save();

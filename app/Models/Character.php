@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Character extends Model
@@ -25,5 +26,10 @@ class Character extends Model
     public function CharacterBackground(): HasOne
     {
         return $this->hasOne(CharBackground::class, 'id', 'background_id');
+    }
+
+    public function CharacterBackgroundTraits(): BelongsToMany
+    {
+        return $this->belongsToMany(CharBackgroundCharacteristic::class, 'char_selected_bg_traits', 'character_id', 'characteristic_id');
     }
 }
