@@ -63,6 +63,7 @@ class CharactersController extends Controller
 
             $character = Character::where('guid', $guid)->first();
 
+            // TODO: pass this off to something else, shouldn't be doing it in the controller!
             switch ($jsonData->updateType)
             {
                 case 'class':
@@ -77,6 +78,13 @@ class CharactersController extends Controller
                         $character->background_id = $jsonData->charBackgroundId;
                         $character->CharacterBackgroundCharacteristics()->attach($jsonData->characteristics);
                     }
+                    break;
+                case 'race':
+                    if ($character->race_id === 0 && $jsonData->charRaceId)
+                    {
+                        $character->race_id = $jsonData->charRaceId;
+                    }
+                    break;
             }
 
             $character->save();
