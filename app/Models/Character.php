@@ -28,8 +28,8 @@ class Character extends Model
         return $this->hasOne(CharBackground::class, 'id', 'background_id');
     }
 
-    public function CharacterBackgroundTraits(): BelongsToMany
+    public function CharacterBackgroundCharacteristics(): BelongsToMany
     {
-        return $this->belongsToMany(CharBackgroundCharacteristic::class, 'char_selected_bg_traits', 'character_id', 'characteristic_id');
+        return $this->belongsToMany(CharBackgroundCharacteristic::class, 'char_selected_bg_characteristics', 'character_id', 'characteristic_id');
     }
 }

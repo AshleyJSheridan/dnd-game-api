@@ -66,15 +66,16 @@ class CharactersController extends Controller
             switch ($jsonData->updateType)
             {
                 case 'class':
-                    if ($character->class_id === 0)
+                    if ($character->class_id === 0 && $jsonData->charClassId)
                     {
                         $character->class_id = $jsonData->charClassId;
                     }
                     break;
                 case 'background':
-                    if ($character->background_id === 0)
+                    if ($character->background_id === 0 && $jsonData->charBackgroundId && $jsonData->characteristics)
                     {
-
+                        $character->background_id = $jsonData->charBackgroundId;
+                        $character->CharacterBackgroundCharacteristics()->attach($jsonData->characteristics);
                     }
             }
 

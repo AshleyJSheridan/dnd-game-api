@@ -14,8 +14,10 @@ class CharacterResource extends JsonResource
             'guid' => $this->guid,
             'level' => $this->level,
             'charClass' => $this->CharacterClass->name ?? '',
-            'charBackground' => $this->CharacterBackground->name ?? '',
-            'backgroundTraits' => $this->CharacterBackgroundTraits ?? [],
+            'charBackground' => [
+                'name' => $this->CharacterBackground->name ?? '',
+                'characteristics' => CharBackgroundCharacteristicResource::collection($this->CharacterBackgroundCharacteristics) ?? [],
+            ],
             'charRace' => $this->CharacterRace->name ?? '',
             'custom_portrait' => $this->whenLoaded('custom_portrait'),
             'created_at' => $this->created_at,
