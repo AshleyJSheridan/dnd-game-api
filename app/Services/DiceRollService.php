@@ -2,13 +2,15 @@
 
 namespace App\Services;
 
+use App\Models\DiceRoll;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class DiceRollService
 {
     private $availableDiceSides = [4, 6, 8, 10, 12, 20];
 
-    public function getDiceSidesFromRequest(Request $request): array
+    public function getRollsFromDiceRequest(Request $request): array
     {
         $rolls = [];
 
@@ -28,8 +30,14 @@ class DiceRollService
             // TODO do something here, probably means invalid JSON input
         }
 
-        // TODO store these rolls somewhere against a user session to prevent cheating
-        return $rolls;
+        $rollsJson = json_encode($rolls);
+        $rollsGuid = Str::uuid()->toString();
+        DiceRoll::create([
+            'roll_data' => $rollsJson,
+            'guid' => $rollsGuid,
+        ]);
+
+        return ['rolls' => $rolls, 'guid' => $rollsGuid];
     }
 
     private function roll($side, $amount): array

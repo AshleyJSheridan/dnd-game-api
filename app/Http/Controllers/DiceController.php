@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\GameDiceRollResource;
+use App\Models\Character;
 use App\Services\DiceRollService;
 use Illuminate\Http\Request;
 
@@ -13,10 +14,8 @@ class DiceController extends Controller
 
     public function rollDice(Request $request)
     {
-        $rollRequest = $this->diceRollService->getDiceSidesFromRequest($request);
+        $rollResponse = $this->diceRollService->getRollsFromDiceRequest($request);
 
-        return GameDiceRollResource::collection(collect($rollRequest));
+        return GameDiceRollResource::make($rollResponse);
     }
-
-
 }
