@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\CharacterResource;
 use App\Http\Resources\NameSuggestionsResource;
+use App\Models\CharAbility;
 use App\Models\Character;
+use App\Models\DiceRoll;
 use App\Services\NameGeneratorService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -84,6 +86,41 @@ class CharactersController extends Controller
                     {
                         $character->race_id = $jsonData->charRaceId;
                     }
+                    break;
+                case 'abilities':
+                    /*
+                     * ensure that all guids are the unique and exist
+                     * ensure all ability id's are unique and 0-5 are accounted for
+                     */
+                    // TODO tidy this all up
+                    $abilityIds = $rollGuids = [];
+                    foreach ($jsonData->abilityRolls as $roll)
+                    {
+                        $abilityIds[] = $roll->abilityId;
+                        $rollGuids[] = $roll->guid;
+                    }
+                    $abilityIds = array_unique($abilityIds);
+                    $rollGuids = array_unique($rollGuids);
+                    $storedRolls = DiceRoll::whereIn('guid', $rollGuids)->get();
+                    $abilities = CharAbility::all();
+                    $charData = [];
+
+                    if (count($abilityIds) === 6 && count($storedRolls) === 6)
+                    {
+                        foreach ($jsonData->abilityRolls as $roll)
+                        {
+                            $abilityName = CharAbility::where('id', $roll->abilityId)->pluck('short_name')->first();
+                            $rollData = json_decode($storedRolls->where('guid', $roll->guid)->pluck('roll_data')->first())->d6;
+                            rsort($rollData);
+                            array_pop($rollData);
+                            $total = array_sum($rollData);
+
+                            $charData[$abilityName] = $total;
+                        }
+
+                        $character->abilities = json_encode($charData);
+                    }
+
                     break;
             }
 
