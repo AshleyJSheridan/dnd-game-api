@@ -6,6 +6,7 @@ use App\Http\Controllers\CharBackgroundController;
 use App\Http\Controllers\CharRaceController;
 use App\Http\Controllers\DiceController;
 use App\Http\Controllers\ItemController;
+use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\SpellController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -23,6 +24,9 @@ Route::get('/characters/backgrounds', [CharBackgroundController::class, 'getChar
 Route::get('/characters/races', [CharRaceController::class, 'getCharacterRaces']);
 Route::get('/characters/{guid}', [CharactersController::class, 'getCharacter']);
 Route::patch('/characters/{guid}', [CharactersController::class, 'updateCharacter']);
+
+// languages
+Route::get('/game/languages', [LanguageController::class, 'getLanguages']);
 
 // names
 Route::get('/characters/name', [CharactersController::class, 'generateName']);
