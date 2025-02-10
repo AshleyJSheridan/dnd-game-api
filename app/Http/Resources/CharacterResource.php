@@ -35,12 +35,16 @@ class CharacterResource extends JsonResource
     private function getAvailableLanguages(): int
     {
         $classLanguageCount = count($this->CharacterClass->ClassFeatures->where('type', 'language')->where('level', '>=', $this->level));
-        $raceLanguageCount = count(CharRace::where('id', $this->CharacterRace->id)->first()->RaceLanguages);
+        $raceLanguageCount = 0;
         $raceExtraLanguageCount = 0;
-        foreach ($this->CharacterRace->RaceTraits->where('type', 'language') as $langTrait)
+        if ($this->CharacterRace)
         {
-            $details = json_decode($langTrait->ability_details);
-            $raceExtraLanguageCount += $details->languages;
+            $raceLanguageCount = count(CharRace::where('id', $this->CharacterRace->id)->first()->RaceLanguages);
+            foreach ($this->CharacterRace->RaceTraits->where('type', 'language') as $langTrait)
+            {
+                $details = json_decode($langTrait->ability_details);
+                $raceExtraLanguageCount += $details->languages;
+            }
         }
 
         return $classLanguageCount + $raceExtraLanguageCount + $raceLanguageCount;
