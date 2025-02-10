@@ -32,4 +32,9 @@ class Character extends Model
     {
         return $this->belongsToMany(CharBackgroundCharacteristic::class, 'char_selected_bg_characteristics', 'character_id', 'characteristic_id');
     }
+
+    public function Languages(): BelongsToMany
+    {
+        return $this->belongsToMany(CharLanguage::class, 'char_known_languages', 'char_id', 'language_id');
+    }
 }

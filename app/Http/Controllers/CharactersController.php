@@ -73,6 +73,7 @@ class CharactersController extends Controller
                     {
                         $character->class_id = $jsonData->charClassId;
                     }
+                    // TODO add languages for druids, thieves, and monks appropriate to level
                     break;
                 case 'background':
                     if ($character->background_id === 0 && $jsonData->charBackgroundId && $jsonData->characteristics)
@@ -86,6 +87,7 @@ class CharactersController extends Controller
                     {
                         $character->race_id = $jsonData->charRaceId;
                     }
+                    // TODO add languages applicable to each race
                     break;
                 case 'abilities':
                     /*
