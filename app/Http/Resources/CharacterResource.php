@@ -56,6 +56,9 @@ class CharacterResource extends JsonResource
 
     private function getRacialModifier(int $abilityId): int
     {
+        if(!$this->CharacterRace)
+            return 0;
+
         // local version of Maria doesn't have newer JSON_* methods, so doing this in less than ideal way
         $traits = $this->CharacterRace->RaceTraits
             ->where('type', 'ability_increase');
@@ -65,7 +68,7 @@ class CharacterResource extends JsonResource
             $ability_details = json_decode($trait->ability_details);
 
             // we only care about the first match, there shouldn't be two modifiers here for the same ability
-            if (in_array($abilityId, $ability_details->abilities))
+            if (property_exists($ability_details, 'abilities') && in_array($abilityId, $ability_details->abilities))
                 return $ability_details->increase;
         }
 
