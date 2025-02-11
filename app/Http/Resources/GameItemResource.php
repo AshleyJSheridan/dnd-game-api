@@ -20,6 +20,7 @@ class GameItemResource extends JsonResource
                 'value' => $this->cost,
                 'unit' => $this->cost_unit
             ],
+            'rarity' => $this->rarity,
             'proficiency' => $this->proficiency_id,
             'armor_props' => json_decode($this->armor_props),
             'weapon_props' => [

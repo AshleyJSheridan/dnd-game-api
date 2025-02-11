@@ -16,7 +16,7 @@ class ItemController extends Controller
         return GameItemResource::collection(GameItem::where('generated', 'no')->where('type', $itemType)->get());
     }
 
-    public function getRandomItem(string $itemType)
+    public function getRandomItem(string $itemType = 'book')
     {
         $rarity = rand(1, 100);
 
