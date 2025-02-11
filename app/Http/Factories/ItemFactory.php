@@ -2,6 +2,7 @@
 
 namespace App\Http\Factories;
 
+use App\Services\Items\WeaponItemService;
 use Illuminate\Support\Facades\App;
 use App\Services\Items\BookItemService;
 
@@ -13,6 +14,8 @@ class ItemFactory
         {
             case 'book':
                 return App::make(BookItemService::class);
+            case 'weapon':
+                return App::make(WeaponItemService::class);
         }
     }
 }

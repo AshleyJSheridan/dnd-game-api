@@ -37,7 +37,8 @@ Route::get('/characters/name/{nameType}', [CharactersController::class, 'generat
 Route::get('/game/items', [ItemController::class, 'getItems']);
 Route::get('/game/items/{itemType}', [ItemController::class, 'getItems'])
     ->where('itemType', '(armor|book|clothing|food|other|pack|potion|projectile|weapon)');
-Route::get('/game/items/book/random', [ItemController::class, 'getRandomItem']);
+Route::get('/game/items/{itemType}/random', [ItemController::class, 'getRandomItem'])
+    ->where('itemType', '(book|weapon)');
 
 // spells
 Route::get('/game/spells', [SpellController::class, 'getSpells']);
