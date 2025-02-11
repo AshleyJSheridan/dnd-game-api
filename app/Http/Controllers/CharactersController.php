@@ -92,7 +92,7 @@ class CharactersController extends Controller
                 case 'abilities':
                     /*
                      * ensure that all guids are the unique and exist
-                     * ensure all ability id's are unique and 0-5 are accounted for
+                     * ensure all ability ids are unique and 0-5 are accounted for
                      */
                     // TODO tidy this all up
                     $abilityIds = $rollGuids = [];
@@ -104,7 +104,6 @@ class CharactersController extends Controller
                     $abilityIds = array_unique($abilityIds);
                     $rollGuids = array_unique($rollGuids);
                     $storedRolls = DiceRoll::whereIn('guid', $rollGuids)->get();
-                    $abilities = CharAbility::all();
                     $charData = [];
 
                     if (count($abilityIds) === 6 && count($storedRolls) === 6)
@@ -123,6 +122,15 @@ class CharactersController extends Controller
                         $character->abilities = json_encode($charData);
                     }
 
+                    break;
+                case 'languages':
+                    $languages = $jsonData->languages;
+                    $availableCount = $character->AvailableLanguageCount() - count($character->languages);
+                    if (count($languages) > $availableCount)
+                    {
+                        $languages = array_slice($languages, 0, $availableCount);
+                    }
+                    $character->Languages()->attach($languages);
                     break;
             }
 

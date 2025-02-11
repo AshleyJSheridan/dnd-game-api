@@ -24,30 +24,12 @@ class CharacterResource extends JsonResource
             'charRace' => $this->CharacterRace->name ?? '',
             'abilities' => $this->parseAbilities($this->abilities),
             'languages' => [
-                'available' => $this->getAvailableLanguages(),
+                'available' => $this->AvailableLanguageCount(),
                 'known' => CharLanguageResource::collection($this->Languages),
             ],
             'custom_portrait' => $this->whenLoaded('custom_portrait'),
             'created_at' => $this->created_at,
         ];
-    }
-
-    private function getAvailableLanguages(): int
-    {
-        $classLanguageCount = count($this->CharacterClass->ClassFeatures->where('type', 'language')->where('level', '>=', $this->level));
-        $raceLanguageCount = 0;
-        $raceExtraLanguageCount = 0;
-        if ($this->CharacterRace)
-        {
-            $raceLanguageCount = count(CharRace::where('id', $this->CharacterRace->id)->first()->RaceLanguages);
-            foreach ($this->CharacterRace->RaceTraits->where('type', 'language') as $langTrait)
-            {
-                $details = json_decode($langTrait->ability_details);
-                $raceExtraLanguageCount += $details->languages;
-            }
-        }
-
-        return $classLanguageCount + $raceExtraLanguageCount + $raceLanguageCount;
     }
 
     private function parseAbilities($abilitiesJsonStr): Collection
