@@ -9,27 +9,111 @@ class BookItemService implements iItemService
 {
     public function getItem(int $rarity)
     {
-        $rarity = 65;
+        $rarity = 1;
 
         if ($rarity >= 1 && $rarity <= 64)
         {
             // regular book
-            var_dump('regular book');
+            $bookType = $this->getRandomBookType();
+            $bookAdjective = $this->getRandomBookAdjective();
+            $indefiniteArticle = in_array(strtolower(mb_substr($bookType, 0, 1)), ['a', 'e', 'i', 'o', 'u']) ? 'An' : 'A';
+
+            $bookTitle = $this->getRandomBookTitle($bookType, $bookAdjective);
+            $bookDescription = "$indefiniteArticle $bookType " . $this->getRandomDescription();
+
+            $book = GameItem::where('name', $bookTitle)->first();
+            if (!is_null($book))
+                return $book;
+
+            return GameItem::create([
+                'name' => $bookTitle,
+                'description' => $bookDescription,
+                'cost' => 5,
+                'cost_unit' => 'gp',
+                'type' => 'book',
+                'rarity' => 'common',
+                'generated' => 'yes',
+                'weight' => 0,
+            ]);
         }
         else
         {
-            $spellLevelRoll = rand(1, 100);
-            $scale = .3;
-            $normalized = ($spellLevelRoll - 1) / (100 - 1);
-            $expValue = 1 - pow(1 - $normalized, $scale);
-            $mappedValue = round($expValue * 9);
+            // spell scroll
+            $curvedSpellScrollLevel = $this->getSpellScrollLevel();
 
-            $item = $this->getRandomSpellScrollByLevel($mappedValue);
+            $item = $this->getRandomSpellScrollByLevel($curvedSpellScrollLevel);
         }
 
     }
 
-    private function getRandomSpellScrollByLevel(int $level)
+    private function getRandomDescription(): string
+    {
+        $descriptions = [
+            "filled with cryptic knowledge and forbidden spells.",
+            "said to drive its readers to madness.",
+            "containing the lost secrets of a forgotten civilization.",
+            "penned by an unknown sorcerer from the age of dragons.",
+            "of magical beasts and their weaknesses, written by a famed hunter.",
+            "detailing prophecies that have yet to come to pass.",
+            "infused with the power of the cosmos itself.",
+            "hidden deep within the ruins of an ancient kingdom.",
+            "detailing the rites of an order long lost to time.",
+            "filled with the names of those who have bargained with the gods.",
+            "cookbook filled with strange and unusual recipes for miniature giant space hamsters.",
+            "filled with a curious collection of humorously shaped vegetables.",
+            "full of very boring details of a subject nobody thought to write about until now."
+        ];
+
+        return $descriptions[array_rand($descriptions)];
+    }
+
+    private function getRandomBookType(): string
+    {
+        $types = [
+            "Tome", "Grimoire", "Codex", "Scroll", "Manuscript", "Volume", "Lexicon", "Compendium", "Chronicle", "Scripture",
+            "Bestiary", "Necronomicon", "Annals", "Saga", "Prophecy", "Edict", "Gospel", "Mythos", "Parchment", "Ledger",
+            "Ancient text", "Sacred text", "Legendary manuscript", "Cursed tome", "Arcane volume", "Forbidden scripture",
+            "Mysterious ledger",
+        ];
+
+        return $types[array_rand($types)];
+    }
+
+    private function getRandomBookAdjective(): string
+    {
+        $adjectives = [
+            "Ancient", "Forbidden", "Mystic", "Arcane", "Cursed", "Legendary", "Enchanted", "Lost", "Dark", "Eldritch",
+            "Hallowed", "Infernal", "Celestial", "Divine", "Chaotic", "Runed", "Secret", "Shadowed", "Hidden", "Sacred"
+        ];
+
+        return $adjectives[array_rand($adjectives)];
+    }
+
+    private function getRandomBookTitle(string $bookType, string $adjective): string
+    {
+        $themes = [
+            "of the Forgotten Realms", "of the Shadowfell", "of the Feywild", "of the Abyss", "of the Nine Hells",
+            "of the Lich King", "of the Arcane Order", "of the Lost Gods", "of the Underdark", "of the Blood Moon",
+            "of the Dragon Lords", "of the Crimson Mage", "of the Eternal Night", "of the Cursed One", "of the Eldritch Horrors",
+            "of the Astral Planes", "of the Haunted Keep", "of the Silver Sages", "of the Sunken Kingdom", "of the Rune Masters"
+        ];
+
+        $theme = $themes[array_rand($themes)];
+
+        return "$adjective $bookType $theme";
+    }
+
+    private function getSpellScrollLevel(): int
+    {
+        $spellLevelRoll = rand(1, 100);
+        $scale = .3;
+        $normalized = ($spellLevelRoll - 1) / (100 - 1);
+        $expValue = 1 - pow(1 - $normalized, $scale);
+
+        return round($expValue * 9);
+    }
+
+    private function getRandomSpellScrollByLevel(int $level): GameItem
     {
         $spell = GameSpell::where('level', $level)
             ->inRandomOrder()->first();

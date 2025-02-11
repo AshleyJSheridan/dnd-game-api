@@ -19,12 +19,7 @@ class ItemController extends Controller
     public function getRandomItem(string $itemType)
     {
         $rarity = rand(1, 100);
-        /*for ($i = 65; $i < 100; $i ++)
-        {
-            $item = ItemFactory::create($itemType)->getItem($i);
-        }*/
 
-        $item = ItemFactory::create($itemType)->getItem($rarity);
-
+        return GameItemResource::make(ItemFactory::create($itemType)->getItem($rarity));
     }
 }
