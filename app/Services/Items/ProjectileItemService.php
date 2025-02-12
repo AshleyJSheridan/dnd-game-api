@@ -4,7 +4,7 @@ namespace App\Services\Items;
 
 use App\Models\GameItem;
 
-class PotionItemService extends BaseItemService implements iItemService
+class ProjectileItemService extends BaseItemService implements iItemService
 {
     public $rarityTable = [
         '1-11' => 'common',
@@ -17,7 +17,7 @@ class PotionItemService extends BaseItemService implements iItemService
     {
         $rarityStr = $this->getRarityString($rarity, $this->rarityTable);
 
-        return GameItem::where('type', 'potion')
+        return GameItem::where('type', 'projectile')
             ->where('rarity', $rarityStr)
             ->inRandomOrder()->first();
     }
