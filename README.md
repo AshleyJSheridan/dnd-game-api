@@ -99,14 +99,22 @@ Gets a list of all items of a specific type currently in the DB. The type can be
 
 Gets a random item of the specified type. This may also return a randomly generated item of the specified type, which is added to the DB. The type should be one of:
 
-* armor
+* armor - this can accept a query param called `proficiency` that can be one of the following values used to limit the type of returned item:
+  * heavy
+  * medium
+  * light
+  * shield
 * book
 * clothing
 * food
 * other
 * potion
 * projectile
-* weapon
+* weapon - this can accept a query param called `proficiency` that can be one of the following values used to limit the type of returned item:
+  * melee (simple)
+  * melee (martial)
+  * ranged (simple)
+  * ranged (martial)
 
 ### Spells
 
