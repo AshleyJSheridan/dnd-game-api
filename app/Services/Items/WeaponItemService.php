@@ -58,6 +58,11 @@ class WeaponItemService implements iItemService
                 $weapon->rarity = 'rare';
             }
 
+            // check if weapon has already been generated and exists in DB
+            $existingWeapon = GameItem::where('type', 'weapon')->where('name', $weapon->name)->first();
+            if (!is_null($existingWeapon))
+                return $existingWeapon;
+
             // rough change to base price of weapon based on rarity
             switch ($weapon->rarity)
             {
