@@ -11,7 +11,7 @@ class ArmorItemService implements iItemService
     public function __construct(private Request $request)
     {}
 
-    public function getItem(int $rarity)
+    public function getItem(int $rarity): GameItem
     {
         $armor = $this->getBaseArmor();
 

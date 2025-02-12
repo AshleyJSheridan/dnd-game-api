@@ -12,7 +12,7 @@ class WeaponItemService implements iItemService
     public function __construct(private Request $request)
     {}
 
-    public function getItem(int $rarity)
+    public function getItem(int $rarity): GameItem
     {
         $weapon = $this->getBaseWeapon();
         $originalName = $weapon->name;
