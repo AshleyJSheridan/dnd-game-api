@@ -94,6 +94,8 @@ Gets a list of all items of a specific type currently in the DB. The type can be
 * potion
 * projectile
 * weapon
+* gemstone
+* art object
 
 #### `GET /game/items/{itemType}/random`
 
@@ -115,6 +117,8 @@ Gets a random item of the specified type. This may also return a randomly genera
   * melee (martial)
   * ranged (simple)
   * ranged (martial)
+* gemstone
+* art object
 
 ### Spells
 
