@@ -1,65 +1,166 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# DnD Yonder API
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+An API for DnD using the pre-2024 5e rules.
 
-## About Laravel
+## Installation
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+* Standard Laravel project
+* Database currently not using migrations - use latest SQL dump in `database` directory
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## API Endpoints
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### Characters
 
-## Learning Laravel
+_Endpoints here currently use a hard-coded user id of 1. This will change once auth endpoints are added._
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+#### `GET /characters`
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+Get a list of all characters for the current user.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+#### `POST /characters`
 
-## Laravel Sponsors
+Create a new character. The returned `guid` will be used to interact with this character later.
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+#### `GET /characters/classes`
 
-### Premium Partners
+Gets a list of all available classes for a player character.
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+#### `GET /characters/backgrounds`
 
-## Contributing
+Gets a list of all available backgrounds for a player character.
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+#### `GET /characters/races`
 
-## Code of Conduct
+Gets a list of all available races for a player character.
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+#### `GET /characters/{guid}`
 
-## Security Vulnerabilities
+Gets a specific character.
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+#### `PATCH /characters/{guid}`
+
+Updates details for a specific character. The body of the request should contain details required for that type of update:
+
+* `{"updateType": "class", "charClassId": class_id}` - where `class_id` is one of those returned from the `GET /characters/classes` endpoint.
+* `{"updateType": "background", "charBackgroundId": `background_id`, "characteristics": []}` - where `background_id` is one of those returned from the `GET /characters/backgrounds` endpoint, and the `characteristics` array is a list of selected characteristics appropriate to that background.
+* `{"updateType": "race", "charRaceId": race_id}` - where `race_id` is one of those returned from the `GET /characters/races` endpoint.
+* `{"updateType": "abilities", "abilityRolls": [{"abilityId": [1-6], "guid": dice_roll_guid}]}` - where all 6 abilities (1-6) have a corresponding `guid` that matches a previous dice roll request. Each guid must be unique, and should be a 4d6 roll as per character creation rules.
+* `{"updateType": "languages", "languages": []}` - where `languages` is an array of language ids. If more are given than a character has available, the list will be truncated.
+
+### Languages
+
+#### `GET /game/languages`
+
+Gets a list of all languages available for a character to know.
+
+### Names
+
+#### `GET /characters/name`
+
+Gets a list of randomly generated names for a character to use.
+
+#### `GET /characters/name/{nameType}`
+
+Gets a list of randomly generated names for a character to use based on one of the following:
+
+* angel
+* demon
+* dwarf
+* elf
+* fey
+* generic
+* gnome
+* goblin
+* halfling
+* ogre
+* orc
+
+### Items
+
+#### `GET /game/items`
+
+Gets a list of all items currently in the DB.
+
+#### `GET /game/items/{itemType}`
+
+Gets a list of all items of a specific type currently in the DB. The type can be one of:
+
+* armor
+* book
+* clothing
+* food
+* other
+* pack
+* potion
+* projectile
+* weapon
+
+#### `GET /game/items/{itemType}/random`
+
+Gets a random item of the specified type. This may also return a randomly generated item of the specified type, which is added to the DB. The type should be one of:
+
+* armor
+* book
+* clothing
+* food
+* other
+* potion
+* projectile
+* weapon
+
+### Spells
+
+#### `GET /game/spells`
+
+Gets a list of all spells.
+
+#### `GET /game/spells/level/{level}`
+
+Gets a list of all spells for a specific level 0-9, where 0 is cantrip.
+
+#### `GET /game/spells/school/{school}`
+
+Gets a list of all spells for a specific school, which should be one of:
+
+* abjuration
+* conjuration
+* divination
+* enchantment
+* evocation
+* illusion
+* necromancy
+* transmutation
+
+#### `GET /game/spells/school/{school}/level/{level}`
+
+Gets a list of all spells for a specific school and level. Level should be 0-9 (where 0 is cantrip), and school should be one of:
+
+* abjuration
+* conjuration
+* divination
+* enchantment
+* evocation
+* illusion
+* necromancy
+* transmutation
+
+#### `GET /game/spells/class/{classId}`
+
+Gets all spells for a specific class, using one of the class id values returned from `GET /characters/classes`
+
+#### `GET /game/spells/class/{classId}/level/{level}`
+
+Gets all spells of the specified level or below for a specific class, using one of the class id values returned from `GET /characters/classes`.
+
+### Dice
+
+#### `POST /game/dice`
+
+Creates rolls of the dice specified in the body of the request. A sample request for 4d6 and 2d20 would look like this:
+
+```
+{"dice": {"d6": 4, "d20": 2}}
+```
 
 ## License
 

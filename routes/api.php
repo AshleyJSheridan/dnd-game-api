@@ -43,17 +43,17 @@ Route::get('/game/items/{itemType}/random', [ItemController::class, 'getRandomIt
 // spells
 Route::get('/game/spells', [SpellController::class, 'getSpells']);
 Route::get('/game/spells/level/{level}', [SpellController::class, 'getSpells'])
-    ->where('level', '[0-9]+');
+    ->where('level', '[0-9]');
 Route::get('/game/spells/school/{school}', [SpellController::class, 'getSpellsBySchool'])
     ->where('school', '(abjuration|conjuration|divination|enchantment|evocation|illusion|necromancy|transmutation)');
 Route::get('/game/spells/school/{school}/level/{level}', [SpellController::class, 'getSpellsBySchool'])
     ->where('school', '(abjuration|conjuration|divination|enchantment|evocation|illusion|necromancy|transmutation)')
-    ->where('level', '[0-9]+');
+    ->where('level', '[0-9]');
 Route::get('/game/spells/class/{classId}', [SpellController::class, 'getSpellsForClass'])
-    ->where('classId', '[0-9]+');
+    ->where('classId', '[0-9]');
 Route::get('/game/spells/class/{classId}/level/{level}', [SpellController::class, 'getSpellsForClass'])
-    ->where('classId', '[0-9]+')
-    ->where('level', '[0-9]+');
+    ->where('classId', '[0-9]')
+    ->where('level', '[0-9]');
 
 // dice
 Route::post('/game/dice', [DiceController::class, 'rollDice']);
