@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Http\Resources\CreatureAlignment;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class GameCreature extends Model
@@ -14,5 +15,10 @@ class GameCreature extends Model
     public function Alignment(): HasOne
     {
         return $this->hasOne(CreatureAlignment::class, 'id', 'alignment');
+    }
+
+    public function Languages(): BelongsToMany
+    {
+        return $this->belongsToMany(CharLanguage::class, 'game_monster_languages', 'monster_id', 'language_id');
     }
 }

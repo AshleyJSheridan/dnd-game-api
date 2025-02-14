@@ -39,6 +39,7 @@ class CreatureResource extends JsonResource
             'skill_modifiers' => $this->skill_modifiers,
             'resistances' => json_decode($this->resistances) ?? [],
             'senses' => $this->senses,
+            'languages' => CharLanguageResource::collection($this->Languages),
         ];
     }
 
