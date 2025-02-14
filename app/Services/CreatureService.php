@@ -34,7 +34,7 @@ class CreatureService
 
     private function processTraits($traits): array
     {
-        if ($traits === '')
+        if (empty($traits))
             return [];
 
         $newTraits = [];
@@ -50,7 +50,7 @@ class CreatureService
 
     private function processSkills($skills): array
     {
-        if ($skills === '')
+        if (empty($skills))
             return [];
 
         $newSkills = [];
@@ -66,7 +66,7 @@ class CreatureService
 
     private function processAbilities($abilities): array
     {
-        if($abilities === '')
+        if(empty($abilities))
             return [];
 
         $newAbilities = [];
