@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class CharSkill extends Model
 {
-    protected $table = 'char_skills';
+    protected $table = 'game_creature_skills';
     protected $primaryKey = 'id';
 
     public function PrimaryAbility(): HasOne
