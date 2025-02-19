@@ -7,13 +7,6 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class CreatureResource extends JsonResource
 {
-    protected $foo;
-
-    public function foo($value){
-        $this->foo = $value;
-        return $this;
-    }
-
     public function toArray(Request $request): array
     {
         return [

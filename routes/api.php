@@ -6,6 +6,7 @@ use App\Http\Controllers\CharBackgroundController;
 use App\Http\Controllers\CharRaceController;
 use App\Http\Controllers\CreaturesController;
 use App\Http\Controllers\DiceController;
+use App\Http\Controllers\EncountersController;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\SpellController;
@@ -62,6 +63,9 @@ Route::post('/game/dice', [DiceController::class, 'rollDice']);
 // creatures
 Route::get('/creatures/{creatureType}', [CreaturesController::class, 'getCreatures'])
     ->where('creatureType', '(aberration|beast|celestial|construct|demon|devil|dragon|elemental|fey|giant|humanoid|monstrosity|ooze|plant|undead)');
+
+// encounters
+Route::post('/creatures/encounter/', [EncountersController::class, 'createEncounter']);
 
 // users
 Route::get('/users/create_temp', [AuthController::class, 'tempNewFirstUser']);
