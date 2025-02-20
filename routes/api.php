@@ -33,7 +33,7 @@ Route::get('/game/languages', [LanguageController::class, 'getLanguages']);
 // names
 Route::get('/characters/name', [CharactersController::class, 'generateName']);
 Route::get('/characters/name/{nameType}', [CharactersController::class, 'generateName'])
-    ->where('nameType', '(generic|goblin|orc|ogre|dwarf|halfling|gnome|elf|fey|demon|angel)');
+    ->where('nameType', '(generic|goblin|orc|ogre|dwarf|halfling|gnome|elf|fey|demon|angel|human|tiefling)');
 
 // items
 Route::get('/game/items', [ItemController::class, 'getItems']);
