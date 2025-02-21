@@ -35,7 +35,7 @@ class CharClass extends Model
     public function ArmourProficiencies(): BelongsToMany
     {
         return $this->belongsToMany(CharProficiency::class, 'char_class_proficiencies', 'char_class_id', 'char_proficiency_id')
-            ->where('type', 'Armour');
+            ->where('type', 'Armor');
     }
 
     public function WeaponProficiencies(): BelongsToMany
