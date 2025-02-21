@@ -51,7 +51,7 @@ class CharClass extends Model
 
     public function ClassFeatures(): BelongsToMany
     {
-        return $this->belongsToMany(CharFeature::class, 'char_class_features', 'char_class_id', 'char_feature_id');
+        return $this->belongsToMany(CharFeature::class, 'char_class_features', 'char_class_id', 'char_feature_id')->orderBy('level');
     }
 
     public function StartingEquipmentPacks(): HasMany
