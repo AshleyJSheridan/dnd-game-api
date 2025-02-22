@@ -2,7 +2,6 @@
 
 namespace App\Http\Resources;
 
-use App\Models\CharAbility;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -22,6 +21,11 @@ class CharClassResource extends JsonResource
             'weapon_proficiencies' => CharProficiencyResource::collection($this->WeaponProficiencies),
             'tool_proficiencies' => CharToolOptionsProficiencyResource::make($this),
             'class_features' => CharFeatureResource::collection($this->ClassFeatures),
+            'path' => [
+                'class_path_name' => $this->path_name,
+                'level' => $this->path_level,
+                'paths' => CharClassPathResource::collection($this->Paths),
+            ],
             'starting_equipment' => CharStarterPackResource::collection($this->StartingEquipmentPacks),
         ];
     }

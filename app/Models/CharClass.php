@@ -58,4 +58,9 @@ class CharClass extends Model
     {
         return $this->hasMany(ItemStarterPack::class, 'char_class_id', 'id');
     }
+
+    public function Paths(): HasMany
+    {
+        return $this->hasMany(CharClassPath::class, 'class_id', 'id');
+    }
 }
