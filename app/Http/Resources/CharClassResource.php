@@ -22,7 +22,8 @@ class CharClassResource extends JsonResource
             'tool_proficiencies' => CharToolOptionsProficiencyResource::make($this),
             'class_features' => CharFeatureResource::collection($this->ClassFeatures),
             'path' => [
-                'class_path_name' => $this->path_name,
+                'name' => $this->path_name,
+                'description' => $this->path_description,
                 'level' => $this->path_level,
                 'paths' => CharClassPathResource::collection($this->Paths),
             ],
