@@ -7,6 +7,7 @@ use App\Http\Resources\NameSuggestionsResource;
 use App\Models\CharAbility;
 use App\Models\Character;
 use App\Models\DiceRoll;
+use App\Services\MagicService;
 use App\Services\NameGeneratorService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -15,6 +16,9 @@ use Illuminate\Support\Str;
 
 class CharactersController extends Controller
 {
+    public function __construct(private MagicService $magicService)
+    {}
+
     public function getUserCharacters()
     {
         $userId = 1; // TODO this will come from user auth/session
@@ -154,5 +158,16 @@ class CharactersController extends Controller
         $userId = 1; // TODO this will come from user auth/session
 
         return CharacterResource::make(Character::where('guid', $guid)->first());
+    }
+
+    public function getCharacterAvailableSpells(string $guid)
+    {
+        $userId = 1; // TODO this will come from user auth/session
+
+        $character = Character::where('guid', $guid)->first();
+
+        $availableSpells = $this->magicService->getAvailableSpells($character);
+
+        return $availableSpells;
     }
 }

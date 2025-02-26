@@ -17,6 +17,7 @@ class CharacterResource extends JsonResource
             'guid' => $this->guid,
             'level' => $this->level,
             'charClass' => $this->CharacterClass->name ?? '',
+            'class_path_available' => $this->level >= $this->CharacterClass->path_level,
             'charBackground' => [
                 'name' => $this->CharacterBackground->name ?? '',
                 'characteristics' => CharBackgroundCharacteristicResource::collection($this->CharacterBackgroundCharacteristics) ?? [],
@@ -26,6 +27,10 @@ class CharacterResource extends JsonResource
             'languages' => [
                 'available' => $this->AvailableLanguageCount(),
                 'known' => CharLanguageResource::collection($this->Languages),
+            ],
+            'magic' => [
+                'hasMagic' => $this->HasMagic(),
+                'spells' => GameSpellResource::collection($this->Spells),
             ],
             'custom_portrait' => $this->whenLoaded('custom_portrait'),
             'created_at' => $this->created_at,

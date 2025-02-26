@@ -33,6 +33,11 @@ class Character extends Model
         return $this->belongsToMany(CharBackgroundCharacteristic::class, 'char_selected_bg_characteristics', 'character_id', 'characteristic_id');
     }
 
+    public function Spells(): BelongsToMany
+    {
+        return $this->belongsToMany(GameSpell::class, 'char_known_spells', 'char_id', 'spell_id');
+    }
+
     public function Languages(): BelongsToMany
     {
         return $this->belongsToMany(CharLanguage::class, 'char_known_languages', 'char_id', 'language_id');
@@ -40,19 +45,30 @@ class Character extends Model
 
     public function AvailableLanguageCount(): int
     {
-        $classLanguageCount = count($this->CharacterClass->ClassFeatures->where('type', 'language')->where('level', '>=', $this->level));
+        $classLanguageCount = $this->CharacterClass ?
+            count($this->CharacterClass->ClassFeatures->where('type', 'language')->where('level', '>=', $this->level)) : 0;
         $raceLanguageCount = 0;
         $raceExtraLanguageCount = 0;
         if ($this->CharacterRace)
         {
             $raceLanguageCount = count(CharRace::where('id', $this->CharacterRace->id)->first()->RaceLanguages);
-            foreach ($this->CharacterRace->RaceTraits->where('type', 'language') as $langTrait)
-            {
+            foreach ($this->CharacterRace->RaceTraits->where('type', 'language') as $langTrait) {
                 $details = json_decode($langTrait->ability_details);
                 $raceExtraLanguageCount += $details->languages;
             }
         }
 
         return $classLanguageCount + $raceExtraLanguageCount + $raceLanguageCount;
+    }
+
+    public function HasMagic(): bool
+    {
+        $classMagicCount = $this->CharacterClass ?
+            count($this->CharacterClass->ClassFeatures->where('type', 'magic')->where('level', '>=', $this->level)) : 0;
+        $raceSpellCount = $this->CharacterRace ? count($this->CharacterRace->RaceTraits->where('type', 'spell')) : 0;
+
+        // TODO add checks for feats when those are implemented
+
+        return ($classMagicCount + $raceSpellCount) > 0;
     }
 }

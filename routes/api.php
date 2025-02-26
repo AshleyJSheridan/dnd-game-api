@@ -26,6 +26,7 @@ Route::get('/characters/backgrounds', [CharBackgroundController::class, 'getChar
 Route::get('/characters/races', [CharRaceController::class, 'getCharacterRaces']);
 Route::get('/characters/{guid}', [CharactersController::class, 'getCharacter']);
 Route::patch('/characters/{guid}', [CharactersController::class, 'updateCharacter']);
+Route::get('/characters/{guid}/spells/available', [CharactersController::class, 'getCharacterAvailableSpells']);
 
 // languages
 Route::get('/game/languages', [LanguageController::class, 'getLanguages']);
