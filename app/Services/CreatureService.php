@@ -2,11 +2,9 @@
 
 namespace App\Services;
 
-use App\Http\Resources\CreatureResource;
 use App\Models\CharAbility;
 use App\Models\CharSkill;
 use App\Models\CharTrait;
-use App\Models\CreatureLookup;
 use App\Models\GameCreature;
 use Illuminate\Database\Eloquent\Collection;
 
