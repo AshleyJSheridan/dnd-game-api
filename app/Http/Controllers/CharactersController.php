@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\AvailableSpellsResource;
 use App\Http\Resources\CharacterResource;
 use App\Http\Resources\NameSuggestionsResource;
 use App\Models\CharAbility;
@@ -168,6 +169,6 @@ class CharactersController extends Controller
 
         $availableSpells = $this->magicService->getAvailableSpells($character);
 
-        return $availableSpells;
+        return AvailableSpellsResource::make(collect($availableSpells));
     }
 }
