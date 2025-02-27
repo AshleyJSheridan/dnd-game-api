@@ -6,17 +6,22 @@ use App\Models\Character;
 use App\Models\CharClassSpellSlots;
 use App\Models\CharRace;
 use App\Models\GameSpell;
+use phpDocumentor\Reflection\Types\Collection;
 
 class MagicService
 {
-    public function getAvailableSpells(Character $character)
+    public function getAvailableSpells(Character $character): array
     {
         $raceSpells = $this->getAvailableSpellsForRace($character->race_id);
         $classSpells = $this->getAvailableSpellsForClass($character->class_id, $character->level);
         // TODO add in class path spells based on selected character class path
 
         $availableSpells = $classSpells;
-        $availableSpells['spells']->merge($raceSpells['spells']);
+        if (!empty($availableSpells['spells']) && !empty($raceSpells['spells']))
+        {
+            $availableSpells['spells']->merge($raceSpells['spells']);
+        }
+
         foreach ($raceSpells as $key => $value)
         {
             if (strstr($key, 'level') !== false)
@@ -28,7 +33,7 @@ class MagicService
         return $availableSpells;
     }
 
-    private function getAvailableSpellsForRace(int $raceId)
+    private function getAvailableSpellsForRace(int $raceId): array
     {
         $spellTraits = CharRace::where('id', $raceId)->first()->RaceTraits->where('type', 'spell') ?? null;
 
@@ -59,15 +64,15 @@ class MagicService
             }
         }
 
-        return null;
+        return [];
     }
-
-    private function getAvailableSpellsForClass(int $classId, int $level)
+    
+    private function getAvailableSpellsForClass(int $classId, int $level): array
     {
         $slots = CharClassSpellSlots::where('class_id', $classId)->where('char_level', $level)->first();
 
         if (!$slots)
-            return null;
+            return [];
 
         // get highest level of spells available
         $highestSpellLevel = 0;

@@ -30,7 +30,8 @@ class CharacterResource extends JsonResource
             ],
             'magic' => [
                 'hasMagic' => $this->HasMagic(),
-                'spells' => GameSpellResource::collection($this->Spells),
+                'learned_spells' => GameSpellResource::collection($this->Spells),
+                'other_known_spells' => GameSpellResource::collection($this->getOtherKnownSpells()),
             ],
             'custom_portrait' => $this->whenLoaded('custom_portrait'),
             'created_at' => $this->created_at,

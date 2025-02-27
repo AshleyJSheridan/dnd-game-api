@@ -71,4 +71,38 @@ class Character extends Model
 
         return ($classMagicCount + $raceSpellCount) > 0;
     }
+
+    public function getOtherKnownSpells()
+    {
+        // TODO figure out how to give user the choice of the various class path spells, etc
+        /*$classSpells = $this->CharacterClass ?
+            $this->CharacterClass->ClassFeatures->where('type', 'magic')->where('level', '>=', $this->level) :
+            collect([]);*/
+        $raceSpellDetails = $this->CharacterRace ?
+            $this->CharacterRace->RaceTraits->where('type', 'spell') :
+            collect([]);
+
+        $raceSpells = collect([]);
+        if ($raceSpellDetails)
+        {
+            $spellIds = [];
+            foreach ($raceSpellDetails as $details)
+            {
+                $detailsJson = json_decode($details->ability_details);
+                if (property_exists($detailsJson, 'spells'))
+                {
+                    $spellIds = array_merge($spellIds, $detailsJson->spells);
+                }
+            }
+
+            if (count($spellIds))
+            {
+                $raceSpells = GameSpell::whereIn('id', $spellIds)->get();
+            }
+        }
+
+        // TODO add checks for feats when those are implemented
+
+        return $raceSpells;
+    }
 }
