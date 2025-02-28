@@ -10,6 +10,21 @@ use phpDocumentor\Reflection\Types\Collection;
 
 class MagicService
 {
+    public function getAvailableSpellsTotal(Character $character): int {
+        $spells = $this->getAvailableSpells($character);
+
+        $count = 0;
+        for ($i = 0; $i < 10; $i ++)
+        {
+            if (isset($spells["level_$i"]))
+            {
+                $count += $spells["level_$i"];
+            }
+        }
+
+        return $count;
+    }
+
     public function getAvailableSpells(Character $character): array
     {
         $raceSpells = $this->getAvailableSpellsForRace($character->race_id);

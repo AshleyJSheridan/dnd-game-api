@@ -142,6 +142,16 @@ class CharactersController extends Controller
                     }
                     $character->Languages()->attach($languages);
                     break;
+                case 'spells':
+                    $spellIds = $jsonData->spells;
+                    $availableCount = $this->magicService->getAvailableSpellsTotal($character);
+                    if (count($spellIds) > $availableCount)
+                    {
+                        $spellIds = array_slice($spellIds, 0, $availableCount);
+                    }
+                    $character->Spells()->sync($spellIds);
+
+                    break;
             }
 
             $character->save();
