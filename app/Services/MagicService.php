@@ -66,7 +66,7 @@ class MagicService
 
         return [];
     }
-    
+
     private function getAvailableSpellsForClass(int $classId, int $level): array
     {
         $slots = CharClassSpellSlots::where('class_id', $classId)->where('char_level', $level)->first();
