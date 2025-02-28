@@ -140,7 +140,7 @@ class CharactersController extends Controller
                     {
                         $languages = array_slice($languages, 0, $availableCount);
                     }
-                    $character->Languages()->attach($languages);
+                    $character->Languages()->sync($languages);
                     break;
                 case 'spells':
                     $spellIds = $jsonData->spells;
