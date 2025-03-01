@@ -9,6 +9,7 @@ use App\Http\Controllers\DiceController;
 use App\Http\Controllers\EncountersController;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\LanguageController;
+use App\Http\Controllers\LocationController;
 use App\Http\Controllers\SpellController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -67,6 +68,12 @@ Route::get('/creatures/{creatureType}', [CreaturesController::class, 'getCreatur
 
 // encounters
 Route::post('/creatures/encounter/', [EncountersController::class, 'createEncounter']);
+
+// locations
+Route::any('/location/create/{type}', [LocationController::class, 'generateLocation'])
+    ->where('type', '(tavern)');
+Route::get('/location/{guid}/map', [LocationController::class, 'getMap']);
+Route::get('/location/{guid}/map/{floor}', [LocationController::class, 'getMap']);
 
 // users
 Route::get('/users/create_temp', [AuthController::class, 'tempNewFirstUser']);
