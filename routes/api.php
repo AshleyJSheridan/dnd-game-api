@@ -11,6 +11,7 @@ use App\Http\Controllers\ItemController;
 use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\SpellController;
+use App\Http\Middleware\JwtMiddleware;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CharClassController;
@@ -76,4 +77,9 @@ Route::get('/location/{guid}/map', [LocationController::class, 'getMap']);
 Route::get('/location/{guid}/map/{floor}', [LocationController::class, 'getMap']);
 
 // users
-Route::get('/users/create_temp', [AuthController::class, 'tempNewFirstUser']);
+Route::post('users/register', [AuthController::class, 'register']);
+Route::post('users/login', [AuthController::class, 'login']);
+Route::middleware([JwtMiddleware::class])->group(function () {
+    Route::get('users/user', [AuthController::class, 'getUser']);
+    Route::post('users/logout', [AuthController::class, 'logout']);
+});

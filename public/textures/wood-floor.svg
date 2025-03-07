@@ -26,7 +26,7 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="1.2063739"
-     inkscape:cx="430.52437"
+     inkscape:cx="294.16532"
      inkscape:cy="415.31028"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
@@ -58,7 +58,8 @@
      id="layer1"
      transform="translate(3.8090415,-44.795284)">
     <g
-       id="g913">
+       id="g913"
+       transform="rotate(90,106.61957,155.20755)">
       <path
          style="fill:#a27147;stroke-width:0.35277781"
          d="M -3.8090415,155.21473 V 44.795284 H 106.61041 217.02986 V 155.21473 265.63418 H 106.61041 -3.8090415 Z"
