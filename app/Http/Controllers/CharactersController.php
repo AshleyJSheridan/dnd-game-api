@@ -8,26 +8,39 @@ use App\Http\Resources\NameSuggestionsResource;
 use App\Models\CharAbility;
 use App\Models\Character;
 use App\Models\DiceRoll;
+use App\Models\User;
 use App\Services\MagicService;
 use App\Services\NameGeneratorService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Str;
+use Tymon\JWTAuth\Exceptions\JWTException;
+use Tymon\JWTAuth\Facades\JWTAuth;
+use Illuminate\Http\Response;
 
 class CharactersController extends Controller
 {
+    private User $user;
+
     public function __construct(private MagicService $magicService)
-    {}
+    {
+        try {
+            if (! $this->user = JWTAuth::parseToken()->authenticate())
+                return response()->json(['error' => 'User not found'], Response::HTTP_NOT_FOUND);
+        } catch (JWTException $e) {
+            return response()->json(['error' => 'Invalid token'], Response::HTTP_BAD_REQUEST);
+        }
+    }
 
     public function getUserCharacters()
     {
-        $userId = 1; // TODO this will come from user auth/session
-        return CharacterResource::collection(Character::where('user_id', $userId)->get());
+        return CharacterResource::collection(Character::where('user_id', $this->user->id)->get());
     }
 
     public function generateName(string $nameType = 'generic')
     {
+        // TODO move this out to its own controller
         $numberOfNames = 6;
         $nameGeneratorService = App::make(NameGeneratorService::class, ['nameType' => $nameType]);
 
@@ -42,33 +55,29 @@ class CharactersController extends Controller
 
     public function createCharacter(Request $request)
     {
-        $userId = 1; // TODO this will come from user auth/session
-
         try {
             $jsonData = json_decode($request->getContent());
 
             $character = Character::create([
                 'guid' => Str::uuid()->toString(),
                 'name' => $jsonData->charName,
-                'user_id' => $userId,
+                'user_id' => $this->user->id,
                 'created_at' => Carbon::now(),
                 'level' => $jsonData->charLevel,
             ]);
 
             return CharacterResource::make($character);
         } catch (\Exception $e) {
-            // TODO do something here, probably means invalid JSON input
+            return response()->json(['error' => 'Bad Request'], Response::HTTP_BAD_REQUEST);
         }
     }
 
     public function updateCharacter(string $guid, Request $request)
     {
-        $userId = 1; // TODO this will come from user auth/session
-
         try {
             $jsonData = json_decode($request->getContent());
 
-            $character = Character::where('guid', $guid)->first();
+            $character = Character::where('guid', $guid)->where('user_id', $this->user->id)->first();
 
             // TODO: pass this off to something else, shouldn't be doing it in the controller!
             switch ($jsonData->updateType)
@@ -157,25 +166,20 @@ class CharactersController extends Controller
             $character->save();
 
             // retrieve character again as calculated and related values may have changed since update
-            return CharacterResource::make(Character::where('guid', $guid)->first());
+            return CharacterResource::make(Character::where('guid', $guid)->where('user_id', $this->user->id)->first());
         } catch (\Exception $e) {
-            var_dump($e->getMessage());
-            // TODO do something here, probably means invalid JSON input
+            return response()->json(['error' => 'Bad Request'], Response::HTTP_BAD_REQUEST);
         }
     }
 
     public function getCharacter(string $guid)
     {
-        $userId = 1; // TODO this will come from user auth/session
-
-        return CharacterResource::make(Character::where('guid', $guid)->first());
+        return CharacterResource::make(Character::where('guid', $guid)->where('user_id', $this->user->id)->first());
     }
 
     public function getCharacterAvailableSpells(string $guid)
     {
-        $userId = 1; // TODO this will come from user auth/session
-
-        $character = Character::where('guid', $guid)->first();
+        $character = Character::where('guid', $guid)->where('user_id', $this->user->id)->first();
 
         $availableSpells = $this->magicService->getAvailableSpells($character);
 

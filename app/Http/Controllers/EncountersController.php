@@ -5,23 +5,37 @@ namespace App\Http\Controllers;
 use App\Http\Resources\CreatureResource;
 use App\Models\Character;
 use App\Models\GameCreature;
+use App\Models\User;
 use App\Services\CreatureService;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Tymon\JWTAuth\Exceptions\JWTException;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class EncountersController extends Controller
 {
+    private User $user;
+
     public function __construct(private CreatureService $creatureService)
-    {}
+    {
+        try {
+            if (! $this->user = JWTAuth::parseToken()->authenticate())
+                return response()->json(['error' => 'User not found'], Response::HTTP_NOT_FOUND);
+        } catch (JWTException $e) {
+            return response()->json(['error' => 'Invalid token'], Response::HTTP_BAD_REQUEST);
+        }
+    }
 
     public function createEncounter(Request $request)
     {
-        $userId = 1; // TODO this will come from user auth/session
-
         try {
             $jsonData = json_decode($request->getContent());
 
+            if (is_null($jsonData) || empty($jsonData->characters))
+                return response()->json(['error' => 'No characters specified'], Response::HTTP_BAD_REQUEST);
+
             // TODO better validation on these inputs
-            $charLevels = Character::whereIn('guid', $jsonData->characters)->pluck('level')->toArray();
+            $charLevels = Character::whereIn('guid', $jsonData->characters)->where('user_id', $this->user->id)->pluck('level')->toArray();
             $difficulty = $jsonData->difficulty ?? 1;
             $environment = $jsonData->environment ?? 'forest';
 
