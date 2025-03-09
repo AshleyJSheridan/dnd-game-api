@@ -1,0 +1,968 @@
+{
+	"info": {
+		"_postman_id": "ab68f8a5-d2be-4b26-925c-45d842579af8",
+		"name": "dnd-game-api",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "42942076"
+	},
+	"item": [
+		{
+			"name": "Users",
+			"item": [
+				{
+					"name": "login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);\r",
+									"postman.setEnvironmentVariable(\"token\", jsonData.token);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "email",
+									"value": "{{email}}",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "{{password}}",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{domain}}/api/user/login",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"user",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get user",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "{{domain}}/api/user",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"user"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "register",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "name",
+									"value": "some name",
+									"type": "text"
+								},
+								{
+									"key": "email",
+									"value": "user@example.com",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "Hunter2",
+									"type": "text"
+								},
+								{
+									"key": "password_confirmation",
+									"value": "Hunter2",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{domain}}/api/user/register",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"user",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "logout",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{domain}}/api/user/logout",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"user",
+								"logout"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Characters",
+			"item": [
+				{
+					"name": "get characters",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "{{domain}}/api/characters",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"characters"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get classes",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "{{domain}}/api/characters/classes",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"characters",
+								"classes"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get races",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "{{domain}}/api/characters/races",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"characters",
+								"races"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get backgrounds",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "{{domain}}/api/characters/backgrounds",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"characters",
+								"backgrounds"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get character",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "{{domain}}/api/characters/{{guid}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"characters",
+								"{{guid}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get spells available",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "{{domain}}/api/characters/{{guid}}/spells/available",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"characters",
+								"{{guid}}",
+								"spells",
+								"available"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "create character",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"name\":\"Some heroic name\",\"level\":1}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{domain}}/api/characters/",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"characters",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update character",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"updateType\":\"background\",\"charBackgroundId\":7,\"characteristics\":[216,219,230,235,237]}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{domain}}/api/characters/{{guid}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"characters",
+								"{{guid}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Languages",
+			"item": [
+				{
+					"name": "get languages",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "{{domain}}/api/game/languages",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"game",
+								"languages"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Names",
+			"item": [
+				{
+					"name": "get random names",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "{{domain}}/api/names",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"names"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get random names for race",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "{{domain}}/api/names/{{nameType}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"names",
+								"{{nameType}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Items",
+			"item": [
+				{
+					"name": "get items",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "{{domain}}/api/game/items",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"game",
+								"items"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get items by type",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "{{domain}}/api/game/items/{{itemType}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"game",
+								"items",
+								"{{itemType}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get random item by type",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "{{domain}}/api/game/items/{{itemType}}/random",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"game",
+								"items",
+								"{{itemType}}",
+								"random"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Spells",
+			"item": [
+				{
+					"name": "get spells by level",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "{{domain}}/api/game/spells/level/{{level}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"game",
+								"spells",
+								"level",
+								"{{level}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get spells",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "{{domain}}/api/game/spells",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"game",
+								"spells"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get spells by school",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "{{domain}}/api/game/spells/school/{{school}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"game",
+								"spells",
+								"school",
+								"{{school}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get spells by character class",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "{{domain}}/api/game/spells/class/{{classId}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"game",
+								"spells",
+								"class",
+								"{{classId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get spells by character class and level",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "{{domain}}/api/game/spells/class/{{classId}}/level/{{level}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"game",
+								"spells",
+								"class",
+								"{{classId}}",
+								"level",
+								"{{level}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get spells by school and level",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "{{domain}}/api/game/spells/school/{{school}}/level/{{level}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"game",
+								"spells",
+								"school",
+								"{{school}}",
+								"level",
+								"{{level}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Creatures",
+			"item": [
+				{
+					"name": "get creatures by type",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "{{domain}}/api/creatures/{{creatureType}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"creatures",
+								"{{creatureType}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Dice",
+			"item": [
+				{
+					"name": "New Request",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"dice\":{\"d6\":4,\"d20\":2}}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{domain}}/api/game/dice",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"game",
+								"dice"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Encounters",
+			"item": [
+				{
+					"name": "create encounter",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"characters\":[\"abcd-efab-cdef-abcd-efab\",\"0123-4567-8910-1112\"]}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{domain}}/api/encounters",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"encounters"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
