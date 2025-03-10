@@ -24,16 +24,28 @@
                     <h3 class="section-heading">About the API</h3>
                     <ul class="about-api">
                         <li class="about-about">
-                            <strong><a href="#section-about">About the API</a></strong>
+                            <a href="#section-about">
+                                @include('components.icons.icon-about')
+                                <strong>About the API</strong>
+                            </a>
                         </li>
                         <li class="about-getting-started">
-                            <strong><a href="#section-getting-started">Getting Started</a></strong>
+                            <a href="#section-getting-started">
+                                @include('components.icons.icon-getting-started')
+                                <strong>Getting Started</strong>
+                            </a>
                         </li>
                         <li class="about-documentation">
-                            <strong><a href="#section-documentation">API Documentation</a></strong>
+                            <a href="#section-documentation">
+                                @include('components.icons.icon-documentation')
+                                <strong>API Documentation</strong>
+                            </a>
                         </li>
                         <li class="about-troubleshooting">
-                            <strong><a href="#section-troubleshooting">Troubleshooting</a></strong>
+                            <a href="#section-troubleshooting">
+                                @include('components.icons.icon-troubleshooting')
+                                <strong>Troubleshooting</strong>
+                            </a>
                         </li>
                     </ul>
                 </section>

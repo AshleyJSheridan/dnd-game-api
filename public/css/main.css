@@ -69,12 +69,55 @@ section {
 
         strong {
             display: block;
-            text-align: center;
         }
+
+        svg {
+            height: 3rem;
+            margin-bottom: .5rem;
+            width: auto;
+        }
+    }
+
+    li.about-about svg {
+        filter: drop-shadow(rgb(255, 255, 255) 0 0 2px) drop-shadow(rgb(119, 0, 255) 0 0 4px) drop-shadow(rgb(119, 0, 255) 0 0 5px);
+    }
+
+    li.about-about a:hover svg {
+        filter: drop-shadow(rgb(255, 255, 255) 0 0 4px) drop-shadow(rgb(119, 0, 255) 0 0 6px) drop-shadow(rgb(119, 0, 255) 0 0 7px);
+    }
+
+    li.about-getting-started svg {
+        filter: drop-shadow(rgb(255, 255, 255) 0 0 2px) drop-shadow(rgb(0, 126, 38) 0 0 4px) drop-shadow(rgb(0, 126, 38) 0 0 5px);
+    }
+
+    li.about-getting-started a:hover svg {
+        filter: drop-shadow(rgb(255, 255, 255) 0 0 4px) drop-shadow(rgb(0, 126, 38) 0 0 6px) drop-shadow(rgb(0, 126, 38) 0 0 7px);
+    }
+
+    li.about-documentation svg {
+        filter: drop-shadow(rgb(255, 255, 255) 0 0 2px) drop-shadow(rgb(185, 70, 185) 0 0 4px) drop-shadow(rgb(185, 70, 185) 0 0 5px);
+    }
+
+    li.about-documentation a:hover svg {
+        filter: drop-shadow(rgb(255, 255, 255) 0 0 4px) drop-shadow(rgb(185, 70, 185) 0 0 6px) drop-shadow(rgb(185, 70, 185) 0 0 7px);
+    }
+
+    li.about-troubleshooting svg {
+        filter: drop-shadow(rgb(255, 255, 255) 0 0 2px) drop-shadow(rgb(241, 129, 0) 0 0 4px) drop-shadow(rgb(241, 129, 0) 0 0 5px);
+    }
+
+    li.about-troubleshooting a:hover svg {
+        filter: drop-shadow(rgb(255, 255, 255) 0 0 4px) drop-shadow(rgb(241, 129, 0) 0 0 6px) drop-shadow(rgb(241, 129, 0) 0 0 7px);
     }
 
     a {
         color: #fff;
+        display: block;
+        fill: #fff;
+        padding: .5rem;
+        stroke: #fff;
+        text-align: center;
+        text-decoration: none;
     }
 }
 
