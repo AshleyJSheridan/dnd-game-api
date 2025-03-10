@@ -140,6 +140,18 @@
     "message": "Successfully logged out"
 }</code>
                             </li>
+                            <li class="endpoint">
+                                <code class="delete">DELETE</code> <code>/api/user</code>
+                                <p>Delete user</p>
+                                <p>Header Params</p>
+                                <ul>
+                                    <li><code>Authorization: Bearer &lt;token&gt;</code></li>
+                                </ul>
+                                <p>Response</p>
+<code class="block">{
+    "message": "Account successfully deleted. Sorry to see you go, good luck on your adventures."
+}</code>
+                            </li>
                         </ul>
                     </details>
 

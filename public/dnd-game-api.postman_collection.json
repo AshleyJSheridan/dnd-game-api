@@ -161,6 +161,30 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "delete user",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{domain}}/api/user",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"user"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},
@@ -942,7 +966,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\"characters\":[\"abcd-efab-cdef-abcd-efab\",\"0123-4567-8910-1112\"]}",
+							"raw": "{\"characters\":[\"abcd-efab-cdef-abcd-efab\",\"0123-4567-8910-1112\"],\"environment\":\"underdark\"}",
 							"options": {
 								"raw": {
 									"language": "json"
