@@ -69,4 +69,26 @@ class AuthController extends Controller
 
         return response()->json(['message' => 'Successfully logged out']);
     }
+
+    public function deleteUser()
+    {
+        try {
+            if (! $user = JWTAuth::parseToken()->authenticate())
+                return response()->json(['error' => 'User not found'], Response::HTTP_NOT_FOUND);
+
+            $localPart = substr($user->email, 0, strrpos($user->email, '@'));
+            $domainPart = substr($user->email, strrpos($user->email, '@') - 1);
+
+            // write over their email address destructively, allows character data to be preserved without any identifying info
+            $user->email = md5($localPart) . $domainPart;
+            $user->save();
+
+            // invalidate the session
+            JWTAuth::invalidate(JWTAuth::getToken());
+
+            return response()->json(['message' => 'Account successfully deleted. Sorry to see you go, good luck on your adventures.']);
+        } catch (JWTException $e) {
+            return response()->json(['error' => 'Invalid token'], Response::HTTP_BAD_REQUEST);
+        }
+    }
 }

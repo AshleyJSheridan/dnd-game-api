@@ -23,6 +23,7 @@ Route::middleware([JwtMiddleware::class])->group(function () {
     // users
     Route::get('user', [AuthController::class, 'getUser']);
     Route::post('user/logout', [AuthController::class, 'logout']);
+    Route::delete('user', [AuthController::class, 'deleteUser']);
 
     // characters
     Route::get('/characters', [CharactersController::class, 'getUserCharacters']);
