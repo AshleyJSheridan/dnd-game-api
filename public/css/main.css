@@ -156,3 +156,14 @@ code.block {
     padding: .5rem;
     white-space: pre;
 }
+
+footer {
+    background-color: #333;
+    color: #fff;
+    margin-top: 2rem;
+    padding: 1rem;
+
+    a {
+        color: #fff;
+    }
+}

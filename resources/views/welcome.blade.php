@@ -630,7 +630,7 @@
                 </section>
             </main>
             <footer>
-
+                <a href="/privacy">Privacy Policy</a>
             </footer>
         </div>
     </body>
