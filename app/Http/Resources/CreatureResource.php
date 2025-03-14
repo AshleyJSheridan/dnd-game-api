@@ -10,7 +10,8 @@ class CreatureResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id' => $this->id,
+            //'id' => $this->id,
+            'guid' => $this->when(!is_null($this->guid), $this->guid),
             'name' => $this->name,
             'description' => $this->description,
             'size' => $this->size,

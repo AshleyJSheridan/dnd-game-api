@@ -74,8 +74,7 @@ Route::middleware([JwtMiddleware::class])->group(function () {
 
     // encounters
     Route::post('/encounters/', [EncountersController::class, 'createEncounter']);
-
-
+    Route::get('encounters/{guid}', [EncountersController::class, 'getEncounterByGuid']);
 });
 
 

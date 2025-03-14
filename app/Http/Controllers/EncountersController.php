@@ -3,12 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\CreatureResource;
+use App\Http\Resources\EncounterResource;
 use App\Models\Character;
+use App\Models\GameEncounter;
 use App\Models\GameCreature;
 use App\Models\User;
 use App\Services\CreatureService;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Str;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
@@ -50,14 +54,38 @@ class EncountersController extends Controller
                 ]);
             }
 
-            return CreatureResource::make($encounter['creature'])->additional([
-                'amount' => $encounter['amount'],
-                'difficulty' => $encounter['difficulty'],
-                'partyDifficulty' => $encounter['partyDifficulty'],
+            $creatureEncounter = GameEncounter::create([
+                'guid' => Str::uuid()->toString(),
+                'type' => 'creature',
+                'description' => '',
+                'difficulty' => $difficulty,
+                'party_difficulty' => $encounter['partyDifficulty'],
+                'environment' => $environment,
+                'created_at' => Carbon::now(),
             ]);
+            // add the creatures for the encounter
+            foreach ($encounter['creatures'] as $creature)
+            {
+                $creatureEncounter->Creatures()->create([
+                    'guid' => Str::uuid()->toString(),
+                    'creature_id' => $creature->id,
+                    'unique_name' => '',
+                    'max_hp' => $creature->hp,
+                    'current_hp' => $creature->hp,
+                    'created_at' => Carbon::now(),
+                ]);
+            }
+            $creatureEncounter->save();
+
+            return EncounterResource::make($creatureEncounter);
         } catch (\Exception $e) {
             // TODO do something here, probably means invalid JSON input
-            var_dump($e->getMessage());
+            return response()->json(['error' => 'Bad Request'], Response::HTTP_BAD_REQUEST);
         }
+    }
+
+    public function getEncounterByGuid(string $guid)
+    {
+        return EncounterResource::make(GameEncounter::where('guid', $guid)->first());
     }
 }

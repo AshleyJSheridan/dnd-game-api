@@ -7,6 +7,7 @@ use App\Models\CharSkill;
 use App\Models\CharTrait;
 use App\Models\GameCreature;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Str;
 
 class CreatureService
 {
@@ -79,22 +80,22 @@ class CreatureService
         $possibleEncounterCreatures = [];
 
         // TODO allow for more complex encounters including mixes of creatures and creature sub-types
-        for ($i = 1; $i <= 15; $i ++)
+        for ($amount = 1; $amount <= 15; $amount ++)
         {
-            $difficultyMultiplier = $this->difficultyMultipliers[$i];
+            $difficultyMultiplier = $this->difficultyMultipliers[$amount];
 
             foreach ($creaturesForEnvironment as $creature)
             {
-                $min = ($i * $creature->exp * $difficultyMultiplier * (1 - $differenceThreshold));
-                $max = ($i * $creature->exp * $difficultyMultiplier * (1 + $differenceThreshold));
+                $min = ($amount * $creature->exp * $difficultyMultiplier * (1 - $differenceThreshold));
+                $max = ($amount * $creature->exp * $difficultyMultiplier * (1 + $differenceThreshold));
 
                 if ($min <= $expThreshold && $expThreshold <= $max)
                 {
                     $possibleEncounterCreatures[] = [
-                        'creature' => $creature,
-                        'amount' => $i,
-                        'difficulty' => intval(round($i * $creature->exp * $difficultyMultiplier)),
+                        'creatures' => $this->getGroupOfCreatures($creature, $amount),
+                        'difficulty' => intval(round($amount * $creature->exp * $difficultyMultiplier)),
                         'partyDifficulty' => $expThreshold,
+                        'environment' => $environment,
                     ];
                 }
             }
@@ -103,6 +104,25 @@ class CreatureService
         // TODO store this in the DB against a GUID to be referred to consistently later
         $encounter = $possibleEncounterCreatures[array_rand($possibleEncounterCreatures)];
         return $encounter;
+    }
+
+    private function getGroupOfCreatures(GameCreature $creature, int $amount): array
+    {
+        $clones = [];
+
+        for ($i = 0; $i < $amount; $i ++)
+        {
+            $clonedCreature = clone $creature;
+            $clonedCreature->guid = Str::uuid()->toString();
+            $clonedCreature->hp = $this->getCreatureHp(
+                $clonedCreature->hit_points_dice,
+                $clonedCreature->hit_points_dice_sides,
+                $clonedCreature->hit_point_additional
+            );
+            $clones[] = $clonedCreature;
+        }
+
+        return $clones;
     }
 
     private function getCreaturesForEnvironment(string $environment, int $exp)//: Collection | array
@@ -169,5 +189,18 @@ class CreatureService
         }
 
         return $newAbilities;
+    }
+
+    private function getCreatureHp(int $diceAmount, string $sides, int $additionalFixedValue): int
+    {
+        $hp = $additionalFixedValue;
+        $sides = intval(substr($sides, 1));
+
+        for ($i = 0; $i < $diceAmount; $i++)
+        {
+            $hp += rand(1, $sides);
+        }
+
+        return $hp;
     }
 }
