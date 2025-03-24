@@ -101,9 +101,7 @@ class CreatureService
             }
         }
 
-        // TODO store this in the DB against a GUID to be referred to consistently later
-        $encounter = $possibleEncounterCreatures[array_rand($possibleEncounterCreatures)];
-        return $encounter;
+        return $possibleEncounterCreatures[array_rand($possibleEncounterCreatures)];
     }
 
     private function getGroupOfCreatures(GameCreature $creature, int $amount): array
@@ -201,6 +199,7 @@ class CreatureService
             $hp += rand(1, $sides);
         }
 
-        return $hp;
+        // force the returned value to be a minimum of 1, as some creatures have a negative additional hp
+        return max(1, $hp);
     }
 }
