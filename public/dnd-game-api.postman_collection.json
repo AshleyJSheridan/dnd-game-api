@@ -985,6 +985,31 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "get encounter",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{domain}}/api/encounters/{{guid}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"encounters",
+								"{{guid}}"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		}
