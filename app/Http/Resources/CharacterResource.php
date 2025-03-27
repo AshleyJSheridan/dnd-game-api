@@ -3,7 +3,6 @@
 namespace App\Http\Resources;
 
 use App\Models\CharAbility;
-use App\Models\CharRace;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -16,8 +15,13 @@ class CharacterResource extends JsonResource
             'name' => $this->name,
             'guid' => $this->guid,
             'level' => $this->level,
+            'proficiency_bonus' => $this->getProficiencyBonus($this->level),
             'charClass' => $this->CharacterClass->name ?? '',
             'class_path_available' => $this->level >= $this->CharacterClass->path_level,
+            'saving_throws' => [
+                CharShortAbilityResource::make($this->CharacterClass->getSavingThrowProficiency1),
+                CharShortAbilityResource::make($this->CharacterClass->getSavingThrowProficiency2),
+            ],
             'charBackground' => [
                 'name' => $this->CharacterBackground->name ?? '',
                 'characteristics' => CharBackgroundCharacteristicResource::collection($this->CharacterBackgroundCharacteristics) ?? [],
@@ -84,5 +88,22 @@ class CharacterResource extends JsonResource
         }
 
         return 0;
+    }
+
+    private function getProficiencyBonus(int $level): int
+    {
+        if ($level  > 16)
+            return 6;
+
+        if ($level > 12)
+            return 5;
+
+        if ($level > 8)
+            return 4;
+
+        if ($level > 4)
+            return 3;
+
+        return 2;
     }
 }
