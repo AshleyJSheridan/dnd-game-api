@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use App\Models\CharAbility;
+use App\Models\CharSkill;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -28,6 +29,8 @@ class CharacterResource extends JsonResource
             ],
             'charRace' => $this->CharacterRace->name ?? '',
             'abilities' => $this->parseAbilities($this->abilities),
+            'skills' => $this->getCharSkills(),
+            //'test' => CharSkillResource::collection(CharSkill::whereIn('id', [7])->get()),
             'languages' => [
                 'available' => $this->AvailableLanguageCount(),
                 'known' => CharLanguageResource::collection($this->Languages),
@@ -105,5 +108,18 @@ class CharacterResource extends JsonResource
             return 3;
 
         return 2;
+    }
+
+    private function getCharSkills()
+    {
+        $racialSkillIds = json_decode($this->CharacterRace->skills ?? "[]");
+        $ClassSkillDetails = json_decode($this->CharacterClass->skill_options ?? '{"max":2,"skills":[]}');
+
+        return [
+            'known' => CharSkillResource::collection($this->Skills),
+            'racial_known' => CharSkillResource::collection(CharSkill::whereIn('id', $racialSkillIds)->get()),
+            'available_count' => $ClassSkillDetails->max,
+            'available' => CharSkillResource::collection(CharSkill::whereIn('id', $ClassSkillDetails->skills)->get()),
+        ];
     }
 }

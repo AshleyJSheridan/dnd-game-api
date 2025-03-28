@@ -105,4 +105,9 @@ class Character extends Model
 
         return $raceSpells;
     }
+
+    public function Skills(): BelongsToMany
+    {
+        return $this->belongsToMany(CharSkill::class, 'char_known_skills', 'char_id', 'skill_id');
+    }
 }
