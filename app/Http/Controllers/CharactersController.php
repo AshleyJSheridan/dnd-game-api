@@ -108,6 +108,16 @@ class CharactersController extends Controller
                     }
                     // TODO add languages applicable to each race
                     break;
+                case 'skills':
+                    $skills = $jsonData->skills;
+                    $skillOptions = json_decode($character->CharacterClass->skill_options) ?? null;
+                    $availableCount = $skillOptions ? $skillOptions->max : 0;
+                    if (count($skills) > $availableCount)
+                    {
+                        $skills = array_slice($skills, 0, $availableCount);
+                    }
+                    $character->Skills()->sync($skills);
+                    break;
                 case 'abilities':
                     /*
                      * ensure that all guids are the unique and exist

@@ -10,6 +10,7 @@ class CharSkillResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
+            'id' => $this->id,
             'name' => $this->name,
             'description' => $this->description,
             'primary_ability' => CharAbilityResource::make($this->PrimaryAbility),
