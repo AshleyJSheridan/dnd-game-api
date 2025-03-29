@@ -13,7 +13,7 @@ class CharClassResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'description' => $this->description,
-            'hit_die' => $this->hit_die,
+            'hit_points_per_level' => $this->hit_points_per_level,
             'hit_points_at_first_level' => $this->hit_points_start,
             'primary_abilities' => $this->getPrimaryAbilities(),
             'saving_throws' => $this->getSavingThrows(),

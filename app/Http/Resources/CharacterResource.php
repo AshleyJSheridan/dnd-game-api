@@ -16,6 +16,8 @@ class CharacterResource extends JsonResource
             'name' => $this->name,
             'guid' => $this->guid,
             'level' => $this->level,
+            'speed' => $this->CharacterRace->speed ?? 0,
+            'hit_points' => $this->getHitPoints(),
             'proficiency_bonus' => $this->getProficiencyBonus($this->level),
             'charClass' => $this->CharacterClass->name ?? '',
             'class_path_available' => $this->level >= $this->CharacterClass->path_level,
@@ -30,7 +32,6 @@ class CharacterResource extends JsonResource
             'charRace' => $this->CharacterRace->name ?? '',
             'abilities' => $this->parseAbilities($this->abilities),
             'skills' => $this->getCharSkills(),
-            //'test' => CharSkillResource::collection(CharSkill::whereIn('id', [7])->get()),
             'languages' => [
                 'available' => $this->AvailableLanguageCount(),
                 'known' => CharLanguageResource::collection($this->Languages),
@@ -120,6 +121,28 @@ class CharacterResource extends JsonResource
             'racial_known' => CharSkillResource::collection(CharSkill::whereIn('id', $racialSkillIds)->get()),
             'available_count' => $ClassSkillDetails->max,
             'available' => CharSkillResource::collection(CharSkill::whereIn('id', $ClassSkillDetails->skills)->get()),
+        ];
+    }
+
+    private function getHitPoints()
+    {
+        $level = $this->level ?? 1;
+        $hitPoints = ($this->CharacterClass->hit_points_start ?? 0) +
+            ($this->CharacterClass->hit_points_per_level ?? 0) * ($level - 1);
+
+        if ($this->CharacterRace) {
+            $this->CharacterRace->RaceTraits->where('type', 'ability_increase')->each(function ($trait) use (&$hitPoints, $level) {
+                ;
+                $details = json_decode($trait->ability_details);
+                if (property_exists($details, 'hitPoints')) {
+                    $hitPoints += ($details->hitPoints * $level);
+                }
+            });
+        }
+
+        return [
+            'max' => $hitPoints,
+            'current' => max(0, $this->hit_points),
         ];
     }
 }
