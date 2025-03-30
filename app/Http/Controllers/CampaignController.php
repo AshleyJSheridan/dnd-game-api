@@ -1,0 +1,87 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Http\Resources\CampaignMapResource;
+use App\Http\Resources\CampaignResource;
+use App\Http\Resources\CharacterResource;
+use App\Models\Campaign;
+use App\Models\CampaignMap;
+use App\Models\User;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Illuminate\Support\Str;
+use Tymon\JWTAuth\Exceptions\JWTException;
+use Tymon\JWTAuth\Facades\JWTAuth;
+
+class CampaignController extends Controller
+{
+    private User $user;
+
+    public function __construct()
+    {
+        try {
+            if (! $this->user = JWTAuth::parseToken()->authenticate())
+                return response()->json(['error' => 'User not found'], Response::HTTP_NOT_FOUND);
+        } catch (JWTException $e) {
+            return response()->json(['error' => 'Invalid token'], Response::HTTP_BAD_REQUEST);
+        }
+    }
+
+    public function getCampaigns()
+    {
+        return CampaignResource::collection(Campaign::where('user_id', $this->user->id)->get());
+    }
+
+    public function createCampaign(Request $request)
+    {
+        try {
+            $jsonData = json_decode($request->getContent());
+
+            $campaign = Campaign::create([
+                'guid' => Str::uuid()->toString(),
+                'name' => $jsonData->name,
+                'description' => $jsonData->description,
+                'user_id' => $this->user->id,
+                'created_at' => Carbon::now(),
+                'state' => 'paused',
+            ]);
+
+            return CampaignResource::make($campaign);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Bad Request'], Response::HTTP_BAD_REQUEST);
+        }
+    }
+
+    public function getCampaign(string $guid)
+    {
+        // no user check here, as we want campaigns to be shared to other users by the guid to facilitate a multiplayer game
+        $campaign = Campaign::where('guid', $guid)->first();
+
+        return CampaignResource::make($campaign);
+    }
+
+    public function createMap(string $guid, Request $request)
+    {
+        $campaign = Campaign::where('guid', $guid)->first();
+
+        request()->validate([
+            'image' => 'required|image|mimes:jpeg,png,jpg|max:2048',
+        ]);
+
+        $imageName = time() . '.' . request()->image->getClientOriginalExtension();
+        request()->image->move(storage_path('images'), $imageName);
+
+        $campaignMap = CampaignMap::create([
+            'guid' => Str::uuid()->toString(),
+            'name' => $request->input('name'),
+            'description' => $request->input('description'),
+            'image' => $imageName,
+            'game_id' => $campaign->id,
+            'created_at' => Carbon::now(),
+        ]);
+
+        return CampaignMapResource::make($campaignMap);
+    }
+}

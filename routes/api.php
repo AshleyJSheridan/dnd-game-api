@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CampaignController;
 use App\Http\Controllers\CharactersController;
 use App\Http\Controllers\CharBackgroundController;
 use App\Http\Controllers\CharRaceController;
@@ -75,6 +76,14 @@ Route::middleware([JwtMiddleware::class])->group(function () {
     // encounters
     Route::post('/encounters/', [EncountersController::class, 'createEncounter']);
     Route::get('encounters/{guid}', [EncountersController::class, 'getEncounterByGuid']);
+
+    // campaigns
+    Route::get('/campaigns', [CampaignController::class, 'getCampaigns']);
+    Route::post('/campaigns', [CampaignController::class, 'createCampaign']);
+    Route::get('/campaigns/{guid}', [CampaignController::class, 'getCampaign']);
+
+    // campaign maps
+    Route::post('/campaigns/{guid}/maps', [CampaignController::class, 'createMap']);
 });
 
 
