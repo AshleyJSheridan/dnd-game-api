@@ -1071,6 +1071,33 @@
 								}
 							},
 							"response": []
+						},
+						{
+							"name": "get map image",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{domain}}/api/campaigns/maps/{{guid}}/image",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"api",
+										"campaigns",
+										"maps",
+										"{{guid}}",
+										"image"
+									]
+								}
+							},
+							"response": []
 						}
 					]
 				},
