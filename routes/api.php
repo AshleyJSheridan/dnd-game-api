@@ -80,6 +80,7 @@ Route::middleware([JwtMiddleware::class])->group(function () {
     // campaign maps
     Route::post('/campaigns/maps', [CampaignController::class, 'createMap']);
     Route::get('/campaigns/maps/{guid}', [CampaignController::class, 'getMap']);
+    Route::patch('/campaigns/maps/{guid}', [CampaignController::class, 'updateMap']);
 
     // campaigns
     Route::get('/campaigns', [CampaignController::class, 'getCampaigns']);

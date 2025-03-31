@@ -118,4 +118,22 @@ class CampaignController extends Controller
 
         return response()->file(storage_path('thumbs/' . $campaignMap->image));
     }
+
+    public function updateMap(string $guid, Request $request)
+    {
+        $allowedUpdates = ['show_grid', 'grid_size', 'grid_colour'];
+        $data = [];
+        $campaignMap = CampaignMap::where('guid', $guid)->first();
+
+        // only allow certain fields to be updated
+        $jsonData = json_decode($request->getContent());
+        foreach ($jsonData as $key => $value) {
+            if (in_array($key, $allowedUpdates)) {
+                $data[$key] = $value;
+            }
+        }
+        $campaignMap->update($data);
+
+        return $campaignMap;
+    }
 }

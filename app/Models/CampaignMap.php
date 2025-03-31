@@ -9,7 +9,8 @@ class CampaignMap extends Model
 {
     protected $table = 'game_maps';
     protected $primaryKey = 'id';
-    protected $fillable = ['guid', 'name', 'description', 'game_id', 'created_at', 'image', 'width', 'height'];
+    protected $fillable = ['guid', 'name', 'description', 'game_id', 'created_at', 'image', 'width', 'height',
+        'show_grid', 'grid_size', 'grid_colour'];
 
     public function Campaign(): HasOne
     {
