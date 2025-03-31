@@ -14,6 +14,8 @@ class CampaignMapResource extends JsonResource
             'description' => $this->description,
             'image' => $this->image,
             'created_at' => $this->created_at,
+            'width' => $this->width,
+            'height' => $this->height,
         ];
     }
 }

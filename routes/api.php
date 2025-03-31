@@ -80,14 +80,16 @@ Route::middleware([JwtMiddleware::class])->group(function () {
     // campaign maps
     Route::post('/campaigns/maps', [CampaignController::class, 'createMap']);
     Route::get('/campaigns/maps/{guid}', [CampaignController::class, 'getMap']);
-    Route::get('/campaigns/maps/{guid}/image', [CampaignController::class, 'getMapImage']);
-    Route::get('/campaigns/maps/{guid}/thumb', [CampaignController::class, 'getMapThumb']);
 
     // campaigns
     Route::get('/campaigns', [CampaignController::class, 'getCampaigns']);
     Route::post('/campaigns', [CampaignController::class, 'createCampaign']);
     Route::get('/campaigns/{guid}', [CampaignController::class, 'getCampaign']);
 });
+
+// campaign map images - no auth required so the images can be used in <img> tags
+Route::get('/campaigns/maps/{guid}/image', [CampaignController::class, 'getMapImage']);
+Route::get('/campaigns/maps/{guid}/thumb', [CampaignController::class, 'getMapThumb']);
 
 
 
