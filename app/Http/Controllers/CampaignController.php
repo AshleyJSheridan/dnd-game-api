@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\CampaignMapResource;
 use App\Http\Resources\CampaignResource;
-use App\Http\Resources\CharacterResource;
 use App\Models\Campaign;
 use App\Models\CampaignMap;
 use App\Models\User;
@@ -12,6 +11,8 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Str;
+use Spatie\Image\Enums\ImageDriver;
+use Spatie\Image\Image;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
@@ -65,13 +66,23 @@ class CampaignController extends Controller
     public function createMap(string $guid, Request $request)
     {
         $campaign = Campaign::where('guid', $guid)->first();
+        $width = 200;
+        $height = 200;
 
         request()->validate([
             'image' => 'required|image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
-        $imageName = time() . '.' . request()->image->getClientOriginalExtension();
+        $imageName = Str::uuid()->toString() . '.' . request()->image->getClientOriginalExtension();
         request()->image->move(storage_path('images'), $imageName);
+
+        Image::useImageDriver(ImageDriver::Gd)
+            ->loadFile(storage_path('images/' . $imageName))
+            ->resize($width, $height)
+            ->save(storage_path('thumbs/') . $imageName);
+        Image::useImageDriver(ImageDriver::Gd)
+            ->loadFile(storage_path('images/' . $imageName))
+            ->save(storage_path('images/' . $imageName));
 
         $campaignMap = CampaignMap::create([
             'guid' => Str::uuid()->toString(),
@@ -80,8 +91,31 @@ class CampaignController extends Controller
             'image' => $imageName,
             'game_id' => $campaign->id,
             'created_at' => Carbon::now(),
+            'width' => $width,
+            'height' => $height,
         ]);
 
         return CampaignMapResource::make($campaignMap);
+    }
+
+    public function getMap(string $guid)
+    {
+        $campaignMap = CampaignMap::where('guid', $guid)->first();
+
+        return CampaignMapResource::make($campaignMap);
+    }
+
+    public function getMapImage(string $guid)
+    {
+        $campaignMap = CampaignMap::where('guid', $guid)->first();
+
+        return response()->file(storage_path('images/' . $campaignMap->image));
+    }
+
+    public function getMapThumb(string $guid)
+    {
+        $campaignMap = CampaignMap::where('guid', $guid)->first();
+
+        return response()->file(storage_path('thumbs/' . $campaignMap->image));
     }
 }

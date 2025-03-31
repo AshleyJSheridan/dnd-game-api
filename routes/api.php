@@ -77,13 +77,16 @@ Route::middleware([JwtMiddleware::class])->group(function () {
     Route::post('/encounters/', [EncountersController::class, 'createEncounter']);
     Route::get('encounters/{guid}', [EncountersController::class, 'getEncounterByGuid']);
 
+    // campaign maps
+    Route::post('/campaigns/maps', [CampaignController::class, 'createMap']);
+    Route::get('/campaigns/maps/{guid}', [CampaignController::class, 'getMap']);
+    Route::get('/campaigns/maps/{guid}/image', [CampaignController::class, 'getMapImage']);
+    Route::get('/campaigns/maps/{guid}/thumb', [CampaignController::class, 'getMapThumb']);
+
     // campaigns
     Route::get('/campaigns', [CampaignController::class, 'getCampaigns']);
     Route::post('/campaigns', [CampaignController::class, 'createCampaign']);
     Route::get('/campaigns/{guid}', [CampaignController::class, 'getCampaign']);
-
-    // campaign maps
-    Route::post('/campaigns/{guid}/maps', [CampaignController::class, 'createMap']);
 });
 
 

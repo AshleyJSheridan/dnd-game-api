@@ -1012,6 +1012,151 @@
 					"response": []
 				}
 			]
+		},
+		{
+			"name": "Campaigns",
+			"item": [
+				{
+					"name": "maps",
+					"item": [
+						{
+							"name": "get map",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{domain}}/api/campaigns/maps/{{guid}}",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"api",
+										"campaigns",
+										"maps",
+										"{{guid}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "get map thumbnail",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{domain}}/api/campaigns/maps/{{guid}}/thumb",
+									"host": [
+										"{{domain}}"
+									],
+									"path": [
+										"api",
+										"campaigns",
+										"maps",
+										"{{guid}}",
+										"thumb"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "get campaigns",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{domain}}/api/campaigns",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"campaigns"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "create campaign",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"name\":\"Some campaign name2\",\"description\":\"some campaign description\"}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{domain}}/api/campaigns",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"campaigns"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get campaign",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{domain}}/api/campaigns/{{guid}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"campaigns",
+								"{{guid}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
 		}
 	]
 }
