@@ -90,6 +90,7 @@ Route::middleware([JwtMiddleware::class])->group(function () {
     Route::get('/campaigns', [CampaignController::class, 'getCampaigns']);
     Route::post('/campaigns', [CampaignController::class, 'createCampaign']);
     Route::get('/campaigns/{guid}', [CampaignController::class, 'getCampaign']);
+    Route::post('/campaigns/{guid}/characters', [CampaignController::class, 'addCharacterToCampaign']);
 });
 
 // campaign map images - no auth required so the images can be used in <img> tags

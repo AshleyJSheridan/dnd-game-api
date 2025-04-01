@@ -7,6 +7,7 @@ use App\Http\Resources\CampaignResourceForOwner;
 use App\Http\Resources\CampaignResourceForPlayer;
 use App\Models\Campaign;
 use App\Models\CampaignMap;
+use App\Models\Character;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -139,5 +140,28 @@ class CampaignController extends Controller
         $campaignMap->update($data);
 
         return $campaignMap;
+    }
+
+    public function addCharacterToCampaign(string $campaignGuid, Request $request)
+    {
+        try {
+            $campaign = Campaign::where('guid', $campaignGuid)->first();
+            $jsonData = json_decode($request->getContent());
+            $character = Character::where('guid', $jsonData->character_guid)->first();
+
+            if (!$campaign->Characters->contains($character->id))
+            {
+                $campaign->Characters()->attach($character->id);
+
+                $campaign->save();
+            }
+
+            if ($campaign->user_id === $this->user->id)
+                return CampaignResourceForOwner::make($campaign);
+            else
+                return CampaignResourceForPlayer::make($campaign);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Bad Request'], Response::HTTP_BAD_REQUEST);
+        }
     }
 }

@@ -16,6 +16,7 @@ class CampaignResourceForOwner extends JsonResource
             'created_at' => $this->created_at,
             'maps' => CampaignMapResource::collection($this->Maps),
             'owner' => true,
+            'players' => CharacterResource::collection($this->Characters),
         ];
     }
 }
