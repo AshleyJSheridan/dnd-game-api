@@ -81,13 +81,20 @@ class CampaignController extends Controller
         $imageName = Str::uuid()->toString() . '.' . request()->image->getClientOriginalExtension();
         request()->image->move(storage_path('images'), $imageName);
 
-        Image::useImageDriver(ImageDriver::Gd)
+        $image = Image::useImageDriver(ImageDriver::Gd)
+            ->loadFile(storage_path('images/' . $imageName));
+
+        // TODO use $image instead of loading the original repeatedly
+        $image->save(storage_path('images/' . $imageName));
+        $image->resize($width, $height)
+            ->save(storage_path('thumbs/') . $imageName);
+        /*Image::useImageDriver(ImageDriver::Gd)
             ->loadFile(storage_path('images/' . $imageName))
             ->resize($width, $height)
             ->save(storage_path('thumbs/') . $imageName);
         Image::useImageDriver(ImageDriver::Gd)
             ->loadFile(storage_path('images/' . $imageName))
-            ->save(storage_path('images/' . $imageName));
+            ->save(storage_path('images/' . $imageName));*/
 
         $campaignMap = CampaignMap::create([
             'guid' => Str::uuid()->toString(),
@@ -96,8 +103,8 @@ class CampaignController extends Controller
             'image' => $imageName,
             'game_id' => $campaign->id,
             'created_at' => Carbon::now(),
-            'width' => $width,
-            'height' => $height,
+            'width' => $image->getWidth(),
+            'height' => $image->getHeight(),
         ]);
 
         return CampaignMapResource::make($campaignMap);

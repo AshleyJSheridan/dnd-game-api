@@ -39,6 +39,7 @@ Route::middleware([JwtMiddleware::class])->group(function () {
     Route::get('/characters/{guid}', [CharactersController::class, 'getCharacter']);
     Route::patch('/characters/{guid}', [CharactersController::class, 'updateCharacter']);
     Route::get('/characters/{guid}/spells/available', [CharactersController::class, 'getCharacterAvailableSpells']);
+    Route::post('/characters/{guid}/portrait', [CharactersController::class, 'uploadPortrait']);
 
     // languages
     Route::get('/game/languages', [LanguageController::class, 'getLanguages']);
@@ -82,7 +83,7 @@ Route::middleware([JwtMiddleware::class])->group(function () {
     Route::get('encounters/{guid}', [EncountersController::class, 'getEncounterByGuid']);
 
     // campaign maps
-    Route::post('/campaigns/maps', [CampaignController::class, 'createMap']);
+    Route::post('/campaigns/{guid}/maps', [CampaignController::class, 'createMap']);
     Route::get('/campaigns/maps/{guid}', [CampaignController::class, 'getMap']);
     Route::patch('/campaigns/maps/{guid}', [CampaignController::class, 'updateMap']);
 

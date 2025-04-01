@@ -195,4 +195,9 @@ class CharactersController extends Controller
 
         return AvailableSpellsResource::make(collect($availableSpells));
     }
+
+    public function uploadPortrait()
+    {
+
+    }
 }
