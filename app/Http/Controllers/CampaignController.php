@@ -3,7 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\CampaignMapResource;
-use App\Http\Resources\CampaignResource;
+use App\Http\Resources\CampaignResourceForOwner;
+use App\Http\Resources\CampaignResourceForPlayer;
 use App\Models\Campaign;
 use App\Models\CampaignMap;
 use App\Models\User;
@@ -32,7 +33,7 @@ class CampaignController extends Controller
 
     public function getCampaigns()
     {
-        return CampaignResource::collection(Campaign::where('user_id', $this->user->id)->get());
+        return CampaignResourceForOwner::collection(Campaign::where('user_id', $this->user->id)->get());
     }
 
     public function createCampaign(Request $request)
@@ -49,7 +50,7 @@ class CampaignController extends Controller
                 'state' => 'paused',
             ]);
 
-            return CampaignResource::make($campaign);
+            return CampaignResourceForOwner::make($campaign);
         } catch (\Exception $e) {
             return response()->json(['error' => 'Bad Request'], Response::HTTP_BAD_REQUEST);
         }
@@ -60,7 +61,10 @@ class CampaignController extends Controller
         // no user check here, as we want campaigns to be shared to other users by the guid to facilitate a multiplayer game
         $campaign = Campaign::where('guid', $guid)->first();
 
-        return CampaignResource::make($campaign);
+        if ($campaign->user_id === $this->user->id)
+            return CampaignResourceForOwner::make($campaign);
+        else
+            return CampaignResourceForPlayer::make($campaign);
     }
 
     public function createMap(string $guid, Request $request)
