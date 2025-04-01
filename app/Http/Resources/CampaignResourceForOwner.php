@@ -15,6 +15,7 @@ class CampaignResourceForOwner extends JsonResource
             'state' => $this->state,
             'created_at' => $this->created_at,
             'maps' => CampaignMapResource::collection($this->Maps),
+            'owner' => true,
         ];
     }
 }
