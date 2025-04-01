@@ -8,6 +8,7 @@ use App\Http\Controllers\CharRaceController;
 use App\Http\Controllers\CreaturesController;
 use App\Http\Controllers\DiceController;
 use App\Http\Controllers\EncountersController;
+use App\Http\Controllers\HeartbeatController;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\LocationController;
@@ -21,6 +22,9 @@ Route::post('user/register', [AuthController::class, 'register']);
 Route::post('user/login', [AuthController::class, 'login']);
 
 Route::middleware([JwtMiddleware::class])->group(function () {
+    // heartbeat
+    Route::get('/heartbeat', [HeartbeatController::class, 'heartbeat']);
+
     // users
     Route::get('user', [AuthController::class, 'getUser']);
     Route::post('user/logout', [AuthController::class, 'logout']);
