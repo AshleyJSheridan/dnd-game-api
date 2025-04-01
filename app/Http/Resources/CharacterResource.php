@@ -20,10 +20,10 @@ class CharacterResource extends JsonResource
             'hit_points' => $this->getHitPoints(),
             'proficiency_bonus' => $this->getProficiencyBonus($this->level),
             'charClass' => $this->CharacterClass->name ?? '',
-            'class_path_available' => $this->level >= $this->CharacterClass->path_level,
+            'class_path_available' => $this->level >= ($this->CharacterClass->path_level ?? 20),
             'saving_throws' => [
-                CharShortAbilityResource::make($this->CharacterClass->getSavingThrowProficiency1),
-                CharShortAbilityResource::make($this->CharacterClass->getSavingThrowProficiency2),
+                CharShortAbilityResource::make($this->CharacterClass->getSavingThrowProficiency1 ?? null),
+                CharShortAbilityResource::make($this->CharacterClass->getSavingThrowProficiency2 ?? null),
             ],
             'charBackground' => [
                 'name' => $this->CharacterBackground->name ?? '',

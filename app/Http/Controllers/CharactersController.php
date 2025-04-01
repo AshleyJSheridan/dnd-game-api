@@ -68,7 +68,7 @@ class CharactersController extends Controller
 
             return CharacterResource::make($character);
         } catch (\Exception $e) {
-            return response()->json(['error' => 'Bad Request'], Response::HTTP_BAD_REQUEST);
+            return response()->json(['error' => 'Bad Request' . $e->getMessage()], Response::HTTP_BAD_REQUEST);
         }
     }
 
