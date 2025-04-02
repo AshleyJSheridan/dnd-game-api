@@ -84,17 +84,9 @@ class CampaignController extends Controller
         $image = Image::useImageDriver(ImageDriver::Gd)
             ->loadFile(storage_path('images/' . $imageName));
 
-        // TODO use $image instead of loading the original repeatedly
         $image->save(storage_path('images/' . $imageName));
         $image->resize($width, $height)
             ->save(storage_path('thumbs/') . $imageName);
-        /*Image::useImageDriver(ImageDriver::Gd)
-            ->loadFile(storage_path('images/' . $imageName))
-            ->resize($width, $height)
-            ->save(storage_path('thumbs/') . $imageName);
-        Image::useImageDriver(ImageDriver::Gd)
-            ->loadFile(storage_path('images/' . $imageName))
-            ->save(storage_path('images/' . $imageName));*/
 
         $campaignMap = CampaignMap::create([
             'guid' => Str::uuid()->toString(),

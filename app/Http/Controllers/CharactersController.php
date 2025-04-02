@@ -15,6 +15,8 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Str;
+use Spatie\Image\Enums\ImageDriver;
+use Spatie\Image\Image;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Illuminate\Http\Response;
@@ -196,8 +198,23 @@ class CharactersController extends Controller
         return AvailableSpellsResource::make(collect($availableSpells));
     }
 
-    public function uploadPortrait()
+    public function uploadPortrait(string $guid)
     {
+        $character = Character::where('guid', $guid)->where('user_id', $this->user->id)->first();
 
+        $portraitSize = 200; // square image
+
+        $imageName = Str::uuid()->toString() . '.' . request()->image->getClientOriginalExtension();
+        request()->image->move(storage_path('portraits'), $imageName);
+
+        $image = Image::useImageDriver(ImageDriver::Gd)
+            ->loadFile(storage_path('portraits/' . $imageName))
+            ->resize($portraitSize, $portraitSize)
+            ->save(storage_path('portraits/') . $imageName);
+
+        $character->custom_portrait = $imageName;
+        $character->save();
+
+        return CharacterResource::make($character);
     }
 }
