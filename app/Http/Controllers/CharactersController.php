@@ -217,4 +217,11 @@ class CharactersController extends Controller
 
         return CharacterResource::make($character);
     }
+
+    public function getPortraitImage(string $guid)
+    {
+        $character = Character::where('guid', $guid)->first();
+
+        return response()->file(storage_path('portraits/' . $character->custom_portrait));
+    }
 }

@@ -94,10 +94,10 @@ Route::middleware([JwtMiddleware::class])->group(function () {
     Route::post('/campaigns/{guid}/characters', [CampaignController::class, 'addCharacterToCampaign']);
 });
 
-// campaign map images - no auth required so the images can be used in <img> tags
+// images - no auth required so the images can be used in <img> tags
 Route::get('/campaigns/maps/{guid}/image', [CampaignController::class, 'getMapImage']);
 Route::get('/campaigns/maps/{guid}/thumb', [CampaignController::class, 'getMapThumb']);
-
+Route::get('/characters/{guid}/portrait', [CharactersController::class, 'getPortraitImage']);
 
 
 // locations

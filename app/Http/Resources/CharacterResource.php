@@ -41,7 +41,7 @@ class CharacterResource extends JsonResource
                 'learned_spells' => GameSpellResource::collection($this->Spells),
                 'other_known_spells' => GameSpellResource::collection($this->getOtherKnownSpells()),
             ],
-            'custom_portrait' => $this->whenLoaded('custom_portrait'),
+            'custom_portrait' => $this->custom_portrait ?? '',
             'created_at' => $this->created_at,
         ];
     }
