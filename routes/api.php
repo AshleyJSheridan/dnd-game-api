@@ -92,6 +92,7 @@ Route::middleware([JwtMiddleware::class])->group(function () {
     Route::post('/campaigns', [CampaignController::class, 'createCampaign']);
     Route::get('/campaigns/{guid}', [CampaignController::class, 'getCampaign']);
     Route::post('/campaigns/{guid}/characters', [CampaignController::class, 'addCharacterToCampaign']);
+    Route::delete('/campaigns/{campaignGuid}/characters/{charGuid}', [CampaignController::class, 'removeCharacterFromCampaign']);
 });
 
 // images - no auth required so the images can be used in <img> tags

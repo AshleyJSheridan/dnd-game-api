@@ -163,4 +163,21 @@ class CampaignController extends Controller
             return response()->json(['error' => 'Bad Request'], Response::HTTP_BAD_REQUEST);
         }
     }
+
+    public function removeCharacterFromCampaign(string $campaignGuid, string $charGuid)
+    {
+        try {
+            $campaign = Campaign::where('guid', $campaignGuid)->first();
+            $campaign->Characters()->attach($charGuid);
+
+            $campaign->save();
+
+            if ($campaign->user_id === $this->user->id)
+                return CampaignResourceForOwner::make($campaign);
+            else
+                return CampaignResourceForPlayer::make($campaign);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Bad Request'], Response::HTTP_BAD_REQUEST);
+        }
+    }
 }
