@@ -45,20 +45,19 @@ class Character extends Model
 
     public function AvailableLanguageCount(): int
     {
-        $classLanguageCount = $this->CharacterClass ?
-            count($this->CharacterClass->ClassFeatures->where('type', 'language')->where('level', '>=', $this->level)) : 0;
-        $raceLanguageCount = 0;
-        $raceExtraLanguageCount = 0;
+        $languageCount = 0;
+
+        $languageCount += $this->CharacterBackground->extra_languages ?? 0;
         if ($this->CharacterRace)
         {
-            $raceLanguageCount = count(CharRace::where('id', $this->CharacterRace->id)->first()->RaceLanguages);
             foreach ($this->CharacterRace->RaceTraits->where('type', 'language') as $langTrait) {
                 $details = json_decode($langTrait->ability_details);
-                $raceExtraLanguageCount += $details->languages;
+                $languageCount += $details->languages;
             }
         }
 
-        return $classLanguageCount + $raceExtraLanguageCount + $raceLanguageCount;
+
+        return $languageCount;
     }
 
     public function HasMagic(): bool
