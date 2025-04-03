@@ -85,16 +85,10 @@ class CharactersController extends Controller
             switch ($jsonData->updateType)
             {
                 case 'class':
-                    if ($character->class_id === 0 && $jsonData->charClassId)
-                    {
-                        $character->class_id = $jsonData->charClassId;
-                    }
+                    $character->class_id = $jsonData->charClassId;
 
-                    if ($character->selected_path === 0 && $jsonData->classPathId)
-                    {
-                        $character->selected_path = $jsonData->classPathId;
-                    }
-                    // TODO add languages for druids, thieves, and monks appropriate to level
+                    $character->selected_path = $jsonData->classPathId;
+
                     break;
                 case 'background':
                     if ($character->background_id === 0 && $jsonData->charBackgroundId && $jsonData->characteristics)

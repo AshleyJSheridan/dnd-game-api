@@ -10,7 +10,7 @@ class CharRace extends Model
 {
     protected $table = 'char_races';
     protected $primaryKey = 'id';
-    
+
     public function SubRaces(): HasMany
     {
         return $this->hasMany(CharRace::class, 'parent_race_id', 'id');

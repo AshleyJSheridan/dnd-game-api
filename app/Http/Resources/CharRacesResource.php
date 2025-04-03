@@ -15,6 +15,7 @@ class CharRacesResource extends JsonResource
             'description' => $this->description,
             'max_age' => $this->max_age,
             'max_height' => $this->max_height,
+            'languages' => CharLanguageResource::collection($this->RaceLanguages),
             'speed' => $this->speed,
             'race_traits' => CharTraitsResource::collection($this->RaceTraits),
             'sub_races' => CharRacesResource::collection($this->SubRaces),

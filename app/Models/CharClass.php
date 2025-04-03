@@ -63,4 +63,10 @@ class CharClass extends Model
     {
         return $this->hasMany(CharClassPath::class, 'class_id', 'id');
     }
+
+    public function Languages(): BelongsToMany
+    {
+        return $this->belongsToMany(CharLanguage::class, 'char_class_languages', 'char_class_id', 'language_id')
+            ->withPivot('level');
+    }
 }

@@ -13,6 +13,7 @@ class CharLanguageResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'script' => $this->script,
+            'level' => $this->pivot->level ?? 1,
         ];
     }
 }
