@@ -148,12 +148,8 @@ class CampaignController extends Controller
             $jsonData = json_decode($request->getContent());
             $character = Character::where('guid', $jsonData->character_guid)->first();
 
-            if (!$campaign->Characters->contains($character->id))
-            {
-                $campaign->Characters()->attach($character->id);
-
-                $campaign->save();
-            }
+            $campaign->Characters()->attach($character->id);
+            $campaign->save();
 
             if ($campaign->user_id === $this->user->id)
                 return CampaignResourceForOwner::make($campaign);
