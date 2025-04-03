@@ -168,7 +168,8 @@ class CampaignController extends Controller
     {
         try {
             $campaign = Campaign::where('guid', $campaignGuid)->first();
-            $campaign->Characters()->attach($charGuid);
+            $character = Character::where('guid', $charGuid)->first();
+            $campaign->Characters()->detach($character->id);
 
             $campaign->save();
 
