@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class CampaignMap extends Model
@@ -15,5 +16,11 @@ class CampaignMap extends Model
     public function Campaign(): HasOne
     {
         return $this->hasOne(Campaign::class, 'id', 'campaign_id');
+    }
+
+    public function Players(): HasMany
+    {
+        return $this->hasMany(CampaignMapCharacterEntity::class, 'map_id', 'id')
+            ->where('type', 'character');
     }
 }

@@ -7,6 +7,7 @@ use App\Http\Resources\CampaignResourceForOwner;
 use App\Http\Resources\CampaignResourceForPlayer;
 use App\Models\Campaign;
 use App\Models\CampaignMap;
+use App\Models\CampaignMapCharacterEntity;
 use App\Models\Character;
 use App\Models\User;
 use Carbon\Carbon;
@@ -102,9 +103,9 @@ class CampaignController extends Controller
         return CampaignMapResource::make($campaignMap);
     }
 
-    public function getMap(string $guid)
+    public function getMap(string $campaignGuid, string $mapGuid)
     {
-        $campaignMap = CampaignMap::where('guid', $guid)->first();
+        $campaignMap = CampaignMap::where('guid', $mapGuid)->first();
 
         return CampaignMapResource::make($campaignMap);
     }
@@ -123,11 +124,11 @@ class CampaignController extends Controller
         return response()->file(storage_path('thumbs/' . $campaignMap->image));
     }
 
-    public function updateMap(string $guid, Request $request)
+    public function updateMap(string $campaignGuid, string $mapGuid, Request $request)
     {
         $allowedUpdates = ['show_grid', 'grid_size', 'grid_colour'];
         $data = [];
-        $campaignMap = CampaignMap::where('guid', $guid)->first();
+        $campaignMap = CampaignMap::where('guid', $mapGuid)->first();
 
         // only allow certain fields to be updated
         $jsonData = json_decode($request->getContent());
@@ -175,6 +176,46 @@ class CampaignController extends Controller
                 return CampaignResourceForPlayer::make($campaign);
         } catch (\Exception $e) {
             return response()->json(['error' => 'Bad Request'], Response::HTTP_BAD_REQUEST);
+        }
+    }
+
+    public function addEntityToMap(string $campaignGuid, string $mapGuid, Request $request)
+    {
+        try {
+            //$campaign = Campaign::where('guid', $campaignGuid)->first();
+            $map = CampaignMap::where('guid', $mapGuid)->first();
+            $jsonData = json_decode($request->getContent());
+
+            switch ($jsonData->type) {
+                case 'character':
+                    $character = Character::where('guid', $jsonData->linked_id)->first();
+
+                    // only allow a character to be added to each map once
+                    if (is_null($map->Players->where('linked_id', $character->id)->first())) {
+                        $player = CampaignMapCharacterEntity::create([
+                            'guid' => Str::uuid()->toString(),
+                            'map_id' => $map->id,
+                            'linked_id' => $character->id,
+                            'x' => $jsonData->x,
+                            'y' => $jsonData->y,
+                            'created_at' => Carbon::now(),
+                        ]);
+                    }
+
+                    break;
+                case 'creature':
+
+                    break;
+                default:
+                    // object
+            }
+
+            $map = CampaignMap::where('guid', $mapGuid)->first();
+
+            return CampaignMapResource::make($map);
+
+        } catch (\Exception $e) {
+            var_dump($e->getMessage());
         }
     }
 }

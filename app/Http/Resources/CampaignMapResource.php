@@ -2,11 +2,12 @@
 
 namespace App\Http\Resources;
 
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class CampaignMapResource extends JsonResource
 {
-    public function toArray($request)
+    public function toArray(Request $request)
     {
         return [
             'guid' => $this->guid,
@@ -19,6 +20,7 @@ class CampaignMapResource extends JsonResource
             'show_grid' => $this->show_grid,
             'grid_size' => $this->grid_size,
             'grid_colour' => $this->grid_colour,
+            'players' => CampaignMapCharacterResource::collection($this->Players),
         ];
     }
 }
