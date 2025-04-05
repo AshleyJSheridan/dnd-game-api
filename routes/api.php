@@ -75,6 +75,7 @@ Route::middleware([JwtMiddleware::class])->group(function () {
     Route::post('/game/dice', [DiceController::class, 'rollDice']);
 
     // creatures
+    Route::get('/creatures', [CreaturesController::class, 'getAllCreatures']);
     Route::get('/creatures/{creatureType}', [CreaturesController::class, 'getCreatures'])
         ->where('creatureType', '(aberration|beast|celestial|construct|demon|devil|dragon|elemental|fey|giant|humanoid|monstrosity|ooze|plant|undead)');
 

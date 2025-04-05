@@ -19,4 +19,9 @@ class CreaturesController extends Controller
             )
         );
     }
+
+    public function getAllCreatures()
+    {
+        return CreatureResource::collection($this->creatureService->addProcessedFields(GameCreature::all()));
+    }
 }
