@@ -139,7 +139,7 @@ class CampaignController extends Controller
         }
         $campaignMap->update($data);
 
-        return $campaignMap;
+        return CampaignMapResource::make($campaignMap);
     }
 
     public function addCharacterToCampaign(string $campaignGuid, Request $request)
@@ -214,6 +214,29 @@ class CampaignController extends Controller
 
             return CampaignMapResource::make($map);
 
+        } catch (\Exception $e) {
+            var_dump($e->getMessage());
+        }
+    }
+
+    public function updateMapEntity(string $campaignGuid, string $mapGuid, string $entityGuid, Request $request)
+    {
+        try {
+            $map = CampaignMap::where('guid', $mapGuid)->first();
+            $jsonData = json_decode($request->getContent());
+
+            switch ($jsonData->type) {
+                case 'character':
+                    $entity = CampaignMapCharacterEntity::where('guid', $entityGuid)->where('map_id', $map->id)->first();
+                    $entity->update([
+                        'x' => $jsonData->x,
+                        'y' => $jsonData->y,
+                    ]);
+                    $entity->save();
+                    break;
+            }
+
+            return CampaignMapResource::make(CampaignMap::where('guid', $mapGuid)->first());
         } catch (\Exception $e) {
             var_dump($e->getMessage());
         }
