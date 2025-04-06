@@ -21,6 +21,7 @@ class CampaignMapResource extends JsonResource
             'grid_size' => $this->grid_size,
             'grid_colour' => $this->grid_colour,
             'players' => CampaignMapCharacterResource::collection($this->Players),
+            'creatures' => CampaignMapCreatureResource::collection($this->Creatures),
         ];
     }
 }

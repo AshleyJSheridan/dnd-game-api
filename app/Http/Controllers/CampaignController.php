@@ -8,7 +8,9 @@ use App\Http\Resources\CampaignResourceForPlayer;
 use App\Models\Campaign;
 use App\Models\CampaignMap;
 use App\Models\CampaignMapCharacterEntity;
+use App\Models\CampaignMapCreatureEntity;
 use App\Models\Character;
+use App\Models\GameCreature;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -182,7 +184,7 @@ class CampaignController extends Controller
     public function addEntityToMap(string $campaignGuid, string $mapGuid, Request $request)
     {
         try {
-            //$campaign = Campaign::where('guid', $campaignGuid)->first();
+            $campaign = Campaign::where('guid', $campaignGuid)->first();
             $map = CampaignMap::where('guid', $mapGuid)->first();
             $jsonData = json_decode($request->getContent());
 
@@ -204,6 +206,23 @@ class CampaignController extends Controller
 
                     break;
                 case 'creature':
+                    $baseCreature = GameCreature::where('id', $jsonData->linked_id)->first();
+                    // create some new stats for the creature from the base
+                    $numberOfDice = $baseCreature->hit_points_dice;
+                    $diceSides = $baseCreature->hit_points_dice_sides;
+                    $additionalHitPoints = $baseCreature->hit_point_additional;
+                    $hitPoints = $this->getCreatureHp($numberOfDice, $diceSides, $additionalHitPoints);
+
+                    $mapCreature = CampaignMapCreatureEntity::create([
+                        'guid' => Str::uuid()->toString(),
+                        'map_id' => $map->id,
+                        'type' => 'creature',
+                        'linked_id' => $baseCreature->id,
+                        'x' => $jsonData->x,
+                        'y' => $jsonData->y,
+                        'created_at' => Carbon::now(),
+                        'stats' => json_encode(['hp' => $hitPoints, 'max_hp' => $hitPoints]),
+                    ]);
 
                     break;
                 default:
@@ -240,5 +259,19 @@ class CampaignController extends Controller
         } catch (\Exception $e) {
             var_dump($e->getMessage());
         }
+    }
+
+    private function getCreatureHp(int $diceAmount, string $sides, int $additionalFixedValue): int
+    {
+        $hp = $additionalFixedValue;
+        $sides = intval(substr($sides, 1));
+
+        for ($i = 0; $i < $diceAmount; $i++)
+        {
+            $hp += rand(1, $sides);
+        }
+
+        // force the returned value to be a minimum of 1, as some creatures have a negative additional hp
+        return max(1, $hp);
     }
 }
