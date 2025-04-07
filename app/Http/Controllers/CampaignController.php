@@ -252,6 +252,14 @@ class CampaignController extends Controller
                     ]);
                     $entity->save();
                     break;
+                case 'creature':
+                    $entity = CampaignMapCreatureEntity::where('guid', $entityGuid)->where('map_id', $map->id)->first();
+                    $entity->update([
+                        'x' => $jsonData->x,
+                        'y' => $jsonData->y,
+                    ]);
+                    $entity->save();
+                    break;
             }
 
             return CampaignMapResource::make(CampaignMap::where('guid', $mapGuid)->first());
