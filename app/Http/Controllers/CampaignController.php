@@ -9,6 +9,7 @@ use App\Models\Campaign;
 use App\Models\CampaignMap;
 use App\Models\CampaignMapCharacterEntity;
 use App\Models\CampaignMapCreatureEntity;
+use App\Models\CampaignMapDrawingEntity;
 use App\Models\Character;
 use App\Models\GameCreature;
 use App\Models\User;
@@ -263,6 +264,14 @@ class CampaignController extends Controller
                         'entity_name' => $jsonData->entity_name ?? $entity->entity_name,
                     ]);
                     $entity->save();
+                    break;
+                case 'drawing':
+                    $entity = CampaignMapDrawingEntity::where('guid', $entityGuid)->where('map_id', $map->id)->first();
+                    $entity->update([
+                        'x' => $jsonData->x ?? $entity->x,
+                        'y' => $jsonData->y ?? $entity->y,
+                        'highlight_colour' => $jsonData->highlight_colour ?? $entity->highlight_colour,
+                    ]);
                     break;
             }
 
