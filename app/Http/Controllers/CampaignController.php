@@ -243,6 +243,7 @@ class CampaignController extends Controller
             $map = CampaignMap::where('guid', $mapGuid)->first();
             $jsonData = json_decode($request->getContent());
 
+            // TODO refactor this to avoid repetition
             switch ($jsonData->type) {
                 case 'character':
                     $entity = CampaignMapCharacterEntity::where('guid', $entityGuid)->where('map_id', $map->id)->first();
@@ -259,6 +260,7 @@ class CampaignController extends Controller
                         'x' => $jsonData->x ?? $entity->x,
                         'y' => $jsonData->y ?? $entity->y,
                         'highlight_colour' => $jsonData->highlight_colour ?? $entity->highlight_colour,
+                        'entity_name' => $jsonData->entity_name ?? $entity->entity_name,
                     ]);
                     $entity->save();
                     break;
