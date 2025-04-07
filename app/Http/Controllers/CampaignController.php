@@ -247,16 +247,18 @@ class CampaignController extends Controller
                 case 'character':
                     $entity = CampaignMapCharacterEntity::where('guid', $entityGuid)->where('map_id', $map->id)->first();
                     $entity->update([
-                        'x' => $jsonData->x,
-                        'y' => $jsonData->y,
+                        'x' => $jsonData->x ?? $entity->x,
+                        'y' => $jsonData->y ?? $entity->y,
+                        'highlight_colour' => $jsonData->highlight_colour ?? $entity->highlight_colour,
                     ]);
                     $entity->save();
                     break;
                 case 'creature':
                     $entity = CampaignMapCreatureEntity::where('guid', $entityGuid)->where('map_id', $map->id)->first();
                     $entity->update([
-                        'x' => $jsonData->x,
-                        'y' => $jsonData->y,
+                        'x' => $jsonData->x ?? $entity->x,
+                        'y' => $jsonData->y ?? $entity->y,
+                        'highlight_colour' => $jsonData->highlight_colour ?? $entity->highlight_colour,
                     ]);
                     $entity->save();
                     break;
