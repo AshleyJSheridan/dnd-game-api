@@ -29,4 +29,10 @@ class CampaignMap extends Model
         return $this->hasMany(CampaignMapCreatureEntity::class, 'map_id', 'id')
             ->where('type', 'creature');
     }
+
+    public function Drawings(): HasMany
+    {
+        return $this->hasMany(CampaignMapDrawingEntity::class, 'map_id', 'id')
+            ->where('type', 'drawing');
+    }
 }
