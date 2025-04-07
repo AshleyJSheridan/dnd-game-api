@@ -12,6 +12,7 @@ class CampaignMapCreatureResource extends JsonResource
         return [
             'guid' => $this->guid,
             'type' => $this->type,
+            'entity_name' => $this->entity_name,
             'x' => $this->x,
             'y' => $this->y,
             'highlight_colour' => $this->highlight_colour,

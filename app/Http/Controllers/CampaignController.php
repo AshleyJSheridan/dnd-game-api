@@ -217,6 +217,7 @@ class CampaignController extends Controller
                         'guid' => Str::uuid()->toString(),
                         'map_id' => $map->id,
                         'type' => 'creature',
+                        'entity_name' => $baseCreature->name,
                         'linked_id' => $baseCreature->id,
                         'x' => $jsonData->x,
                         'y' => $jsonData->y,
@@ -229,9 +230,7 @@ class CampaignController extends Controller
                     // object
             }
 
-            $map = CampaignMap::where('guid', $mapGuid)->first();
-
-            return CampaignMapResource::make($map);
+            return CampaignMapResource::make(CampaignMap::where('guid', $mapGuid)->first());
 
         } catch (\Exception $e) {
             var_dump($e->getMessage());
