@@ -35,4 +35,9 @@ class CampaignMap extends Model
         return $this->hasMany(CampaignMapDrawingEntity::class, 'map_id', 'id')
             ->where('type', 'drawing');
     }
+
+    public function RawEntities(): HasMany
+    {
+        return $this->hasMany(CampaignMapDrawingEntity::class, 'map_id', 'id');
+    }
 }

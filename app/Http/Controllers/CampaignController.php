@@ -281,6 +281,17 @@ class CampaignController extends Controller
         }
     }
 
+    public function deleteMapEntity(string $campaignGuid, string $mapGuid, string $entityGuid, Request $request)
+    {
+        $rawEntity = CampaignMap::where('guid', $mapGuid)->first()->RawEntities()->where('guid', $entityGuid)->first();
+        // TODO possibly make a raw entity model to allow delete() method instead of setting the date manually?
+        $rawEntity->deleted_at = Carbon::now();
+        $rawEntity->save();
+
+        return CampaignMapResource::make(CampaignMap::where('guid', $mapGuid)->first());
+    }
+
+    // TODO move this to a helper or something
     private function getCreatureHp(int $diceAmount, string $sides, int $additionalFixedValue): int
     {
         $hp = $additionalFixedValue;

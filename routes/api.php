@@ -89,6 +89,7 @@ Route::middleware([JwtMiddleware::class])->group(function () {
     Route::patch('/campaigns/{campaignGuid}/maps/{mapGuid}', [CampaignController::class, 'updateMap']);
     Route::post('/campaigns/{campaignGuid}/maps/{mapGuid}/entities', [CampaignController::class, 'addEntityToMap']);
     Route::patch('/campaigns/{campaignGuid}/maps/{mapGuid}/entities/{entityGuid}', [CampaignController::class, 'updateMapEntity']);
+    Route::delete('/campaigns/{campaignGuid}/maps/{mapGuid}/entities/{entityGuid}', [CampaignController::class, 'deleteMapEntity']);
 
     // campaigns
     Route::get('/campaigns', [CampaignController::class, 'getCampaigns']);
