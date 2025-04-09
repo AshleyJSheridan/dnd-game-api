@@ -227,6 +227,29 @@ class CampaignController extends Controller
                     ]);
 
                     break;
+                case 'drawing':
+                    $mapDrawing = CampaignMapDrawingEntity::create([
+                        'guid' => Str::uuid()->toString(),
+                        'map_id' => $map->id,
+                        'type' => 'drawing',
+                        'linked_id' => 0,
+                        'x' => $jsonData->startX,
+                        'y' => $jsonData->startY,
+                        'orientation' => $jsonData->orientation ?? 0,
+                        'highlight_colour' => $jsonData->colour ?? '#000000',
+                        'stats' => json_encode([
+                            'type' => $jsonData->shape ?? '',
+                            'r' => intval($jsonData->distance ?? 0),
+                            'width' => intval($jsonData->width ?? 0),
+                            'height' => intval($jsonData->height ?? 0),
+                            'angle' => intval($jsonData->angle ?? 0),
+                            'length' => intval($jsonData->distance ?? 0),
+                            'pattern' => $jsonData->fillSymbol ?? 'none',
+                        ]),
+                        'created_at' => Carbon::now(),
+                    ]);
+
+                    break;
                 default:
                     // object
             }
