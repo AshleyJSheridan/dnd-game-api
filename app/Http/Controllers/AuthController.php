@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Validator;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Illuminate\Http\Response;
+use Tymon\JWTAuth\Facades\JWTFactory;
 
 class AuthController extends Controller
 {
@@ -39,13 +40,27 @@ class AuthController extends Controller
         $credentials = $request->only('email', 'password');
 
         try {
-            if (!$token = JWTAuth::attempt($credentials))
+            if (!$accessToken = JWTAuth::attempt($credentials))
                 return response()->json(['error' => 'Invalid credentials'], Response::HTTP_UNAUTHORIZED);
 
             $user = auth()->user();
-            $token = JWTAuth::claims(['role' => $user->role])->fromUser($user);
+            $accessToken = JWTAuth::claims(['role' => $user->role])->fromUser($user);
 
-            return response()->json(compact('token'));
+            $refreshTTL = config('jwt.refresh_ttl');
+            $payload = JWTFactory::customClaims([
+                'sub' => $user->getJWTIdentifier(),
+                'iat' => now()->timestamp,
+                'exp' => now()->addMinutes($refreshTTL)->timestamp,
+                'type' => 'refresh'
+            ])->make();
+            $refreshToken = JWTAuth::encode($payload)->get();
+
+            return response()->json([
+                'access_token' => $accessToken,
+                'refresh_token' => $refreshToken,
+                'token_type' => 'bearer',
+                'expires_in' => auth('api')->factory()->getTTL() * 60
+            ]);
         } catch (JWTException $e) {
             return response()->json(['error' => 'Could not create token'], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
@@ -89,6 +104,44 @@ class AuthController extends Controller
             return response()->json(['message' => 'Account successfully deleted. Sorry to see you go, good luck on your adventures.']);
         } catch (JWTException $e) {
             return response()->json(['error' => 'Invalid token'], Response::HTTP_BAD_REQUEST);
+        }
+    }
+
+    public function refreshToken(Request $request)
+    {
+        $refreshToken = $request->input('refresh_token');
+
+        try {
+            $payload = JWTAuth::setToken($refreshToken)->getPayload();
+
+            if ($payload->get('type') !== 'refresh')
+                return response()->json(['error' => 'Invalid token type'], Response::HTTP_UNAUTHORIZED);
+
+            $userId = $payload->get('sub');
+            $user = User::where('id', $userId);
+
+            if (!$user)
+                return response()->json(['error' => 'User not found'], Response::HTTP_UNAUTHORIZED);
+
+            $accessToken = JWTAuth::claims(['role' => $user->role])->fromUser($user);
+            $refreshTTL = config('jwt.refresh_ttl');
+            $newRefreshPayload = JWTFactory::customClaims([
+                'sub' => $user->getJWTIdentifier(),
+                'iat' => now()->timestamp,
+                'exp' => now()->addMinutes($refreshTTL)->timestamp,
+                'type' => 'refresh'
+            ])->make();
+
+            $newRefreshToken = JWTAuth::encode($newRefreshPayload)->get();
+
+            return response()->json([
+                'access_token' => $accessToken,
+                'refresh_token' => $newRefreshToken,
+                'token_type' => 'bearer',
+                'expires_in' => auth('api')->factory()->getTTL() * 60
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Invalid refresh token'], Response::HTTP_UNAUTHORIZED);
         }
     }
 }

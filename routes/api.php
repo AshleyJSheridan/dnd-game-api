@@ -20,6 +20,7 @@ use App\Http\Controllers\CharClassController;
 // users
 Route::post('user/register', [AuthController::class, 'register']);
 Route::post('user/login', [AuthController::class, 'login']);
+Route::post('user/refresh', [AuthController::class, 'refreshToken']);
 
 Route::middleware([JwtMiddleware::class])->group(function () {
     // heartbeat
