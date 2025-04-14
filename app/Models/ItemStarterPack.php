@@ -7,11 +7,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class ItemStarterPack extends Model
 {
-    protected $table = 'char_starter_packs';
+    protected $table = 'char_starting_equipment';
     protected $primaryKey = 'id';
 
     public function items(): BelongsToMany
     {
-        return $this->belongsToMany(GameItem::class, 'char_starter_pack_items', 'starter_pack_id', 'item_id');
+        return $this->belongsToMany(GameItem::class, 'char_starting_equipment_items', 'starting_equipment_id', 'item_id')
+            ->withPivotValue('container_id', 0)
+            ->withPivot('quantity')
+            ->orderBy('id', 'asc');
     }
 }

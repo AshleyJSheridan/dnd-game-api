@@ -35,6 +35,8 @@ Route::middleware([JwtMiddleware::class])->group(function () {
     Route::get('/characters', [CharactersController::class, 'getUserCharacters']);
     Route::post('/characters', [CharactersController::class, 'createCharacter']);
     Route::get('/characters/classes', [CharClassController::class, 'getCharacterClasses']);
+    Route::get('/characters/classes/{className}', [CharClassController::class, 'getCharacterClass']);
+    Route::get('/characters/classes/{className}/startingEquipment', [CharClassController::class, 'getStartingEquipment']);
     Route::get('/characters/backgrounds', [CharBackgroundController::class, 'getCharacterBackgrounds']);
     Route::get('/characters/races', [CharRaceController::class, 'getCharacterRaces']);
     Route::get('/characters/{guid}', [CharactersController::class, 'getCharacter']);

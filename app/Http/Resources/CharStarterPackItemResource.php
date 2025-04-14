@@ -13,11 +13,17 @@ class CharStarterPackItemResource extends JsonResource
             'name' => $this->name,
             'description' => $this->description,
             'type' => $this->type,
-            'cost' => $this->cost,
-            'cost_unit' => $this->cost_unit,
+            'total' => $this->whenPivotLoaded('char_starting_equipment_items', function () {
+                return $this->pivot->quantity;
+            }),
+            'rarity' => $this->rarity,
+            'cost' => $this->isStarterPack() ? 0 : $this->cost,
+            'cost_unit' => $this->isStarterPack() ? 0 : $this->cost_unit,
             'weight' => $this->weight,
             'weapon_properties' => $this->getWeaponProperties(),
-            'armor_properties' => $this->whenLoaded('armor_props,')
+            'armor_properties' => $this->whenLoaded('armor_props,'),
+            'isContainer' => $this->isContainer(),
+            'items' => $this->isContainer() ? CharStarterPackItemResource::collection($this->starterItems) : null,
         ]);
     }
 

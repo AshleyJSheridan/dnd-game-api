@@ -11,7 +11,7 @@ class CharStarterPackResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'pack_name' => $this->pack_name,
+            'choice_name' => $this->choice_name,
             'gold' => $this->gold,
             'items' => CharStarterPackItemResource::collection($this->items),
         ];
