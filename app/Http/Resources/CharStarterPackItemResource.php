@@ -22,6 +22,7 @@ class CharStarterPackItemResource extends JsonResource
             'weight' => $this->weight,
             'weapon_properties' => $this->getWeaponProperties(),
             'armor_properties' => $this->whenLoaded('armor_props,'),
+            'proficiency' => $this->Proficiency->type ?? '',
             'isContainer' => $this->isContainer(),
             'items' => $this->isContainer() ? CharStarterPackItemResource::collection($this->starterItems) : null,
         ]);

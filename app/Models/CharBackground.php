@@ -25,4 +25,9 @@ class CharBackground extends Model
     {
         return $this->hasMany(CharBackgroundCharacteristic::class, 'background_id', 'id');
     }
+
+    public function StartingEquipmentPacks(): HasMany
+    {
+        return $this->hasMany(ItemStarterPack::class, 'char_background_id', 'id');
+    }
 }

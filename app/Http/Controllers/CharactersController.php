@@ -225,9 +225,13 @@ class CharactersController extends Controller
     {
         $character = Character::where('guid', $guid)->first();
 
-        if (!$character->CharacterClass)
+        // no point showing starting equipment if no class or background has been selected
+        if (!$character->CharacterClass || !$character->CharacterBackground)
             return CharStarterPackResource::collection([]);
 
-        return CharStarterPackResource::collection($character->CharacterClass->StartingEquipmentPacks);
+        $backgroundEquipment = $character->CharacterBackground->StartingEquipmentPacks;
+        $classEquipment = $character->CharacterClass->StartingEquipmentPacks;
+
+        return CharStarterPackResource::collection($backgroundEquipment->merge($classEquipment));
     }
 }

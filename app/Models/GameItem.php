@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class GameItem extends Model
 {
@@ -25,5 +26,10 @@ class GameItem extends Model
     {
         return $this->belongsToMany(GameItem::class, 'char_starting_equipment_items', 'container_id', 'item_id')
             ->withPivot('quantity');
+    }
+
+    public function Proficiency(): HasOne
+    {
+        return $this->hasOne(CharProficiency::class, 'id', 'proficiency_id');
     }
 }
