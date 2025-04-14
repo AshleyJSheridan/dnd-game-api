@@ -40,7 +40,10 @@ Route::middleware([JwtMiddleware::class])->group(function () {
     Route::get('/characters/races', [CharRaceController::class, 'getCharacterRaces']);
     Route::get('/characters/{guid}', [CharactersController::class, 'getCharacter']);
     Route::patch('/characters/{guid}', [CharactersController::class, 'updateCharacter']);
-    Route::get('/characters/{guid}/startingEquipment', [CharactersController::class, 'getStartingEquipment']);
+    Route::get('/characters/{guid}/startingEquipment', [ItemController::class, 'getStartingEquipment']);
+    Route::get('/characters/{guid}/inventory', [ItemController::class, 'getPlayerInventory']);
+    Route::post('/characters/{guid}/inventory', [ItemController::class, 'addItemsToPlayerInventory']);
+    Route::patch('/characters/{guid}/inventory', [ItemController::class, 'removeItemsFromPlayerInventory']);
     Route::get('/characters/{guid}/spells/available', [CharactersController::class, 'getCharacterAvailableSpells']);
     Route::post('/characters/{guid}/portrait', [CharactersController::class, 'uploadPortrait']);
 
