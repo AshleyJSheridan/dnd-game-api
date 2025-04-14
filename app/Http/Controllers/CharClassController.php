@@ -25,14 +25,4 @@ class CharClassController extends Controller
 
         return CharClassResource::make($charClass);
     }
-
-    public function getStartingEquipment(string $className)
-    {
-        $charClass = CharClass::where('name', ucfirst(strtolower($className)))->first();
-
-        if (!$charClass)
-            return response()->json(['error' => 'Character class not found'], 404);
-
-        return CharStarterPackResource::collection($charClass->StartingEquipmentPacks);
-    }
 }

@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\AvailableSpellsResource;
 use App\Http\Resources\CharacterResource;
+use App\Http\Resources\CharStarterPackResource;
 use App\Http\Resources\NameSuggestionsResource;
 use App\Models\CharAbility;
 use App\Models\Character;
+use App\Models\CharClass;
 use App\Models\DiceRoll;
 use App\Models\User;
 use App\Services\MagicService;
@@ -217,5 +219,15 @@ class CharactersController extends Controller
         $character = Character::where('guid', $guid)->first();
 
         return response()->file(storage_path('portraits/' . $character->custom_portrait));
+    }
+
+    public function getStartingEquipment(string $guid)
+    {
+        $character = Character::where('guid', $guid)->first();
+
+        if (!$character->CharacterClass)
+            return CharStarterPackResource::collection([]);
+
+        return CharStarterPackResource::collection($character->CharacterClass->StartingEquipmentPacks);
     }
 }
