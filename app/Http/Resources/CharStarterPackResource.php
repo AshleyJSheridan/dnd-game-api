@@ -15,6 +15,12 @@ class CharStarterPackResource extends JsonResource
             'type' => $this->type,
             'gold' => $this->gold,
             'items' => CharStarterPackItemResource::collection($this->items),
+            'instrumentsCount' => $this->getItemCountByName('Musical instrument'),
+            'toolsCount' => $this->getItemCountByName('Artisan\'s tools'),
         ];
+    }
+
+    public function getItemCountByName(string $name): int {
+        return count($this->items->where('name', $name)) ?? 0;
     }
 }

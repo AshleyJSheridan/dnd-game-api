@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Character extends Model
@@ -108,5 +109,10 @@ class Character extends Model
     public function Skills(): BelongsToMany
     {
         return $this->belongsToMany(CharSkill::class, 'char_known_skills', 'char_id', 'skill_id');
+    }
+
+    public function Inventory(): HasMany
+    {
+        return $this->hasMany(CharInventory::class, 'char_id', 'id');
     }
 }

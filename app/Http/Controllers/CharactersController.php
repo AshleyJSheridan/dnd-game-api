@@ -91,7 +91,7 @@ class CharactersController extends Controller
 
                     break;
                 case 'background':
-                    if ($character->background_id === 0 && $jsonData->charBackgroundId && $jsonData->characteristics)
+                    if ($jsonData->charBackgroundId && $jsonData->characteristics)
                     {
                         $character->background_id = $jsonData->charBackgroundId;
                         $character->CharacterBackgroundCharacteristics()->attach($jsonData->characteristics);
