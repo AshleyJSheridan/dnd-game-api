@@ -44,7 +44,10 @@ class CharacterResource extends JsonResource
                 'other_known_spells' => GameSpellResource::collection($this->getOtherKnownSpells()),
             ],
             'custom_portrait' => $this->custom_portrait ?? '',
-            'inventory' => CharInventoryItemResource::collection($this->Inventory),
+            'inventory' => [
+                'money' => json_decode($this->money) ?? ['gold' => 0],
+                'items' => CharInventoryItemResource::collection($this->Inventory)
+            ],
             'created_at' => $this->created_at,
         ];
     }
