@@ -16,6 +16,7 @@ class CharInventoryItemResource extends JsonResource
             'name' => $this->name ?? $this->Item->name,
             'type' => $this->Item->type,
             'description' => $this->description ?? $this->Item->description,
+            'isContainer' => $this->Item->isContainer(),
             'weight' => $this->Item->weight,
             'cost' => [
                 'value' => $this->Item->cost,
