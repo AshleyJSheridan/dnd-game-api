@@ -7,7 +7,7 @@ use App\Http\Resources\CharacterResource;
 use App\Http\Resources\CharStarterPackResource;
 use App\Http\Resources\GameItemResource;
 use App\Models\Character;
-use App\Models\CharInventory;
+use App\Models\CharInventoryItem;
 use App\Models\GameItem;
 use App\Models\User;
 use Carbon\Carbon;
@@ -92,7 +92,7 @@ class ItemController extends Controller
                     continue;
 
                 // add item to char_inventory table
-                $inventoryItem = CharInventory::create([
+                $inventoryItem = CharInventoryItem::create([
                     'guid' => Str::uuid()->toString(),
                     'char_id' => $character->id,
                     'base_item_id' => $item->id,
@@ -106,7 +106,7 @@ class ItemController extends Controller
                 {
                     foreach ($item->starterItems as $subItem)
                     {
-                        $bagItem = CharInventory::create([
+                        $bagItem = CharInventoryItem::create([
                             'guid' => Str::uuid()->toString(),
                             'char_id' => $character->id,
                             'base_item_id' => $subItem->id,
@@ -125,7 +125,7 @@ class ItemController extends Controller
 
                 if ($instrument)
                 {
-                    $inventoryItem = CharInventory::create([
+                    $inventoryItem = CharInventoryItem::create([
                         'guid' => Str::uuid()->toString(),
                         'char_id' => $character->id,
                         'base_item_id' => $instrumentId,
@@ -143,7 +143,7 @@ class ItemController extends Controller
 
                 if ($tool)
                 {
-                    $inventoryItem = CharInventory::create([
+                    $inventoryItem = CharInventoryItem::create([
                         'guid' => Str::uuid()->toString(),
                         'char_id' => $character->id,
                         'base_item_id' => $toolId,

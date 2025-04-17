@@ -113,6 +113,6 @@ class Character extends Model
 
     public function Inventory(): HasMany
     {
-        return $this->hasMany(CharInventory::class, 'char_id', 'id');
+        return $this->hasMany(CharInventoryItem::class, 'char_id', 'id');
     }
 }
