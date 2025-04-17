@@ -16,10 +16,10 @@ class CharInventoryItemResource extends JsonResource
             'name' => $this->name ?? $this->Item->name,
             'type' => $this->Item->type,
             'description' => $this->description ?? $this->Item->description,
-            'isContainer' => $this->Item->isContainer(),
-            'weight' => $this->Item->weight,
+            'quantity' => $this->quantity,
+            'weight' => $this->Item->weight * $this->quantity,
             'cost' => [
-                'value' => $this->Item->cost,
+                'value' => $this->Item->cost * $this->quantity,
                 'unit' => $this->Item->cost_unit
             ],
             'rarity' => $this->Item->rarity,
@@ -36,7 +36,9 @@ class CharInventoryItemResource extends JsonResource
                     'long' => $this->Item->range_long,
                 ],
                 'weapon_versatility' => $this->Item->weapon_versatility,
-            ]
+            ],
+            'isContainer' => $this->Item->isContainer(),
+            'items' => $this->Item->isContainer() ? CharInventoryItemResource::collection($this->Items) : null,
         ];
     }
 }

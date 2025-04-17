@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class CharInventoryItem extends Model
@@ -19,5 +20,10 @@ class CharInventoryItem extends Model
     public function Character(): HasOne
     {
         return $this->hasOne(Character::class, 'id', 'char_id');
+    }
+
+    public function Items(): HasMany
+    {
+        return $this->hasMany(CharInventoryItem::class, 'parent_id', 'id');
     }
 }
