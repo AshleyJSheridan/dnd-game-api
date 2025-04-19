@@ -183,6 +183,20 @@ class CharactersController extends Controller
         return CharacterResource::make(Character::where('guid', $guid)->where('user_id', $this->user->id)->first());
     }
 
+    public function deleteCharacter(string $guid)
+    {
+        try {
+            $character = Character::where('guid', $guid)->where('user_id', $this->user->id)->first();
+
+            $character->delete();
+
+            // return updated list of characters
+            return CharacterResource::collection(Character::where('user_id', $this->user->id)->get());
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Bad Request'], Response::HTTP_BAD_REQUEST);
+        }
+    }
+
     public function getCharacterAvailableSpells(string $guid)
     {
         $character = Character::where('guid', $guid)->where('user_id', $this->user->id)->first();

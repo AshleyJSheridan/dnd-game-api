@@ -39,6 +39,7 @@ Route::middleware([JwtMiddleware::class])->group(function () {
     Route::get('/characters/backgrounds', [CharBackgroundController::class, 'getCharacterBackgrounds']);
     Route::get('/characters/races', [CharRaceController::class, 'getCharacterRaces']);
     Route::get('/characters/{guid}', [CharactersController::class, 'getCharacter']);
+    Route::delete('/characters/{guid}', [CharactersController::class, 'deleteCharacter']);
     Route::patch('/characters/{guid}', [CharactersController::class, 'updateCharacter']);
     Route::get('/characters/{guid}/startingEquipment', [ItemController::class, 'getStartingEquipment']);
     Route::post('/characters/{guid}/startingEquipment', [ItemController::class, 'setStartingEquipment']);
