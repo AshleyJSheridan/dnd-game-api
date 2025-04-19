@@ -14,7 +14,7 @@ class CharStarterPackItemResource extends JsonResource
             'name' => $this->name,
             'description' => $this->description,
             'type' => $this->type,
-            'total' => $this->whenPivotLoaded('char_starting_equipment_items', function () {
+            'quantity' => $this->whenPivotLoaded('char_starting_equipment_items', function () {
                 return $this->pivot->quantity;
             }),
             'rarity' => $this->rarity,
