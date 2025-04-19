@@ -24,15 +24,17 @@ class AuthController extends Controller
         if ($validator->fails())
             return response()->json($validator->errors()->toJson(), Response::HTTP_BAD_REQUEST);
 
-        $user = User::create([
-            'name' => $request->get('name'),
-            'email' => $request->get('email'),
-            'password' => Hash::make($request->get('password')),
-        ]);
+        try {
+            $user = User::create([
+                'name' => $request->get('name'),
+                'email' => $request->get('email'),
+                'password' => Hash::make($request->get('password')),
+            ]);
 
-        $token = JWTAuth::fromUser($user);
-
-        return response()->json(compact('user','token'), Response::HTTP_CREATED);
+            return response()->json(['message' => 'User created successfully'], Response::HTTP_OK);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Could not create user'], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 
     public function login(Request $request)
