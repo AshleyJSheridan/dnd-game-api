@@ -18,8 +18,10 @@ class CharStarterPackItemResource extends JsonResource
                 return $this->pivot->quantity;
             }),
             'rarity' => $this->rarity,
-            'cost' => $this->isStarterPack() ? 0 : $this->cost,
-            'cost_unit' => $this->isStarterPack() ? 0 : $this->cost_unit,
+            'cost' => [
+                'value' => $this->isStarterPack() ? 0 : $this->cost,
+                'unit' => $this->isStarterPack() ? 0 : $this->cost_unit,
+            ],
             'weight' => $this->weight,
             'weapon_properties' => $this->getWeaponProperties(),
             'armor_properties' => $this->whenLoaded('armor_props,'),
