@@ -170,7 +170,17 @@ class ItemController extends Controller
 
     public function addItemsToPlayerInventory(string $charGuid, Request $request)
     {
-        $character = Character::where('guid', $charGuid)->where('user_id', $this->user->id)->first();
+        try {
+            $character = Character::where('guid', $charGuid)->where('user_id', $this->user->id)->first();
+
+            $jsonData = json_decode($request->getContent());
+
+            
+
+            var_dump($jsonData);
+        } catch (\Exception $e) {
+
+        }
     }
 
     public function updateInventoryItem(string $charGuid, string $itemGuid, Request $request)
