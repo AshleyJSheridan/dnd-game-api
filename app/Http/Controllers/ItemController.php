@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Factories\ItemFactory;
 use App\Http\Resources\CharacterResource;
+use App\Http\Resources\CharInventoryItemResource;
 use App\Http\Resources\CharStarterPackResource;
 use App\Http\Resources\GameItemResource;
 use App\Models\Character;
@@ -155,17 +156,11 @@ class ItemController extends Controller
                 }
             }
 
+            // todo change the resource, no use returning the whole character object
             return CharacterResource::make(Character::where('guid', $charGuid)->where('user_id', $this->user->id)->first());
         } catch (\Exception $e) {
             var_dump($e->getMessage());
         }
-
-
-        /**
-         * iterate through items in selected class and background starting equipment
-         * add to char_inventory table, referencing the original item_id
-         * return char_inventory response
-         */
     }
 
     public function getPlayerInventory(string $charGuid)
@@ -178,8 +173,37 @@ class ItemController extends Controller
         $character = Character::where('guid', $charGuid)->where('user_id', $this->user->id)->first();
     }
 
-    public function removeItemsFromPlayerInventory(string $charGuid, Request $request)
+    public function updateInventoryItem(string $charGuid, string $itemGuid, Request $request)
     {
-        $character = Character::where('guid', $charGuid)->where('user_id', $this->user->id)->first();
+        try {
+            $character = Character::where('guid', $charGuid)->where('user_id', $this->user->id)->first();
+            $inventoryItem = CharInventoryItem::where('char_id', $character->id)->where('guid', $itemGuid)->first();
+
+            $jsonData = json_decode($request->getContent());
+
+            foreach ($jsonData as $property => $value)
+            {
+                $inventoryItem->{$property} = $value;
+            }
+            $inventoryItem->save();
+
+            return CharInventoryItemResource::collection($character->Inventory);
+        } catch (\Exception $e) {
+
+        }
+    }
+
+    public function removeInventoryItem(string $charGuid, string $itemGuid)
+    {
+        try {
+            $character = Character::where('guid', $charGuid)->where('user_id', $this->user->id)->first();
+            $inventoryItem = CharInventoryItem::where('char_id', $character->id)->where('guid', $itemGuid)->first();
+
+            $inventoryItem->delete();
+
+            return CharInventoryItemResource::collection($character->Inventory);
+        } catch (\Exception $e) {
+
+        }
     }
 }
