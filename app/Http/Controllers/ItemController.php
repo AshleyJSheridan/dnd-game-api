@@ -172,12 +172,19 @@ class ItemController extends Controller
     {
         try {
             $character = Character::where('guid', $charGuid)->where('user_id', $this->user->id)->first();
-
             $jsonData = json_decode($request->getContent());
+            $itemToAdd = GameItem::where('id', $jsonData->itemId)->first();
+            $inventoryItem = CharInventoryItem::create([
+                'guid' => Str::uuid()->toString(),
+                'char_id' => $character->id,
+                'base_item_id' => $itemToAdd->id,
+                'quantity' => $jsonData->quantity,
+                'name' => $itemToAdd->name,
+                'parent_id' => 0,
+                'created_at' => Carbon::now(),
+            ]);
 
-            
-
-            var_dump($jsonData);
+            return CharInventoryItemResource::collection($character->Inventory);
         } catch (\Exception $e) {
 
         }
