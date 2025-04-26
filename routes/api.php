@@ -5,6 +5,7 @@ use App\Http\Controllers\CampaignController;
 use App\Http\Controllers\CharactersController;
 use App\Http\Controllers\CharBackgroundController;
 use App\Http\Controllers\CharRaceController;
+use App\Http\Controllers\CreatureAlignmentController;
 use App\Http\Controllers\CreaturesController;
 use App\Http\Controllers\DiceController;
 use App\Http\Controllers\EncountersController;
@@ -36,6 +37,7 @@ Route::middleware([JwtMiddleware::class])->group(function () {
     Route::post('/characters', [CharactersController::class, 'createCharacter']);
     Route::get('/characters/classes', [CharClassController::class, 'getCharacterClasses']);
     Route::get('/characters/classes/{className}', [CharClassController::class, 'getCharacterClass']);
+    Route::get('/characters/alignments', [CreatureAlignmentController::class, 'getCreatureAlignments']);
     Route::get('/characters/backgrounds', [CharBackgroundController::class, 'getCharacterBackgrounds']);
     Route::get('/characters/races', [CharRaceController::class, 'getCharacterRaces']);
     Route::get('/characters/{guid}', [CharactersController::class, 'getCharacter']);

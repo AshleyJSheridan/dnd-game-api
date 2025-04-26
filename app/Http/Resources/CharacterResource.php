@@ -48,6 +48,7 @@ class CharacterResource extends JsonResource
                 'money' => json_decode($this->money) ?? ['gold' => 0],
                 'items' => CharInventoryItemResource::collection($this->Inventory)
             ],
+            'alignment' => AlignmentResource::make($this->Alignment),
             'created_at' => $this->created_at,
         ];
     }

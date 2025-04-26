@@ -90,6 +90,10 @@ class CharactersController extends Controller
                     $character->selected_path = $jsonData->classPathId;
 
                     break;
+                case 'alignment':
+                    $character->alignment = intval($jsonData->alignment);
+
+                    break;
                 case 'background':
                     if ($jsonData->charBackgroundId && $jsonData->characteristics)
                     {
@@ -102,7 +106,6 @@ class CharactersController extends Controller
                     {
                         $character->race_id = $jsonData->charRaceId;
                     }
-                    // TODO add languages applicable to each race
                     break;
                 case 'skills':
                     $skills = $jsonData->skills;

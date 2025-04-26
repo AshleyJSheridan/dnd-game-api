@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Http\Resources\CreatureAlignment;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -118,5 +119,10 @@ class Character extends Model
     {
         return $this->hasMany(CharInventoryItem::class, 'char_id', 'id')
             ->where('parent_id', 0);
+    }
+
+    public function Alignment(): HasOne
+    {
+        return $this->hasOne(CreatureAlignment::class, 'id', 'alignment');
     }
 }
