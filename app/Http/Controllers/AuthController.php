@@ -120,7 +120,7 @@ class AuthController extends Controller
                 return response()->json(['error' => 'Invalid token type'], Response::HTTP_UNAUTHORIZED);
 
             $userId = $payload->get('sub');
-            $user = User::where('id', $userId);
+            $user = User::where('id', $userId)->first();
 
             if (!$user)
                 return response()->json(['error' => 'User not found'], Response::HTTP_UNAUTHORIZED);
