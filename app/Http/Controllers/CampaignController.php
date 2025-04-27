@@ -314,6 +314,28 @@ class CampaignController extends Controller
         return CampaignMapResource::make(CampaignMap::where('guid', $mapGuid)->first());
     }
 
+    public function updateCampaign(string $campaignGuid, Request $request)
+    {
+        try {
+            $campaign = Campaign::where('guid', $campaignGuid)->first();
+            if ($campaign->user_id !== $this->user->id)
+                return response()->json(['error' => 'Not your campaign'], Response::HTTP_UNAUTHORIZED);
+
+            $jsonData = json_decode($request->getContent());
+
+            foreach ($jsonData as $key => $value)
+            {
+                $campaign->{$key} = $value;
+            }
+
+            $campaign->save();
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Bad Request'], Response::HTTP_BAD_REQUEST);
+        }
+
+        return CampaignResourceForOwner::make($campaign);
+    }
+
     // TODO move this to a helper or something
     private function getCreatureHp(int $diceAmount, string $sides, int $additionalFixedValue): int
     {
