@@ -76,9 +76,6 @@ class NameGeneratorService
 
     private function weightedRandomChoice(array $choices)
     {
-        if(array_sum($choices) < 1)
-            var_dump($choices);
-
         $total = array_sum($choices) ?? 1;
         $rand = mt_rand(1, $total);
         $current = 0;

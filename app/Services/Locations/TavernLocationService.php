@@ -8,6 +8,6 @@ class TavernLocationService
 {
     public function makeLocation(Request $request)
     {
-        var_dump($request->get('size'));
+        //var_dump($request->get('size'));
     }
 }

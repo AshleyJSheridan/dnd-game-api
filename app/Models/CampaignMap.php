@@ -2,12 +2,16 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class CampaignMap extends Model
 {
+    /** @use HasFactory<\Database\Factories\CampaignMapFactory> */
+    use HasFactory;
+
     protected $table = 'game_maps';
     protected $primaryKey = 'id';
     protected $fillable = ['guid', 'name', 'description', 'game_id', 'created_at', 'image', 'width', 'height',

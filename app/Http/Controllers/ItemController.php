@@ -159,7 +159,7 @@ class ItemController extends Controller
             // todo change the resource, no use returning the whole character object
             return CharacterResource::make(Character::where('guid', $charGuid)->where('user_id', $this->user->id)->first());
         } catch (\Exception $e) {
-            var_dump($e->getMessage());
+            //var_dump($e->getMessage());
         }
     }
 

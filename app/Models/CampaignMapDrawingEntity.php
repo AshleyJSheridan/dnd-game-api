@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class CampaignMapDrawingEntity extends Model
 {
-    use SoftDeletes;
+    /** @use HasFactory<\Database\Factories\CampaignMapDrawingEntityFactory> */
+    use HasFactory, SoftDeletes;
 
     protected $table = 'game_map_entities';
     protected $primaryKey = 'id';

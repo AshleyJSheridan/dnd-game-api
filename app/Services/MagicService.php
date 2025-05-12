@@ -75,7 +75,7 @@ class MagicService
                 }
             } catch (\Exception $e) {
                 // TODO this will mean bad json in the DB
-                var_dump($e->getMessage());
+                //var_dump($e->getMessage());
             }
         }
 

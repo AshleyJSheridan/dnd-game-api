@@ -129,7 +129,6 @@ class BookItemService implements iItemService
         // scroll didn't exist, make it, add it to the DB, and return it
         $genericItem = GameItem::where('type', 'book')->where('name', "Spell scroll (level {$spell->level})")->first();
 
-        //var_dump(json_encode(["spell" => $spell->id]));
         return GameItem::create([
             'name' => $scrollName,
             'description' => $spell->description,

@@ -12,6 +12,7 @@ use App\Models\User;
 use App\Services\MagicService;
 use App\Services\NameGeneratorService;
 use Carbon\Carbon;
+use Dompdf\Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Str;
@@ -28,11 +29,8 @@ class CharactersController extends Controller
     public function __construct(private MagicService $magicService)
     {
         try {
-            if (! $this->user = JWTAuth::parseToken()->authenticate())
-                return response()->json(['error' => 'User not found'], Response::HTTP_NOT_FOUND);
-        } catch (JWTException $e) {
-            return response()->json(['error' => 'Invalid token'], Response::HTTP_BAD_REQUEST);
-        }
+            $this->user = JWTAuth::parseToken()->authenticate();
+        } catch (JWTException $e) {}
     }
 
     public function getUserCharacters()
@@ -70,7 +68,7 @@ class CharactersController extends Controller
 
             return CharacterResource::make($character);
         } catch (\Exception $e) {
-            return response()->json(['error' => 'Bad Request' . $e->getMessage()], Response::HTTP_BAD_REQUEST);
+            return response()->json(['error' => 'Bad Request'], Response::HTTP_BAD_REQUEST);
         }
     }
 
@@ -108,6 +106,9 @@ class CharactersController extends Controller
                     }
                     break;
                 case 'skills':
+                    if (!$character->class_id)
+                        throw new \Exception('Character class not set');
+
                     $skills = $jsonData->skills;
                     $skillOptions = json_decode($character->CharacterClass->skill_options) ?? null;
                     $availableCount = $skillOptions ? $skillOptions->max : 0;
@@ -149,6 +150,8 @@ class CharactersController extends Controller
 
                         $character->abilities = json_encode($charData);
                     }
+                    else
+                        throw new \Exception('Invalid rolls or ability ids');
 
                     break;
                 case 'languages':
@@ -177,7 +180,7 @@ class CharactersController extends Controller
             // retrieve character again as calculated and related values may have changed since update
             return CharacterResource::make(Character::where('guid', $guid)->where('user_id', $this->user->id)->first());
         } catch (\Exception $e) {
-            return response()->json(['error' => 'Bad Request'], Response::HTTP_BAD_REQUEST);
+            return response()->json(['error' => 'Bad Request ' . $e->getMessage()], Response::HTTP_BAD_REQUEST);
         }
     }
 

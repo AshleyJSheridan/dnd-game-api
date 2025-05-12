@@ -48,7 +48,7 @@ class CharacterResource extends JsonResource
                 'money' => json_decode($this->money) ?? ['gold' => 0],
                 'items' => CharInventoryItemResource::collection($this->Inventory)
             ],
-            'alignment' => AlignmentResource::make($this->Alignment),
+            'alignment' => AlignmentResource::make($this->CharAlignment),
             'created_at' => $this->created_at,
         ];
     }
@@ -74,7 +74,7 @@ class CharacterResource extends JsonResource
                 $ability->modifier = floor(($ability->base + $ability->racialModifier - 10) / 2);
             }
         } catch (\Exception $e) {
-            var_dump($e->getMessage());
+            //var_dump($e->getMessage());
         }
 
         return $abilities;

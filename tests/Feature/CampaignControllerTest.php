@@ -26,11 +26,11 @@ class CampaignControllerTest extends TestCase
         $otherUser = User::factory()->create();
 
         // Create campaigns for both users
-        $campaign1 = Campaign::create(['name' => 'Campaign 1', 'user_id' => $user->id, 'guid' => Str::uuid()->toString(), 'description' => '']);
-        $campaign2 = Campaign::create(['name' => 'Campaign 2', 'user_id' => $user->id, 'guid' => Str::uuid()->toString(), 'description' => '']);
-        $campaign3 = Campaign::create(['name' => 'Campaign 3', 'user_id' => $otherUser->id, 'guid' => Str::uuid()->toString(), 'description' => '']);
-        $campaign4 = Campaign::create(['name' => 'Campaign 4', 'user_id' => $otherUser->id, 'guid' => Str::uuid()->toString(), 'description' => '']);
-        $campaign5 = Campaign::create(['name' => 'Campaign 5', 'user_id' => $otherUser->id, 'guid' => Str::uuid()->toString(), 'description' => '']);
+        $campaign1 = Campaign::factory()->create(['user_id' => $user->id]);
+        $campaign2 = Campaign::factory()->create(['user_id' => $user->id]);
+        $campaign3 = Campaign::factory()->create(['user_id' => $otherUser->id]);
+        $campaign4 = Campaign::factory()->create(['user_id' => $otherUser->id]);
+        $campaign5 = Campaign::factory()->create(['user_id' => $otherUser->id]);
 
         $token = JWTAuth::fromUser($user);
 
@@ -100,12 +100,7 @@ class CampaignControllerTest extends TestCase
     public function test_it_returns_owner_resource_if_user_owns_the_campaign()
     {
         $user = User::factory()->create();
-        $campaign = Campaign::create([
-            'name' => 'Owner Campaign',
-            'description' => 'Owned by user',
-            'guid' => 'abc123',
-            'user_id' => $user->id,
-        ]);
+        $campaign = Campaign::factory()->create(['user_id' => $user->id, 'name' => 'Owner Campaign']);
 
         $token = JWTAuth::fromUser($user);
 
@@ -122,13 +117,7 @@ class CampaignControllerTest extends TestCase
     {
         $owner = User::factory()->create();
         $otherUser = User::factory()->create();
-
-        $campaign = Campaign::create([
-            'name' => 'Shared Campaign',
-            'description' => 'Multiplayer',
-            'guid' => 'shared-123',
-            'user_id' => $owner->id,
-        ]);
+        $campaign = Campaign::factory()->create(['user_id' => $owner->id, 'name' => 'Shared Campaign']);
 
         $token = JWTAuth::fromUser($otherUser);
 
@@ -156,12 +145,7 @@ class CampaignControllerTest extends TestCase
     public function test_it_creates_a_campaign_map_with_image()
     {
         $user = User::factory()->create();
-        $campaign = Campaign::create([
-            'guid' => 'test-guid',
-            'name' => 'Test Campaign',
-            'description' => 'A test campaign',
-            'user_id' => $user->id,
-        ]);
+        $campaign = Campaign::factory()->create();
 
         $token = JWTAuth::fromUser($user);
 
@@ -188,12 +172,7 @@ class CampaignControllerTest extends TestCase
     public function test_it_returns_validation_error_if_image_is_missing()
     {
         $user = User::factory()->create();
-        $campaign = Campaign::create([
-            'guid' => 'test-guid',
-            'name' => 'Test Campaign',
-            'description' => 'A test campaign',
-            'user_id' => $user->id,
-        ]);
+        $campaign = Campaign::factory()->create();
 
         $token = JWTAuth::fromUser($user);
 
@@ -212,12 +191,7 @@ class CampaignControllerTest extends TestCase
     public function test_it_returns_validation_error_if_image_is_not_valid_file()
     {
         $user = User::factory()->create();
-        $campaign = Campaign::create([
-            'guid' => 'test-guid',
-            'name' => 'Test Campaign',
-            'description' => 'A test campaign',
-            'user_id' => $user->id,
-        ]);
+        $campaign = Campaign::factory()->create();
 
         $token = JWTAuth::fromUser($user);
 
@@ -254,21 +228,11 @@ class CampaignControllerTest extends TestCase
     public function test_it_returns_a_map_given_valid_guids()
     {
         $user = User::factory()->create();
-        $campaign = Campaign::create([
-            'name' => 'Test Campaign',
-            'description' => 'A test campaign',
-            'guid' => 'campaign-123',
-            'user_id' => $user->id,
-        ]);
-
-        $map = CampaignMap::create([
+        $campaign = Campaign::factory()->create();
+        $map = CampaignMap::factory()->create([
             'name' => 'Forest Map',
-            'description' => 'A dense forest',
             'guid' => 'map-abc',
             'game_id' => $campaign->id,
-            'image' => 'test.jpg',
-            'width' => 200,
-            'height' => 200,
         ]);
 
         $token = JWTAuth::fromUser($user);
@@ -286,12 +250,7 @@ class CampaignControllerTest extends TestCase
     public function test_it_returns_404_if_map_not_found()
     {
         $user = User::factory()->create();
-        $campaign = Campaign::create([
-            'name' => 'Lonely Campaign',
-            'description' => 'A campaign with no maps',
-            'guid' => 'lonely-123',
-            'user_id' => $user->id,
-        ]);
+        $campaign = Campaign::factory()->create();
 
         $token = JWTAuth::fromUser($user);
 
@@ -307,28 +266,10 @@ class CampaignControllerTest extends TestCase
     public function test_it_returns_404_if_map_does_not_belong_to_campaign()
     {
         $user = User::factory()->create();
-        $campaign1 = Campaign::create([
-            'name' => 'Campaign A',
-            'description' => 'A campaign with maps',
-            'guid' => 'camp-a',
-            'user_id' => $user->id,
-        ]);
-
-        $campaign2 = Campaign::create([
-            'name' => 'Campaign B',
-            'description' => 'Another campaign',
-            'guid' => 'camp-b',
-            'user_id' => $user->id,
-        ]);
-
-        $map = CampaignMap::create([
-            'name' => 'Orphaned Map',
-            'description' => 'This map belongs to another campaign',
-            'guid' => 'map-orphan',
+        $campaign1 = Campaign::factory()->create();
+        $campaign2 = Campaign::factory()->create();
+        $map = CampaignMap::factory()->create([
             'game_id' => $campaign2->id,
-            'image' => 'orphan.jpg',
-            'width' => 100,
-            'height' => 100,
         ]);
 
         $token = JWTAuth::fromUser($user);
@@ -345,25 +286,15 @@ class CampaignControllerTest extends TestCase
     public function test_it_returns_the_image_file_for_a_valid_map()
     {
         $user = User::factory()->create();
-        $campaign = Campaign::create([
-            'name' => 'Test Campaign',
-            'description' => 'A test campaign',
-            'guid' => 'camp-1',
-            'user_id' => $user->id,
-        ]);
+        $campaign = Campaign::factory()->create();
 
         $imageName = 'test-image.jpg';
         $imagePath = storage_path('images/' . $imageName);
         file_put_contents($imagePath, UploadedFile::fake()->image($imageName)->getContent());
 
-        $map = CampaignMap::create([
-            'name' => 'Map With Image',
-            'description' => 'A map with a test image',
-            'guid' => 'map-guid-1',
+        $map = CampaignMap::factory()->create([
             'game_id' => $campaign->id,
             'image' => $imageName,
-            'width' => 200,
-            'height' => 200,
         ]);
 
         $token = JWTAuth::fromUser($user);
@@ -395,21 +326,9 @@ class CampaignControllerTest extends TestCase
     public function test_it_returns_404_if_image_file_does_not_exist()
     {
         $user = User::factory()->create();
-        $campaign = Campaign::create([
-            'name' => 'No Image Campaign',
-            'description' => 'A campaign with a missing image',
-            'guid' => 'camp-2',
-            'user_id' => $user->id,
-        ]);
-
-        $map = CampaignMap::create([
-            'name' => 'Missing Image Map',
-            'description' => 'This map has a missing image file',
-            'guid' => 'map-missing-image',
+        $campaign = Campaign::factory()->create();
+        $map = CampaignMap::factory()->create([
             'game_id' => $campaign->id,
-            'image' => 'does-not-exist.jpg',
-            'width' => 100,
-            'height' => 100,
         ]);
 
         $token = JWTAuth::fromUser($user);
@@ -426,25 +345,15 @@ class CampaignControllerTest extends TestCase
     public function test_it_returns_the_thumb_file_for_a_valid_map()
     {
         $user = User::factory()->create();
-        $campaign = Campaign::create([
-            'name' => 'Test Campaign',
-            'description' => 'A test campaign',
-            'guid' => 'camp-1',
-            'user_id' => $user->id,
-        ]);
+        $campaign = Campaign::factory()->create();
 
         $imageName = 'test-image.jpg';
         $imagePath = storage_path('thumbs/' . $imageName);
         file_put_contents($imagePath, UploadedFile::fake()->image($imageName)->getContent());
 
-        $map = CampaignMap::create([
-            'name' => 'Map With Image',
-            'description' => 'A map with a test thumb',
-            'guid' => 'map-guid-1',
+        $map = CampaignMap::factory()->create([
             'game_id' => $campaign->id,
             'image' => $imageName,
-            'width' => 200,
-            'height' => 200,
         ]);
 
         $token = JWTAuth::fromUser($user);
@@ -476,21 +385,9 @@ class CampaignControllerTest extends TestCase
     public function test_it_returns_404_if_thumb_file_does_not_exist()
     {
         $user = User::factory()->create();
-        $campaign = Campaign::create([
-            'name' => 'No Image Campaign',
-            'description' => 'A campaign with a missing thumb',
-            'guid' => 'camp-2',
-            'user_id' => $user->id,
-        ]);
-
-        $map = CampaignMap::create([
-            'name' => 'Missing Image Map',
-            'description' => 'This map has a missing thumb file',
-            'guid' => 'map-missing-image',
+        $campaign = Campaign::factory()->create();
+        $map = CampaignMap::factory()->create([
             'game_id' => $campaign->id,
-            'image' => 'does-not-exist.jpg',
-            'width' => 100,
-            'height' => 100,
         ]);
 
         $token = JWTAuth::fromUser($user);
@@ -507,21 +404,9 @@ class CampaignControllerTest extends TestCase
     public function test_it_updates_allowed_fields_on_a_campaign_map()
     {
         $user = User::factory()->create();
-        $campaign = Campaign::create([
-            'name' => 'Update Test',
-            'description' => 'A campaign for testing updates',
-            'guid' => 'camp-123',
-            'user_id' => $user->id,
-        ]);
-
-        $map = CampaignMap::create([
-            'name' => 'Map 1',
-            'description' => 'A test map',
-            'image' => 'some-image.jpg',
-            'guid' => 'map-123',
+        $campaign = Campaign::factory()->create();
+        $map = CampaignMap::factory()->create([
             'game_id' => $campaign->id,
-            'width' => 100,
-            'height' => 100,
             'show_grid' => false,
             'grid_size' => 20,
             'grid_colour' => '#000000',
@@ -556,24 +441,11 @@ class CampaignControllerTest extends TestCase
     public function test_it_ignores_fields_not_in_the_allowed_list()
     {
         $user = User::factory()->create();
-        $campaign = Campaign::create([
-            'name' => 'Update Test',
-            'description' => 'A campaign for testing updates',
-            'guid' => 'camp-123',
-            'user_id' => $user->id,
-        ]);
-
-        $map = CampaignMap::create([
+        $campaign = Campaign::factory()->create();
+        $map = CampaignMap::factory()->create([
             'name' => 'Map 1',
-            'description' => 'A test map',
-            'image' => 'some-image.jpg',
-            'guid' => 'map-123',
             'game_id' => $campaign->id,
-            'width' => 100,
-            'height' => 100,
-            'show_grid' => false,
             'grid_size' => 20,
-            'grid_colour' => '#000000',
         ]);
 
         $token = JWTAuth::fromUser($user);
@@ -598,12 +470,7 @@ class CampaignControllerTest extends TestCase
     public function test_it_returns_404_if_map_is_not_found()
     {
         $user = User::factory()->create();
-        $campaign = Campaign::create([
-            'name' => 'Update Test',
-            'description' => 'A campaign for testing updates',
-            'guid' => 'camp-123',
-            'user_id' => $user->id,
-        ]);
+        $campaign = Campaign::factory()->create();
 
         $token = JWTAuth::fromUser($user);
 
@@ -621,18 +488,12 @@ class CampaignControllerTest extends TestCase
     public function test_it_adds_character_to_campaign_for_owner()
     {
         $user = User::factory()->create();
-        $campaign = Campaign::create([
-            'guid' => 'camp-guid-1',
+        $campaign = Campaign::factory()->create([
             'user_id' => $user->id,
             'name' => 'Campaign 1',
-            'description' => 'A test campaign',
         ]);
-
-        $character = Character::create([
-            'guid' => 'char-guid-1',
-            'name' => 'Hero',
+        $character = Character::factory()->create([
             'user_id' => $user->id,
-            'level' => 1,
         ]);
 
         $token = JWTAuth::fromUser($user);
@@ -656,19 +517,12 @@ class CampaignControllerTest extends TestCase
     {
         $owner = User::factory()->create();
         $player = User::factory()->create();
-
-        $campaign = Campaign::create([
-            'guid' => 'camp-guid-1',
+        $campaign = Campaign::factory()->create([
             'user_id' => $owner->id,
             'name' => 'Campaign 1',
-            'description' => 'A test campaign',
         ]);
-
-        $character = Character::create([
-            'guid' => 'char-guid-1',
-            'name' => 'Hero',
+        $character = Character::factory()->create([
             'user_id' => $player->id,
-            'level' => 1,
         ]);
 
         $token = JWTAuth::fromUser($player);
@@ -689,12 +543,7 @@ class CampaignControllerTest extends TestCase
     public function test_it_returns_400_if_character_not_found()
     {
         $user = User::factory()->create();
-        $campaign = Campaign::create([
-            'guid' => 'camp-guid-1',
-            'user_id' => $user->id,
-            'name' => 'Campaign 1',
-            'description' => 'A test campaign',
-        ]);
+        $campaign = Campaign::factory()->create();
 
         $token = JWTAuth::fromUser($user);
 
@@ -710,11 +559,8 @@ class CampaignControllerTest extends TestCase
     public function test_it_returns_400_if_campaign_not_found()
     {
         $user = User::factory()->create();
-        $character = Character::create([
-            'guid' => 'char-guid-3',
-            'name' => 'Sorcerer',
+        $character = Character::factory()->create([
             'user_id' => $user->id,
-            'level' => 1,
         ]);
 
         $token = JWTAuth::fromUser($user);
@@ -731,12 +577,7 @@ class CampaignControllerTest extends TestCase
     public function test_it_returns_400_for_malformed_payload()
     {
         $user = User::factory()->create();
-        $campaign = Campaign::create([
-            'guid' => 'camp-guid-1',
-            'user_id' => $user->id,
-            'name' => 'Campaign 1',
-            'description' => 'A test campaign',
-        ]);
+        $campaign = Campaign::factory()->create();
 
         $token = JWTAuth::fromUser($user);
 
@@ -750,18 +591,9 @@ class CampaignControllerTest extends TestCase
     public function test_it_removes_character_from_campaign_as_owner()
     {
         $user = User::factory()->create();
-        $campaign = Campaign::create([
-            'guid' => 'camp-guid-1',
+        $campaign = Campaign::factory()->create();
+        $character = Character::factory()->create([
             'user_id' => $user->id,
-            'name' => 'Campaign 1',
-            'description' => 'A test campaign',
-        ]);
-
-        $character = Character::create([
-            'guid' => 'char-guid-3',
-            'name' => 'Sorcerer',
-            'user_id' => $user->id,
-            'level' => 1,
         ]);
 
         $campaign->characters()->attach($character->id);
@@ -789,19 +621,11 @@ class CampaignControllerTest extends TestCase
     {
         $owner = User::factory()->create();
         $player = User::factory()->create();
-
-        $campaign = Campaign::create([
-            'guid' => 'camp-remove-2',
+        $campaign = Campaign::factory()->create([
             'user_id' => $owner->id,
-            'name' => 'Campaign 1',
-            'description' => 'A test campaign',
         ]);
-
-        $character = Character::create([
-            'guid' => 'char-remove-2',
+        $character = Character::factory()->create([
             'user_id' => $player->id,
-            'name' => 'Sorcerer',
-            'level' => 1,
         ]);
 
         $campaign->characters()->attach($character->id);
@@ -825,25 +649,14 @@ class CampaignControllerTest extends TestCase
         $owner = User::factory()->create();
         $player1 = User::factory()->create();
         $player2 = User::factory()->create();
-
-        $campaign = Campaign::create([
-            'guid' => 'camp-remove-2',
+        $campaign = Campaign::factory()->create([
             'user_id' => $owner->id,
-            'name' => 'Campaign 1',
-            'description' => 'A test campaign',
         ]);
-
-        $character1 = Character::create([
-            'guid' => 'char-remove-2',
+        $character1 = Character::factory()->create([
             'user_id' => $player1->id,
-            'name' => 'Sorcerer',
-            'level' => 1,
         ]);
-        $character2 = Character::create([
-            'guid' => 'char-remove-2',
+        $character2 = Character::factory()->create([
             'user_id' => $player2->id,
-            'name' => 'Sorcerer',
-            'level' => 1,
         ]);
 
         $campaign->characters()->attach($character1->id);
@@ -866,11 +679,8 @@ class CampaignControllerTest extends TestCase
     public function test_it_returns_400_if_character_not_found_when_removing_from_campaign()
     {
         $user = User::factory()->create();
-        $campaign = Campaign::create([
-            'guid' => 'camp-remove-2',
+        $campaign = Campaign::factory()->create([
             'user_id' => $user->id,
-            'name' => 'Campaign 1',
-            'description' => 'A test campaign',
         ]);
 
         $token = JWTAuth::fromUser($user);
@@ -885,18 +695,11 @@ class CampaignControllerTest extends TestCase
     public function test_it_gracefully_handles_character_not_attached()
     {
         $user = User::factory()->create();
-
-        $campaign = Campaign::create([
-            'guid' => 'camp-remove-5',
+        $campaign = Campaign::factory()->create([
             'user_id' => $user->id,
-            'name' => 'Campaign 1',
-            'description' => 'A test campaign',
         ]);
-
-        $character = Character::create([
-            'guid' => 'some-char-guid',
+        $character = Character::factory()->create([
             'user_id' => $user->id,
-            'level' => 1,
         ]);
 
         $token = JWTAuth::fromUser($user);
@@ -914,28 +717,12 @@ class CampaignControllerTest extends TestCase
     public function test_it_adds_a_character_to_the_map()
     {
         $user = User::factory()->create();
-        $campaign = Campaign::create([
-            'guid' => 'camp-remove-5',
-            'user_id' => $user->id,
-            'name' => 'Campaign 1',
-            'description' => 'A test campaign',
-        ]);
-        $map = CampaignMap::create([
-            'name' => 'Map 1',
-            'description' => 'A test map',
-            'image' => 'some-image.jpg',
-            'guid' => 'map-123',
+        $campaign = Campaign::factory()->create();
+        $map = CampaignMap::factory()->create([
             'game_id' => $campaign->id,
-            'width' => 100,
-            'height' => 100,
-            'show_grid' => false,
-            'grid_size' => 20,
-            'grid_colour' => '#000000',
         ]);
-        $character = Character::create([
-            'guid' => 'some-char-guid',
+        $character = Character::factory()->create([
             'user_id' => $user->id,
-            'level' => 1,
         ]);
 
         $token = JWTAuth::fromUser($user);
@@ -962,32 +749,10 @@ class CampaignControllerTest extends TestCase
     public function test_it_does_not_add_character_twice_to_the_map()
     {
         $user = User::factory()->create();
-        $campaign = Campaign::create([
-            'guid' => 'camp-remove-5',
-            'user_id' => $user->id,
-            'name' => 'Campaign 1',
-            'description' => 'A test campaign',
-        ]);
-        $map = CampaignMap::create([
-            'name' => 'Map 1',
-            'description' => 'A test map',
-            'image' => 'some-image.jpg',
-            'guid' => 'map-123',
-            'game_id' => $campaign->id,
-            'width' => 100,
-            'height' => 100,
-            'show_grid' => false,
-            'grid_size' => 20,
-            'grid_colour' => '#000000',
-        ]);
-        $character = Character::create([
-            'guid' => 'some-char-guid',
-            'user_id' => $user->id,
-            'level' => 1,
-        ]);
-
-        CampaignMapCharacterEntity::create([
-            'guid' => 'some-guid',
+        $campaign = Campaign::factory()->create();
+        $map = CampaignMap::factory()->create();
+        $character = Character::factory()->create();
+        CampaignMapCharacterEntity::factory()->create([
             'map_id' => $map->id,
             'linked_id' => $character->id,
         ]);
@@ -1005,29 +770,16 @@ class CampaignControllerTest extends TestCase
             ->postJson("/api/campaigns/{$campaign->guid}/maps/{$map->guid}/entities", $payload);
 
         $response->assertStatus(200);
-        $this->assertEquals(1, CampaignMapCharacterEntity::where('map_id', $map->id)->where('linked_id', $character->id)->count());
+        $this->assertEquals(1, CampaignMapCharacterEntity::where('map_id', $map->id)
+            ->where('linked_id', $character->id)->count());
     }
 
     public function test_it_adds_a_creature_to_the_map()
     {
         $user = User::factory()->create();
-        $campaign = Campaign::create([
-            'guid' => 'camp-remove-5',
-            'user_id' => $user->id,
-            'name' => 'Campaign 1',
-            'description' => 'A test campaign',
-        ]);
-        $map = CampaignMap::create([
-            'name' => 'Map 1',
-            'description' => 'A test map',
-            'image' => 'some-image.jpg',
-            'guid' => 'map-123',
+        $campaign = Campaign::factory()->create();
+        $map = CampaignMap::factory()->create([
             'game_id' => $campaign->id,
-            'width' => 100,
-            'height' => 100,
-            'show_grid' => false,
-            'grid_size' => 20,
-            'grid_colour' => '#000000',
         ]);
         // there will _always_ be Goblins!
         $creature = GameCreature::where('name', 'Goblin')->first();
@@ -1058,23 +810,9 @@ class CampaignControllerTest extends TestCase
     public function test_it_adds_a_drawing_to_the_map()
     {
         $user = User::factory()->create();
-        $campaign = Campaign::create([
-            'guid' => 'camp-remove-5',
-            'user_id' => $user->id,
-            'name' => 'Campaign 1',
-            'description' => 'A test campaign',
-        ]);
-        $map = CampaignMap::create([
-            'name' => 'Map 1',
-            'description' => 'A test map',
-            'image' => 'some-image.jpg',
-            'guid' => 'map-123',
+        $campaign = Campaign::factory()->create();
+        $map = CampaignMap::factory()->create([
             'game_id' => $campaign->id,
-            'width' => 100,
-            'height' => 100,
-            'show_grid' => false,
-            'grid_size' => 20,
-            'grid_colour' => '#000000',
         ]);
 
         $token = JWTAuth::fromUser($user);
@@ -1107,32 +845,12 @@ class CampaignControllerTest extends TestCase
     public function test_it_updates_a_character_entity_position_and_colour()
     {
         $user = User::factory()->create();
-        $campaign = Campaign::create([
-            'guid' => 'camp-remove-5',
-            'user_id' => $user->id,
-            'name' => 'Campaign 1',
-            'description' => 'A test campaign',
-        ]);
-        $map = CampaignMap::create([
-            'name' => 'Map 1',
-            'description' => 'A test map',
-            'image' => 'some-image.jpg',
-            'guid' => 'map-123',
+        $campaign = Campaign::factory()->create();
+        $map = CampaignMap::factory()->create([
             'game_id' => $campaign->id,
-            'width' => 100,
-            'height' => 100,
-            'show_grid' => false,
-            'grid_size' => 20,
-            'grid_colour' => '#000000',
         ]);
-        $character = Character::create([
-            'guid' => 'some-char-guid',
-            'user_id' => $user->id,
-            'level' => 1,
-        ]);
-
-        $entity = CampaignMapCharacterEntity::create([
-            'guid' => 'some-guid',
+        $character = Character::factory()->create();
+        $entity = CampaignMapCharacterEntity::factory()->create([
             'map_id' => $map->id,
             'linked_id' => $character->id,
             'x' => 0,
@@ -1163,28 +881,11 @@ class CampaignControllerTest extends TestCase
     public function test_it_updates_a_creature_entity_name_and_colour()
     {
         $user = User::factory()->create();
-        $campaign = Campaign::create([
-            'guid' => 'camp-remove-5',
-            'user_id' => $user->id,
-            'name' => 'Campaign 1',
-            'description' => 'A test campaign',
-        ]);
-        $map = CampaignMap::create([
-            'name' => 'Map 1',
-            'description' => 'A test map',
-            'image' => 'some-image.jpg',
-            'guid' => 'map-123',
+        $campaign = Campaign::factory()->create();
+        $map = CampaignMap::factory()->create([
             'game_id' => $campaign->id,
-            'width' => 100,
-            'height' => 100,
-            'show_grid' => false,
-            'grid_size' => 20,
-            'grid_colour' => '#000000',
         ]);
-        $entity = CampaignMapCreatureEntity::create([
-            'guid' => 'some-guid',
-            'linked_id' => 1,
-            'type' => 'creature',
+        $entity = CampaignMapCreatureEntity::factory()->create([
             'map_id' => $map->id,
             'entity_name' => 'Orc',
             'highlight_colour' => '#111111',
@@ -1194,7 +895,7 @@ class CampaignControllerTest extends TestCase
 
         $payload = [
             'type' => 'creature',
-            'entity_name' => 'Orc Leader',
+            'entity_name' => 'Some unique name',
             'highlight_colour' => '#00ff00',
         ];
 
@@ -1204,35 +905,18 @@ class CampaignControllerTest extends TestCase
         $response->assertStatus(200);
         $entity->refresh();
 
-        $this->assertEquals('Orc Leader', $entity->entity_name);
+        $this->assertEquals('Some unique name', $entity->entity_name);
         $this->assertEquals('#00ff00', $entity->highlight_colour);
     }
 
     public function test_it_updates_a_drawing_entity_position_and_colour()
     {
         $user = User::factory()->create();
-        $campaign = Campaign::create([
-            'guid' => 'camp-remove-5',
-            'user_id' => $user->id,
-            'name' => 'Campaign 1',
-            'description' => 'A test campaign',
-        ]);
-        $map = CampaignMap::create([
-            'name' => 'Map 1',
-            'description' => 'A test map',
-            'image' => 'some-image.jpg',
-            'guid' => 'map-123',
+        $campaign = Campaign::factory()->create();
+        $map = CampaignMap::factory()->create([
             'game_id' => $campaign->id,
-            'width' => 100,
-            'height' => 100,
-            'show_grid' => false,
-            'grid_size' => 20,
-            'grid_colour' => '#000000',
         ]);
-        $entity = CampaignMapDrawingEntity::create([
-            'guid' => 'some-guid',
-            'linked_id' => 0,
-            'type' => 'drawing',
+        $entity = CampaignMapDrawingEntity::factory()->create([
             'map_id' => $map->id,
             'x' => 3,
             'y' => 4,
@@ -1262,44 +946,16 @@ class CampaignControllerTest extends TestCase
     public function test_it_does_not_update_if_entity_does_not_belong_to_map()
     {
         $user = User::factory()->create();
-        $campaign = Campaign::create([
-            'guid' => 'camp-remove-5',
-            'user_id' => $user->id,
-            'name' => 'Campaign 1',
-            'description' => 'A test campaign',
-        ]);
-        $map1 = CampaignMap::create([
-            'name' => 'Map 1',
-            'description' => 'A test map',
-            'image' => 'some-image.jpg',
-            'guid' => 'map-123',
+        $campaign = Campaign::factory()->create();
+        $map1 = CampaignMap::factory()->create([
             'game_id' => $campaign->id,
-            'width' => 100,
-            'height' => 100,
-            'show_grid' => false,
-            'grid_size' => 20,
-            'grid_colour' => '#000000',
         ]);
-        $map2 = CampaignMap::create([
-            'name' => 'Map 1',
-            'description' => 'A test map',
-            'image' => 'some-image.jpg',
-            'guid' => 'map-123',
+        $map2 = CampaignMap::factory()->create([
             'game_id' => $campaign->id,
-            'width' => 100,
-            'height' => 100,
-            'show_grid' => false,
-            'grid_size' => 20,
-            'grid_colour' => '#000000',
         ]);
-
-        $entity = CampaignMapCreatureEntity::create([
-            'guid' => 'some-guid',
-            'linked_id' => 1,
-            'type' => 'creature',
+        $entity = CampaignMapCreatureEntity::factory()->create([
             'map_id' => $map1->id,
             'entity_name' => 'Orc',
-            'highlight_colour' => '#111111',
             'x' => 100,
             'y' => 100,
         ]);
@@ -1307,6 +963,7 @@ class CampaignControllerTest extends TestCase
         $token = JWTAuth::fromUser($user);
 
         $payload = [
+            'type' => 'creature',
             'x' => 1,
             'y' => 1,
             'entity_name' => 'something new',
@@ -1326,33 +983,12 @@ class CampaignControllerTest extends TestCase
     public function test_it_soft_deletes_a_map_entity()
     {
         $user = User::factory()->create();
-        $campaign = Campaign::create([
-            'guid' => 'camp-remove-5',
-            'user_id' => $user->id,
-            'name' => 'Campaign 1',
-            'description' => 'A test campaign',
-        ]);
-        $map = CampaignMap::create([
-            'name' => 'Map 1',
-            'description' => 'A test map',
-            'image' => 'some-image.jpg',
-            'guid' => 'map-123',
+        $campaign = Campaign::factory()->create();
+        $map = CampaignMap::factory()->create([
             'game_id' => $campaign->id,
-            'width' => 100,
-            'height' => 100,
-            'show_grid' => false,
-            'grid_size' => 20,
-            'grid_colour' => '#000000',
         ]);
-        $entity = CampaignMapCreatureEntity::create([
-            'guid' => 'some-guid',
-            'linked_id' => 1,
-            'type' => 'creature',
+        $entity = CampaignMapCreatureEntity::factory()->create([
             'map_id' => $map->id,
-            'entity_name' => 'Orc',
-            'highlight_colour' => '#111111',
-            'x' => 100,
-            'y' => 100,
             'deleted_at' => null,
         ]);
 
@@ -1384,33 +1020,12 @@ class CampaignControllerTest extends TestCase
     public function test_it_handles_already_soft_deleted_entity()
     {
         $user = User::factory()->create();
-        $campaign = Campaign::create([
-            'guid' => 'camp-remove-5',
-            'user_id' => $user->id,
-            'name' => 'Campaign 1',
-            'description' => 'A test campaign',
-        ]);
-        $map = CampaignMap::create([
-            'name' => 'Map 1',
-            'description' => 'A test map',
-            'image' => 'some-image.jpg',
-            'guid' => 'map-123',
+        $campaign = Campaign::factory()->create();
+        $map = CampaignMap::factory()->create([
             'game_id' => $campaign->id,
-            'width' => 100,
-            'height' => 100,
-            'show_grid' => false,
-            'grid_size' => 20,
-            'grid_colour' => '#000000',
         ]);
-        $entity = CampaignMapCreatureEntity::create([
-            'guid' => 'some-guid',
-            'linked_id' => 1,
-            'type' => 'creature',
+        $entity = CampaignMapCreatureEntity::factory()->create([
             'map_id' => $map->id,
-            'entity_name' => 'Orc',
-            'highlight_colour' => '#111111',
-            'x' => 100,
-            'y' => 100,
             'deleted_at' => now()->subDay(),
         ]);
 
@@ -1427,8 +1042,7 @@ class CampaignControllerTest extends TestCase
     public function test_it_allows_owner_to_update_their_campaign()
     {
         $user = User::factory()->create();
-        $campaign = Campaign::create([
-            'guid' => 'camp-001',
+        $campaign = Campaign::factory()->create([
             'user_id' => $user->id,
             'name' => 'Old Name',
             'description' => 'Old description',
@@ -1457,11 +1071,9 @@ class CampaignControllerTest extends TestCase
         $owner = User::factory()->create();
         $player = User::factory()->create();
 
-        $campaign = Campaign::create([
-            'guid' => 'camp-002',
+        $campaign = Campaign::factory()->create([
             'user_id' => $owner->id,
             'name' => 'Old Name',
-            'description' => 'Old description',
         ]);
 
         $token = JWTAuth::fromUser($player);

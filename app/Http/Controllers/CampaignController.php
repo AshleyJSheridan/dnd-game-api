@@ -299,7 +299,7 @@ class CampaignController extends Controller
             return CampaignMapResource::make(CampaignMap::where('guid', $mapGuid)->first());
 
         } catch (\Exception $e) {
-            var_dump($e->getMessage());
+            //var_dump($e->getMessage());
         }
     }
 
@@ -313,36 +313,48 @@ class CampaignController extends Controller
             switch ($jsonData->type) {
                 case 'character':
                     $entity = CampaignMapCharacterEntity::where('guid', $entityGuid)->where('map_id', $map->id)->first();
-                    $entity->update([
-                        'x' => $jsonData->x ?? $entity->x,
-                        'y' => $jsonData->y ?? $entity->y,
-                        'highlight_colour' => $jsonData->highlight_colour ?? $entity->highlight_colour,
-                    ]);
-                    $entity->save();
+
+                    if ($entity)
+                    {
+                        $entity->update([
+                            'x' => $jsonData->x ?? $entity->x,
+                            'y' => $jsonData->y ?? $entity->y,
+                            'highlight_colour' => $jsonData->highlight_colour ?? $entity->highlight_colour,
+                        ]);
+                        $entity->save();
+                    }
                     break;
                 case 'creature':
                     $entity = CampaignMapCreatureEntity::where('guid', $entityGuid)->where('map_id', $map->id)->first();
-                    $entity->update([
-                        'x' => $jsonData->x ?? $entity->x,
-                        'y' => $jsonData->y ?? $entity->y,
-                        'highlight_colour' => $jsonData->highlight_colour ?? $entity->highlight_colour,
-                        'entity_name' => $jsonData->entity_name ?? $entity->entity_name,
-                    ]);
-                    $entity->save();
+
+                    if ($entity)
+                    {
+                        $entity->update([
+                            'x' => $jsonData->x ?? $entity->x,
+                            'y' => $jsonData->y ?? $entity->y,
+                            'highlight_colour' => $jsonData->highlight_colour ?? $entity->highlight_colour,
+                            'entity_name' => $jsonData->entity_name ?? $entity->entity_name,
+                        ]);
+                        $entity->save();
+                    }
                     break;
                 case 'drawing':
                     $entity = CampaignMapDrawingEntity::where('guid', $entityGuid)->where('map_id', $map->id)->first();
-                    $entity->update([
-                        'x' => $jsonData->x ?? $entity->x,
-                        'y' => $jsonData->y ?? $entity->y,
-                        'highlight_colour' => $jsonData->highlight_colour ?? $entity->highlight_colour,
-                    ]);
+
+                    if ($entity)
+                    {
+                        $entity->update([
+                            'x' => $jsonData->x ?? $entity->x,
+                            'y' => $jsonData->y ?? $entity->y,
+                            'highlight_colour' => $jsonData->highlight_colour ?? $entity->highlight_colour,
+                        ]);
+                    }
                     break;
             }
 
             return CampaignMapResource::make(CampaignMap::where('guid', $mapGuid)->first());
         } catch (\Exception $e) {
-            var_dump($e->getMessage());
+            //var_dump($e->getMessage());
         }
     }
 

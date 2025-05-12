@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Http\Resources\CreatureAlignment;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -11,12 +12,13 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Character extends Model
 {
-    use SoftDeletes;
+    /** @use HasFactory<\Database\Factories\CharacterFactory> */
+    use HasFactory, SoftDeletes;
 
     protected $table = 'characters';
     protected $primaryKey = 'id';
 
-    protected $fillable = ['guid', 'name', 'user_id', 'created_at', 'level'];
+    protected $fillable = ['guid', 'name', 'user_id', 'created_at', 'level', 'class_id'];
 
     public function CharacterClass(): HasOne
     {
@@ -121,7 +123,7 @@ class Character extends Model
             ->where('parent_id', 0);
     }
 
-    public function Alignment(): HasOne
+    public function CharAlignment(): HasOne
     {
         return $this->hasOne(CreatureAlignment::class, 'id', 'alignment');
     }
