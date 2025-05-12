@@ -96,7 +96,6 @@ Route::middleware([JwtMiddleware::class])->group(function () {
 
     // campaign maps
     Route::post('/campaigns/{guid}/maps', [CampaignController::class, 'createMap']);
-    Route::patch('/campaigns/{guid}', [CampaignController::class, 'updateCampaign']);
     Route::get('/campaigns/{campaignGuid}/maps/{mapGuid}', [CampaignController::class, 'getMap']);
     Route::patch('/campaigns/{campaignGuid}/maps/{mapGuid}', [CampaignController::class, 'updateMap']);
     Route::post('/campaigns/{campaignGuid}/maps/{mapGuid}/entities', [CampaignController::class, 'addEntityToMap']);
@@ -107,6 +106,7 @@ Route::middleware([JwtMiddleware::class])->group(function () {
     Route::get('/campaigns', [CampaignController::class, 'getCampaigns']);
     Route::post('/campaigns', [CampaignController::class, 'createCampaign']);
     Route::get('/campaigns/{guid}', [CampaignController::class, 'getCampaign']);
+    Route::patch('/campaigns/{guid}', [CampaignController::class, 'updateCampaign']);
     Route::post('/campaigns/{guid}/characters', [CampaignController::class, 'addCharacterToCampaign']);
     Route::delete('/campaigns/{campaignGuid}/characters/{charGuid}', [CampaignController::class, 'removeCharacterFromCampaign']);
 });

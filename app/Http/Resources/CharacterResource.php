@@ -34,9 +34,9 @@ class CharacterResource extends JsonResource
             'skills' => $this->getCharSkills(),
             'languages' => [
                 'available' => $this->AvailableLanguageCount(),
-                'known' => CharLanguageResource::collection($this->Languages),
+                'known' => CharLanguageResource::collection($this->Languages ?? []),
                 'racial' => CharLanguageResource::collection($this->CharacterRace->RaceLanguages ?? []),
-                'class' => CharLanguageResource::collection(($this->CharacterClass->Languages->where('pivot.level', '<=', $this->level)) ?? []),
+                'class' => CharLanguageResource::collection($this->CharacterClass ? $this->CharacterClass->Languages->where('pivot.level', '<=', $this->level) : []),
             ],
             'magic' => [
                 'hasMagic' => $this->HasMagic(),

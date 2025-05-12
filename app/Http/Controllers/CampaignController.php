@@ -29,11 +29,8 @@ class CampaignController extends Controller
     public function __construct()
     {
         try {
-            if (! $this->user = JWTAuth::parseToken()->authenticate())
-                return response()->json(['error' => 'User not found'], Response::HTTP_NOT_FOUND);
-        } catch (JWTException $e) {
-            return response()->json(['error' => 'Invalid token'], Response::HTTP_BAD_REQUEST);
-        }
+            $this->user = JWTAuth::parseToken()->authenticate();
+        } catch (JWTException $e) {}
     }
 
     public function getCampaigns()
@@ -65,6 +62,8 @@ class CampaignController extends Controller
     {
         // no user check here, as we want campaigns to be shared to other users by the guid to facilitate a multiplayer game
         $campaign = Campaign::where('guid', $guid)->first();
+        if (is_null($campaign))
+            return response()->json(['error' => 'Campaign not found'], Response::HTTP_NOT_FOUND);
 
         if ($campaign->user_id === $this->user->id)
             return CampaignResourceForOwner::make($campaign);
@@ -75,6 +74,9 @@ class CampaignController extends Controller
     public function createMap(string $guid, Request $request)
     {
         $campaign = Campaign::where('guid', $guid)->first();
+        if (!$campaign)
+            return response()->json(['error' => 'Campaign not found'], Response::HTTP_NOT_FOUND);
+
         $width = 200;
         $height = 200;
 
@@ -108,7 +110,14 @@ class CampaignController extends Controller
 
     public function getMap(string $campaignGuid, string $mapGuid)
     {
-        $campaignMap = CampaignMap::where('guid', $mapGuid)->first();
+        $campaignMap = CampaignMap::where('guid', $mapGuid)
+            ->whereHas('Campaign', function ($query) use ($campaignGuid) {
+                $query->where('guid', $campaignGuid);
+            })
+            ->first();
+
+        if (!$campaignMap)
+            return response()->json(['error' => 'Campaign map not found'], Response::HTTP_NOT_FOUND);
 
         return CampaignMapResource::make($campaignMap);
     }
@@ -116,22 +125,43 @@ class CampaignController extends Controller
     public function getMapImage(string $guid)
     {
         $campaignMap = CampaignMap::where('guid', $guid)->first();
+        if (!$campaignMap)
+            return response()->json(['error' => 'Campaign map not found'], Response::HTTP_NOT_FOUND);
 
-        return response()->file(storage_path('images/' . $campaignMap->image));
+        $imagePath = storage_path('images/' . $campaignMap->image);
+
+        if (! file_exists($imagePath))
+            return response()->json(['error' => 'Image file not found'], Response::HTTP_NOT_FOUND);
+
+        return response()->file($imagePath);
     }
 
     public function getMapThumb(string $guid)
     {
         $campaignMap = CampaignMap::where('guid', $guid)->first();
+        if (!$campaignMap)
+            return response()->json(['error' => 'Campaign map not found'], Response::HTTP_NOT_FOUND);
 
-        return response()->file(storage_path('thumbs/' . $campaignMap->image));
+        $imagePath = storage_path('thumbs/' . $campaignMap->image);
+
+        if (! file_exists($imagePath))
+            return response()->json(['error' => 'Image file not found'], Response::HTTP_NOT_FOUND);
+
+        return response()->file($imagePath);
     }
 
     public function updateMap(string $campaignGuid, string $mapGuid, Request $request)
     {
         $allowedUpdates = ['show_grid', 'grid_size', 'grid_colour'];
         $data = [];
-        $campaignMap = CampaignMap::where('guid', $mapGuid)->first();
+        $campaignMap = CampaignMap::where('guid', $mapGuid)
+            ->whereHas('Campaign', function ($query) use ($campaignGuid) {
+                $query->where('guid', $campaignGuid);
+            })
+            ->first();
+
+        if (!$campaignMap)
+            return response()->json(['error' => 'Campaign map not found'], Response::HTTP_NOT_FOUND);
 
         // only allow certain fields to be updated
         $jsonData = json_decode($request->getContent());
@@ -149,6 +179,9 @@ class CampaignController extends Controller
     {
         try {
             $campaign = Campaign::where('guid', $campaignGuid)->first();
+            if (!$campaign)
+                return response()->json(['error' => 'Campaign not found'], Response::HTTP_NOT_FOUND);
+
             $jsonData = json_decode($request->getContent());
             $character = Character::where('guid', $jsonData->character_guid)->first();
 
@@ -169,9 +202,18 @@ class CampaignController extends Controller
         try {
             $campaign = Campaign::where('guid', $campaignGuid)->first();
             $character = Character::where('guid', $charGuid)->first();
-            $campaign->Characters()->detach($character->id);
 
-            $campaign->save();
+            if (! $campaign || ! $character)
+                throw new \Exception("Invalid campaign or character");
+
+            $userCharGuids = Character::where('user_id', $this->user->id)->pluck('guid')->toArray();
+
+            // owner can remove any player, individual player can only remove themselves and not others
+            if ($campaign->user_id === $this->user->id || in_array($charGuid, $userCharGuids))
+            {
+                $campaign->Characters()->detach($character->id);
+                $campaign->save();
+            }
 
             if ($campaign->user_id === $this->user->id)
                 return CampaignResourceForOwner::make($campaign);
@@ -306,10 +348,17 @@ class CampaignController extends Controller
 
     public function deleteMapEntity(string $campaignGuid, string $mapGuid, string $entityGuid, Request $request)
     {
-        $rawEntity = CampaignMap::where('guid', $mapGuid)->first()->RawEntities()->where('guid', $entityGuid)->first();
-        // TODO possibly make a raw entity model to allow delete() method instead of setting the date manually?
-        $rawEntity->deleted_at = Carbon::now();
-        $rawEntity->save();
+        $map = CampaignMap::where('guid', $mapGuid)->first();
+        if (! $map)
+            return response()->json(['error' => 'Campaign map not found'], 404);
+
+        $rawEntity = $map->RawEntities()->where('guid', $entityGuid)->first();
+        if ($rawEntity)
+        {
+            // TODO possibly make a raw entity model to allow delete() method instead of setting the date manually?
+            $rawEntity->deleted_at = Carbon::now();
+            $rawEntity->save();
+        }
 
         return CampaignMapResource::make(CampaignMap::where('guid', $mapGuid)->first());
     }

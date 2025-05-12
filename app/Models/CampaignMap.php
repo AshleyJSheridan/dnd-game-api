@@ -15,7 +15,7 @@ class CampaignMap extends Model
 
     public function Campaign(): HasOne
     {
-        return $this->hasOne(Campaign::class, 'id', 'campaign_id');
+        return $this->hasOne(Campaign::class, 'id', 'game_id');
     }
 
     public function Players(): HasMany

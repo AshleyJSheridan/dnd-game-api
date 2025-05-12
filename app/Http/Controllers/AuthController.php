@@ -22,7 +22,7 @@ class AuthController extends Controller
         ]);
 
         if ($validator->fails())
-            return response()->json($validator->errors()->toJson(), Response::HTTP_BAD_REQUEST);
+            return response()->json($validator->errors(), Response::HTTP_BAD_REQUEST);
 
         try {
             $user = User::create([
@@ -74,7 +74,7 @@ class AuthController extends Controller
             if (! $user = JWTAuth::parseToken()->authenticate())
                 return response()->json(['error' => 'User not found'], Response::HTTP_NOT_FOUND);
         } catch (JWTException $e) {
-            return response()->json(['error' => 'Invalid token'], Response::HTTP_BAD_REQUEST);
+            return response()->json(['error' => 'Token not valid'], Response::HTTP_UNAUTHORIZED);
         }
 
         return response()->json(compact('user'));
@@ -90,11 +90,10 @@ class AuthController extends Controller
     public function deleteUser()
     {
         try {
-            if (! $user = JWTAuth::parseToken()->authenticate())
-                return response()->json(['error' => 'User not found'], Response::HTTP_NOT_FOUND);
+            $user = JWTAuth::parseToken()->authenticate();
 
             $localPart = substr($user->email, 0, strrpos($user->email, '@'));
-            $domainPart = substr($user->email, strrpos($user->email, '@') - 1);
+            $domainPart = substr($user->email, strrpos($user->email, '@'));
 
             // write over their email address destructively, allows character data to be preserved without any identifying info
             $user->email = md5($localPart) . $domainPart;
@@ -105,7 +104,7 @@ class AuthController extends Controller
 
             return response()->json(['message' => 'Account successfully deleted. Sorry to see you go, good luck on your adventures.']);
         } catch (JWTException $e) {
-            return response()->json(['error' => 'Invalid token'], Response::HTTP_BAD_REQUEST);
+            return response()->json(['error' => 'Token not valid'], Response::HTTP_UNAUTHORIZED);
         }
     }
 
