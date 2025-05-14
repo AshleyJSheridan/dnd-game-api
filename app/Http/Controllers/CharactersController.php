@@ -156,7 +156,7 @@ class CharactersController extends Controller
                     break;
                 case 'languages':
                     $languages = $jsonData->languages;
-                    $availableCount = $character->AvailableLanguageCount() - count($character->languages);
+                    $availableCount = $character->AvailableLanguageCount() - count($character->Languages);
                     if (count($languages) > $availableCount)
                     {
                         $languages = array_slice($languages, 0, $availableCount);
@@ -186,13 +186,20 @@ class CharactersController extends Controller
 
     public function getCharacter(string $guid)
     {
-        return CharacterResource::make(Character::where('guid', $guid)->where('user_id', $this->user->id)->first());
+        $character = Character::where('guid', $guid)->where('user_id', $this->user->id)->first();
+        if (!$character)
+            return response()->json(['error' => 'Character not found'], Response::HTTP_NOT_FOUND);
+
+        return CharacterResource::make($character);
     }
 
     public function deleteCharacter(string $guid)
     {
         try {
             $character = Character::where('guid', $guid)->where('user_id', $this->user->id)->first();
+
+            if (!$character)
+                return response()->json(['error' => 'Character not found'], Response::HTTP_NOT_FOUND);
 
             $character->delete();
 
@@ -215,6 +222,11 @@ class CharactersController extends Controller
     public function uploadPortrait(string $guid)
     {
         $character = Character::where('guid', $guid)->where('user_id', $this->user->id)->first();
+        if (!$character)
+            return response()->json(['error' => 'Character not found'], Response::HTTP_NOT_FOUND);
+
+        if (!request()->hasFile('image'))
+            return response()->json(['error' => 'No image provided'], Response::HTTP_BAD_REQUEST);
 
         $portraitSize = 200; // square image
 
@@ -235,7 +247,14 @@ class CharactersController extends Controller
     public function getPortraitImage(string $guid)
     {
         $character = Character::where('guid', $guid)->first();
+        if (!$character)
+            return response()->json(['error' => 'Character not found'], Response::HTTP_NOT_FOUND);
 
-        return response()->file(storage_path('portraits/' . $character->custom_portrait));
+        $portraitPath = storage_path('portraits/' . $character->custom_portrait);
+
+        if (! file_exists($portraitPath))
+            return response()->json(['error' => 'Portrait image not found'], 404);
+
+        return response()->file($portraitPath);
     }
 }

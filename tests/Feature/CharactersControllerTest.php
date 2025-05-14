@@ -7,7 +7,9 @@ use App\Models\DiceRoll;
 use App\Models\User;
 use App\Services\NameGeneratorService;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Str;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use Tests\TestCase;
@@ -302,5 +304,309 @@ class CharactersControllerTest extends TestCase
         $response->assertStatus(200);
         $character->refresh();
         $this->assertEquals('{"cha":14,"con":11,"dex":10,"int":10,"str":8,"wis":14}', $character->abilities);
+    }
+
+    public function test_it_updates_languages_when_race_has_language_choices()
+    {
+        $user = User::factory()->create();
+        $character = Character::create([
+            'guid' => 'test-guid',
+            'user_id' => $user->id,
+            'level' => 1,
+            'race_id' => 5, // high elf has language racial trait
+        ]);
+
+        $token = JWTAuth::fromUser($user);
+
+        $response = $this->withHeader('Authorization', "Bearer {$token}")
+            ->patchJson("/api/characters/{$character->guid}", [
+                'updateType' => 'languages',
+                'languages' => [1,2,3,4,5],
+            ]);
+
+        $response->assertStatus(200);
+        $character->refresh();
+
+        $this->assertCount(1, $character->languages->pluck('id')->toArray());
+        $this->assertCount(1, $response->json('languages')['known']);
+    }
+
+    public function test_it_does_not_update_languages_when_race_has_no_language_choices()
+    {
+        $user = User::factory()->create();
+        $character = Character::create([
+            'guid' => 'test-guid',
+            'user_id' => $user->id,
+            'level' => 1,
+            'race_id' => 1, // dwarf has no language racial trait
+        ]);
+
+        $token = JWTAuth::fromUser($user);
+
+        $response = $this->withHeader('Authorization', "Bearer {$token}")
+            ->patchJson("/api/characters/{$character->guid}", [
+                'updateType' => 'languages',
+                'languages' => [1,2,3,4,5],
+            ]);
+
+        $response->assertStatus(200);
+        $character->refresh();
+
+        $this->assertCount(0, $character->languages->pluck('id')->toArray());
+        $this->assertCount(0, $response->json('languages')['known']);
+    }
+
+    public function test_it_updates_languages_when_background_has_language_choices()
+    {
+        $user = User::factory()->create();
+        $character = Character::create([
+            'guid' => 'test-guid',
+            'user_id' => $user->id,
+            'level' => 1,
+            'background_id' => 1, // acolyte has 2 language choices
+        ]);
+
+        $token = JWTAuth::fromUser($user);
+
+        $response = $this->withHeader('Authorization', "Bearer {$token}")
+            ->patchJson("/api/characters/{$character->guid}", [
+                'updateType' => 'languages',
+                'languages' => [1,2,3,4,5],
+            ]);
+
+        $response->assertStatus(200);
+        $character->refresh();
+
+        $this->assertCount(2, $character->languages->pluck('id')->toArray());
+        $this->assertCount(2, $response->json('languages')['known']);
+    }
+
+    public function test_it_does_not_update_languages_when_background_has_no_language_choices()
+    {
+        $user = User::factory()->create();
+        $character = Character::create([
+            'guid' => 'test-guid',
+            'user_id' => $user->id,
+            'level' => 1,
+            'background_id' => 2, // charlatan has no language choices
+        ]);
+
+        $token = JWTAuth::fromUser($user);
+
+        $response = $this->withHeader('Authorization', "Bearer {$token}")
+            ->patchJson("/api/characters/{$character->guid}", [
+                'updateType' => 'languages',
+                'languages' => [1,2,3,4,5],
+            ]);
+
+        $response->assertStatus(200);
+        $character->refresh();
+
+        $this->assertCount(0, $character->languages->pluck('id')->toArray());
+        $this->assertCount(0, $response->json('languages')['known']);
+    }
+
+    public function test_it_returns_character_for_authenticated_owner()
+    {
+        $user = User::factory()->create();
+        $character = Character::factory()->create([
+            'user_id' => $user->id,
+            'name' => 'Arannis',
+        ]);
+
+        $token = JWTAuth::fromUser($user);
+
+        $response = $this->withHeader('Authorization', "Bearer {$token}")
+            ->getJson("/api/characters/{$character->guid}");
+
+        $response->assertStatus(200);
+        $response->assertJsonFragment([
+            'name' => 'Arannis',
+            'guid' => $character->guid,
+        ]);
+    }
+
+    public function test_it_returns_error_for_character_not_owned_by_user()
+    {
+        $owner = User::factory()->create();
+        $otherUser = User::factory()->create();
+
+        $character = Character::factory()->create([
+            'user_id' => $owner->id,
+        ]);
+
+        $token = JWTAuth::fromUser($otherUser);
+
+        $response = $this->withHeader('Authorization', "Bearer {$token}")
+            ->getJson("/api/characters/{$character->guid}");
+
+        $response->assertStatus(404);
+        $response->assertExactJson(['error' => 'Character not found']);
+    }
+
+    public function test_it_returns_error_if_character_does_not_exist()
+    {
+        $user = User::factory()->create();
+        $token = JWTAuth::fromUser($user);
+
+        $response = $this->withHeader('Authorization', "Bearer {$token}")
+            ->getJson("/api/characters/non-existent-guid");
+
+        $response->assertStatus(404);
+        $response->assertExactJson(['error' => 'Character not found']);
+    }
+
+    public function test_it_deletes_a_character_owned_by_user_and_returns_remaining_characters()
+    {
+        $user = User::factory()->create();
+
+        $char1 = Character::factory()->create(['user_id' => $user->id]);
+        $char2 = Character::factory()->create(['user_id' => $user->id]);
+
+        $token = JWTAuth::fromUser($user);
+
+        $response = $this->withHeader('Authorization', "Bearer {$token}")
+            ->deleteJson("/api/characters/{$char1->guid}");
+
+        $response->assertStatus(200);
+
+        $data = $response->json();
+        $this->assertCount(1, $data);
+        $this->assertEquals($char2->guid, $data[0]['guid']);
+    }
+
+    public function test_it_does_not_allow_deletion_of_character_not_owned_by_user()
+    {
+        $owner = User::factory()->create();
+        $otherUser = User::factory()->create();
+
+        $character = Character::factory()->create(['user_id' => $owner->id]);
+
+        $token = JWTAuth::fromUser($otherUser);
+
+        $response = $this->withHeader('Authorization', "Bearer {$token}")
+            ->deleteJson("/api/characters/{$character->guid}");
+
+        $response->assertStatus(404);
+        $response->assertJson([
+            'error' => 'Character not found',
+        ]);
+
+        $this->assertDatabaseHas('characters', [
+            'id' => $character->id,
+        ]);
+    }
+
+    public function test_it_returns_404_if_character_does_not_exist()
+    {
+        $user = User::factory()->create();
+        $token = JWTAuth::fromUser($user);
+
+        $response = $this->withHeader('Authorization', "Bearer {$token}")
+            ->deleteJson("/api/characters/non-existent-guid");
+
+        $response->assertStatus(404);
+        $response->assertJson([
+            'error' => 'Character not found',
+        ]);
+    }
+
+    public function test_it_allows_user_to_upload_portrait_for_their_own_character()
+    {
+        $user = User::factory()->create();
+        $character = Character::factory()->create(['user_id' => $user->id]);
+
+        $token = JWTAuth::fromUser($user);
+        $file = UploadedFile::fake()->image('portrait.jpg', 400, 400);
+
+        $response = $this->withHeader('Authorization', "Bearer {$token}")
+            ->postJson("/api/characters/{$character->guid}/portrait", [
+                'image' => $file,
+            ]);
+
+        $response->assertStatus(200);
+        $character->refresh();
+
+        $this->assertNotNull($character->custom_portrait);
+        $this->assertFileExists(storage_path('portraits/' . $character->custom_portrait));
+    }
+
+    public function test_it_prevents_upload_if_character_is_not_owned_by_user()
+    {
+        $owner = User::factory()->create();
+        $otherUser = User::factory()->create();
+        $character = Character::factory()->create(['user_id' => $owner->id]);
+
+        $token = JWTAuth::fromUser($otherUser);
+        $file = UploadedFile::fake()->image('fake.jpg');
+
+        $response = $this->withHeader('Authorization', "Bearer {$token}")
+            ->postJson("/api/characters/{$character->guid}/portrait", [
+                'image' => $file,
+            ]);
+
+        $response->assertStatus(404);
+        $response->assertJson([
+            'error' => 'Character not found',
+        ]);
+        $character->refresh();
+        $this->assertNull($character->custom_portrait);
+    }
+
+    public function test_it_fails_if_no_image_is_uploaded()
+    {
+        $user = User::factory()->create();
+        $character = Character::factory()->create(['user_id' => $user->id]);
+
+        $token = JWTAuth::fromUser($user);
+
+        $response = $this->withHeader('Authorization', "Bearer {$token}")
+            ->postJson("/api/characters/{$character->guid}/portrait", [
+                // missing 'image'
+            ]);
+
+        $response->assertStatus(400);
+        $response->assertJson([
+            'error' => 'No image provided',
+        ]);
+    }
+
+    public function test_it_returns_the_portrait_image_for_a_valid_character()
+    {
+        $imageName = Str::uuid()->toString() . '.jpg';
+        $imagePath = storage_path('portraits/' . $imageName);
+        file_put_contents($imagePath, UploadedFile::fake()->image('test.jpg')->getContent());
+
+        $character = Character::factory()->create([
+            'custom_portrait' => $imageName,
+        ]);
+
+        $response = $this->get("/api/characters/{$character->guid}/portrait");
+        $response->assertStatus(200);
+        $response->assertHeader('Content-Type', 'image/jpeg');
+
+        // Cleanup
+        unlink($imagePath);
+    }
+
+    public function test_it_returns_404_if_character_does_not_exist_when_requesting_portrait_image()
+    {
+        $response = $this->get('/api/characters/nonexistent-guid/portrait');
+
+        $response->assertStatus(404);
+        $response->assertJson([
+            'error' => 'Character not found',
+        ]);
+    }
+
+    public function test_it_returns_404_if_image_file_does_not_exist()
+    {
+        $character = Character::factory()->create([
+            'custom_portrait' => 'missing-file.jpg',
+        ]);
+
+        $response = $this->get("/api/characters/{$character->guid}/portrait");
+
+        $response->assertStatus(404);
     }
 }

@@ -18,7 +18,7 @@ class Character extends Model
     protected $table = 'characters';
     protected $primaryKey = 'id';
 
-    protected $fillable = ['guid', 'name', 'user_id', 'created_at', 'level', 'class_id'];
+    protected $fillable = ['guid', 'name', 'user_id', 'created_at', 'level', 'class_id', 'race_id', 'background_id', 'custom_portrait'];
 
     public function CharacterClass(): HasOne
     {
