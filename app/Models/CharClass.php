@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -9,8 +10,13 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class CharClass extends Model
 {
+    /** @use HasFactory<\Database\Factories\CharClassFactory> */
+    use HasFactory;
+
     protected $table = 'char_classes';
     protected $primaryKey = 'id';
+    const UPDATED_AT = null;
+    const CREATED_AT = null;
 
     public function getPrimaryAbility1(): HasOne
     {
