@@ -80,12 +80,17 @@ class EncountersController extends Controller
             return EncounterResource::make($creatureEncounter);
         } catch (\Exception $e) {
             // TODO do something here, probably means invalid JSON input
-            return response()->json(['error' => 'Bad Request'], Response::HTTP_BAD_REQUEST);
+            return response()->json(['error' => 'Bad Request' . $e->getMessage()], Response::HTTP_BAD_REQUEST);
         }
     }
 
     public function getEncounterByGuid(string $guid)
     {
-        return EncounterResource::make(GameEncounter::where('guid', $guid)->first());
+        $encounter = GameEncounter::where('guid', $guid)->first();
+
+        if (! $encounter)
+            return response()->json(['error' => 'Encounter not found'], 404);
+
+        return EncounterResource::make($encounter);
     }
 }

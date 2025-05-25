@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Http\Resources\CreatureAlignment;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -10,8 +11,13 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class GameCreature extends Model
 {
+    /** @use HasFactory<\Database\Factories\GameCreatureFactory> */
+    use HasFactory;
+
     protected $table = 'game_monsters';
     protected $primaryKey = 'id';
+    const UPDATED_AT = null;
+    const CREATED_AT = null;
 
     public function Alignment(): HasOne
     {

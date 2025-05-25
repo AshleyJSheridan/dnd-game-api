@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\GameDiceRollResource;
-use App\Models\Character;
 use App\Services\DiceRollService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -15,6 +14,7 @@ class DiceController extends Controller
 
     public function rollDice(Request $request)
     {
+        var_dump($request->getContent());
         if ($request->getContent() === '')
             return response()->json(['error' => 'No dice'], Response::HTTP_BAD_REQUEST);
 

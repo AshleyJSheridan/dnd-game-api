@@ -63,7 +63,7 @@ class CreatureService
         return $creatures;
     }
 
-    public function createEncounter(array $charLevels, int $difficulty, string $environment): array
+    public function createEncounter(array $charLevels, int $difficulty, string $environment): array | null
     {
         $differenceThreshold = 0.2; // to allow for a ± difference around matching creatures to characters challenge ratings
         $difficulty = max(min($difficulty, 4), 1);

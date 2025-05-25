@@ -17,6 +17,7 @@ class CharClassFactory extends Factory
     public function definition(): array
     {
         return [
+            'id' => fake()->numberBetween(100, 200),
             'name' => $this->faker->word(),
             'description' => $this->faker->sentence(),
             'primary_ability_1' => $this->faker->numberBetween(1, 6),
