@@ -21,14 +21,12 @@ use Tymon\JWTAuth\Facades\JWTAuth;
 class ItemController extends Controller
 {
     private User $user;
+
     public function __construct()
     {
         try {
-            if (! $this->user = JWTAuth::parseToken()->authenticate())
-                return response()->json(['error' => 'User not found'], Response::HTTP_NOT_FOUND);
-        } catch (JWTException $e) {
-            return response()->json(['error' => 'Invalid token'], Response::HTTP_BAD_REQUEST);
-        }
+            $this->user = JWTAuth::parseToken()->authenticate();
+        } catch (JWTException $e) {}
     }
 
     public function getItems(string $itemType = null)
@@ -39,7 +37,7 @@ class ItemController extends Controller
         return GameItemResource::collection(GameItem::where('generated', 'no')->where('type', $itemType)->get());
     }
 
-    public function getRandomItem(string $itemType = 'book')
+    public function getRandomItem(string $itemType)
     {
         $rarity = rand(1, 100);
 

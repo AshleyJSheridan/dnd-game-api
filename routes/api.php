@@ -100,6 +100,13 @@ Route::middleware([JwtMiddleware::class])->group(function () {
     Route::patch('/campaigns/{campaignGuid}/maps/{mapGuid}/entities/{entityGuid}', [CampaignController::class, 'updateMapEntity']);
     Route::delete('/campaigns/{campaignGuid}/maps/{mapGuid}/entities/{entityGuid}', [CampaignController::class, 'deleteMapEntity']);
 
+    // campaign lore
+    Route::get('/campaigns/lore-groups', [CampaignController::class, 'getLoreGroups']);
+    Route::get('/campaigns/{guid}/lore', [CampaignController::class, 'getCampaignLore']);
+    Route::post('/campaigns/{guid}/lore', [CampaignController::class, 'createCampaignLore']);
+    Route::delete('/campaigns/{guid}/lore/{loreGuid}', [CampaignController::class, 'deleteCampaignLoreItem']);
+    Route::patch('/campaigns/{guid}/lore/{loreGuid}', [CampaignController::class, 'editCampaignLoreItem']);
+
     // campaigns
     Route::get('/campaigns', [CampaignController::class, 'getCampaigns']);
     Route::post('/campaigns', [CampaignController::class, 'createCampaign']);
@@ -113,6 +120,9 @@ Route::middleware([JwtMiddleware::class])->group(function () {
 Route::get('/campaigns/maps/{guid}/image', [CampaignController::class, 'getMapImage']);
 Route::get('/campaigns/maps/{guid}/thumb', [CampaignController::class, 'getMapThumb']);
 Route::get('/characters/{guid}/portrait', [CharactersController::class, 'getPortraitImage']);
+
+Route::get('/campaigns/{guid}/lore/{loreGuid}/thumb', [CampaignController::class, 'getCampaignLoreThumb']);
+Route::get('/campaigns/{guid}/lore/{loreGuid}', [CampaignController::class, 'getCampaignLoreItem']);
 
 
 // locations

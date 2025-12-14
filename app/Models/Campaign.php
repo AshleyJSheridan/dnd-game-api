@@ -25,4 +25,17 @@ class Campaign extends Model
     {
         return $this->belongsToMany(Character::class, 'game_character', 'game_id', 'char_id');
     }
+
+    public function Lore(): HasMany
+    {
+        return $this->hasMany(CampaignLore::class, 'game_id', 'id')
+            ->orderBy('lore_group');
+    }
+
+    public function PlayerLore(): HasMany
+    {
+        return $this->hasMany(CampaignLore::class, 'game_id', 'id')
+            ->where('player_visible', true)
+            ->orderBy('lore_group');
+    }
 }

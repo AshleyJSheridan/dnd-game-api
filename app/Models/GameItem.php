@@ -2,12 +2,16 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class GameItem extends Model
 {
+    /** @use HasFactory<\Database\Factories\GameItemFactory> */
+    use HasFactory;
+
     protected $table = 'game_items';
     protected $primaryKey = 'id';
     protected $fillable = ['name', 'description', 'cost', 'cost_unit', 'type', 'rarity', 'special', 'generated', 'weight'];

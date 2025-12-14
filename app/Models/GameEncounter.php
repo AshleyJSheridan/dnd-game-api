@@ -10,7 +10,7 @@ class GameEncounter extends Model
 {
     /** @use HasFactory<\Database\Factories\GameEncounterFactory> */
     use HasFactory;
-    
+
     protected $table = 'game_encounters';
     protected $primaryKey = 'id';
     protected $fillable = ['guid', 'type', 'description', 'difficulty', 'party_difficulty', 'environment', 'created_at'];

@@ -14,6 +14,7 @@ class CampaignResourceForPlayer extends JsonResource
             'description' => $this->description,
             'state' => $this->state,
             'created_at' => $this->created_at,
+            'lore' => CampaignLoreResource::collection($this->PlayerLore),
             'owner' => false,
             'players' => CharacterResource::collection($this->Characters),
         ];

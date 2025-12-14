@@ -2,10 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\CampaignLoreGroupResource;
+use App\Http\Resources\CampaignLoreResource;
 use App\Http\Resources\CampaignMapResource;
 use App\Http\Resources\CampaignResourceForOwner;
 use App\Http\Resources\CampaignResourceForPlayer;
 use App\Models\Campaign;
+use App\Models\CampaignLore;
+use App\Models\CampaignLoreGroup;
 use App\Models\CampaignMap;
 use App\Models\CampaignMapCharacterEntity;
 use App\Models\CampaignMapCreatureEntity;
@@ -21,10 +25,19 @@ use Spatie\Image\Enums\ImageDriver;
 use Spatie\Image\Image;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Tymon\JWTAuth\Facades\JWTAuth;
+use Parsedown;
 
 class CampaignController extends Controller
 {
     private User $user;
+    private array $defaultLoreGroups = [
+        'Locations',
+        'Organizations',
+        'NPCs',
+        'Events',
+        'History',
+        'Religions',
+    ];
 
     public function __construct()
     {
@@ -71,11 +84,214 @@ class CampaignController extends Controller
             return CampaignResourceForPlayer::make($campaign);
     }
 
+    public function getLoreGroups()
+    {
+        $allLoreGroups = $this->defaultLoreGroups;
+        $userLoreGroups = CampaignLoreGroup::where('user_id', $this->user->id)->get();
+        foreach ($userLoreGroups as $userLoreGroup) {
+            array_push($allLoreGroups, $userLoreGroup->name);
+        }
+
+        return CampaignLoreGroupResource::make(collect($allLoreGroups));
+    }
+
+    public function getCampaignLoreItem(string $guid, string $loreGuid)
+    {
+        $campaign = Campaign::where('guid', $guid)->first();
+        if (!$campaign)
+            return response()->json(['error' => 'Campaign not found'], Response::HTTP_NOT_FOUND);
+
+        $loreItem = CampaignLore::where('guid', $loreGuid)
+            ->where('game_id', $campaign->id)
+            ->first();
+        if (!$loreItem)
+            return response()->json(['error' => 'Lore item not found'], Response::HTTP_NOT_FOUND);
+
+        if (!$loreItem->file)
+        {
+            return response()->json(['error' => 'Lore item is not a file'], Response::HTTP_BAD_REQUEST);
+        }
+
+        $filePath = storage_path('lore_files/' . $loreItem->file);
+
+        if (!file_exists($filePath))
+            return response()->json(['error' => 'Image file not found'], Response::HTTP_NOT_FOUND);
+
+        // TODO check to see if returning a large PDF file needs special handling.
+        return response()->file($filePath);
+    }
+
+    public function deleteCampaignLoreItem(string $guid, string $loreGuid)
+    {
+        $campaign = Campaign::where('guid', $guid)->first();
+        if (!$campaign)
+            return response()->json(['error' => 'Campaign not found'], Response::HTTP_NOT_FOUND);
+
+        $loreItem = CampaignLore::where('guid', $loreGuid)
+            ->where('game_id', $campaign->id)
+            ->first();
+        if (!$loreItem)
+            return response()->json(['error' => 'Lore item not found'], Response::HTTP_NOT_FOUND);
+
+        $loreItem->delete();
+
+        return CampaignLoreResource::collection($campaign->lore);
+    }
+
+    public function editCampaignLoreItem(string $guid, string $loreGuid, Request $request)
+    {
+        $campaign = Campaign::where('guid', $guid)->first();
+        if (!$campaign)
+            return response()->json(['error' => 'Campaign not found'], Response::HTTP_NOT_FOUND);
+
+        $loreItem = CampaignLore::where('guid', $loreGuid)
+            ->where('game_id', $campaign->id)
+            ->first();
+        if (!$loreItem)
+            return response()->json(['error' => 'Lore item not found'], Response::HTTP_NOT_FOUND);
+
+        if ($request->input('content')) {
+            $parsedown = new Parsedown();
+            $parsedContent = $parsedown->text($request->input('content'));
+
+            $loreItem->raw_content = $request->input('content');
+            $loreItem->parsed_content = $parsedContent;
+            $loreItem->save();
+        }
+
+        return CampaignLoreResource::collection($campaign->lore);
+    }
+
+    public function createCampaignLore(string $guid, Request $request)
+    {
+        $campaign = Campaign::where('guid', $guid)->first();
+        if (!$campaign)
+            return response()->json(['error' => 'Campaign not found'], Response::HTTP_NOT_FOUND);
+        if ($campaign->user_id !== $this->user->id)
+            return response()->json(['error' => 'Not your campaign'], Response::HTTP_UNAUTHORIZED);
+
+        $width = 200;
+        $height = 200;
+
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:250'],
+            'type' => ['required', 'in:text,link,file'],
+            'file' => [
+                'exclude_unless:type,file',
+                'required',
+                'file',
+                'mimetypes:image/jpeg,image/png,image/gif,image/webp,application/pdf',
+                'max:20480',
+            ],
+            'url' => [
+                'exclude_unless:type,link',
+                'required',
+                'url',
+            ],
+            'content' => [
+                'exclude_unless:type,text',
+                'required',
+                'string',
+            ],
+            'group' => ['required', 'string'],
+            'hide' => ['sometimes', 'string'],
+        ]);
+
+        $fileIsImage = false;
+        $fileName = null;
+        if ($validated['type'] === 'file' && $request->hasFile('file'))
+        {
+            if (request()->file->getClientMimeType() == 'application/pdf') {
+                $fileName = Str::uuid()->toString() . '.' . request()->file->getClientOriginalExtension();
+                request()->file->move(storage_path('lore_files'), $fileName);
+            }
+            else
+            {
+                $fileIsImage = true;
+                $fileName = Str::uuid()->toString() . '.' . request()->file->getClientOriginalExtension();
+                request()->file->move(storage_path('lore_files'), $fileName);
+
+                $image = Image::useImageDriver(ImageDriver::Gd)
+                    ->loadFile(storage_path('lore_files/' . $fileName));
+
+                $image->save(storage_path('lore_files/' . $fileName));
+                $image->resize($width, $height)
+                    ->save(storage_path('lore_thumbs/') . $fileName);
+
+            }
+        }
+
+        $loreGroupId = $this->getLoreGroupId($validated['group']);
+
+        $parsedContent = '';
+        if (strlen($validated['content'])) {
+            $parsedown = new Parsedown();
+            $parsedContent = $parsedown->text($validated['content']);
+        }
+
+        $item = CampaignLore::create([
+            'guid' => Str::uuid()->toString(),
+            'game_id' => $campaign->id,
+            'name' => $validated['name'],
+            'type' => $validated['type'],
+            'created_at' => Carbon::now(),
+            'raw_content' => $validated['content'] ?? null,
+            'parsed_content' => $parsedContent,
+            'url' => $validated['url'] ?? null,
+            'file' => $fileName,
+            'is_image'=> $fileIsImage,
+            'player_visible' => empty($validated['hide']) ? 1 : 0,
+            'lore_group' => $loreGroupId,
+        ]);
+
+        return CampaignLoreResource::make($item);
+    }
+
+    public function getCampaignLoreThumb(string $guid, string $loreGuid)
+    {
+        $campaign = Campaign::where('guid', $guid)->first();
+        if (!$campaign)
+            return response()->json(['error' => 'Campaign not found'], Response::HTTP_NOT_FOUND);
+
+        $loreItem = CampaignLore::where('guid', $loreGuid)
+            ->where('game_id', $campaign->id)
+            ->first();
+        if (!$loreItem)
+            return response()->json(['error' => 'Lore item not found'], Response::HTTP_NOT_FOUND);
+
+        $imagePath = storage_path('lore_thumbs/' . $loreItem->file);
+
+        if (! file_exists($imagePath))
+            return response()->json(['error' => 'Image file not found'], Response::HTTP_NOT_FOUND);
+
+        return response()->file($imagePath);
+    }
+
+    private function getLoreGroupId(string $groupName): ?int
+    {
+        $loreGroup = CampaignLoreGroup::where('name', $groupName)
+            ->where('user_id', $this->user->id)
+            ->first();
+
+        if (!$loreGroup)
+        {
+            $loreGroup = CampaignLoreGroup::create([
+                'name' => $groupName,
+                'user_id' => $this->user->id,
+                'created_at' => Carbon::now(),
+            ]);
+        }
+
+        return $loreGroup->id;
+    }
+
     public function createMap(string $guid, Request $request)
     {
         $campaign = Campaign::where('guid', $guid)->first();
         if (!$campaign)
             return response()->json(['error' => 'Campaign not found'], Response::HTTP_NOT_FOUND);
+        if ($campaign->user_id !== $this->user->id)
+            return response()->json(['error' => 'Not your campaign'], Response::HTTP_UNAUTHORIZED);
 
         $width = 200;
         $height = 200;
@@ -386,7 +602,11 @@ class CampaignController extends Controller
 
             foreach ($jsonData as $key => $value)
             {
-                $campaign->{$key} = $value;
+                // Only allow updating of specific campaign fields.
+                if (in_array($key, ['name', 'description', 'state']))
+                {
+                    $campaign->{$key} = $value;
+                }
             }
 
             $campaign->save();
