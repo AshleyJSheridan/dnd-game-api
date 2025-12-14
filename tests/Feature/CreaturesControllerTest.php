@@ -7,7 +7,6 @@ use App\Models\User;
 use App\Services\CreatureService;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\App;
 use Mockery;
 use Tests\TestCase;
 use Tymon\JWTAuth\Facades\JWTAuth;
