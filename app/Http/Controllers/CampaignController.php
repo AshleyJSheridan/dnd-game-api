@@ -368,7 +368,7 @@ class CampaignController extends Controller
 
     public function updateMap(string $campaignGuid, string $mapGuid, Request $request)
     {
-        $allowedUpdates = ['show_grid', 'grid_size', 'grid_colour'];
+        $allowedUpdates = ['show_grid', 'grid_size', 'grid_colour', 'height', 'width'];
         $data = [];
         $campaignMap = CampaignMap::where('guid', $mapGuid)
             ->whereHas('Campaign', function ($query) use ($campaignGuid) {
