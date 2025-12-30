@@ -564,6 +564,15 @@ class CampaignController extends Controller
                             'y' => $jsonData->y ?? $entity->y,
                             'highlight_colour' => $jsonData->highlight_colour ?? $entity->highlight_colour,
                         ]);
+
+                        if ($jsonData->stats->pattern)
+                        {
+                            $entityStatsData = json_decode($entity->stats, true);
+                            $entityStatsData['pattern'] = $jsonData->stats->pattern;
+                            $entity->stats = json_encode($entityStatsData);
+                        }
+
+                        $entity->save();
                     }
                     break;
             }
