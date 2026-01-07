@@ -443,8 +443,11 @@ class CampaignController extends Controller
     public function addEntityToMap(string $campaignGuid, string $mapGuid, Request $request)
     {
         try {
-            $campaign = Campaign::where('guid', $campaignGuid)->first();
-            $map = CampaignMap::where('guid', $mapGuid)->first();
+            $map = CampaignMap::where('guid', $mapGuid)
+                ->whereHas('Campaign', function ($query) use ($campaignGuid) {
+                    $query->where('guid', $campaignGuid);
+                })
+                ->first();
             $jsonData = json_decode($request->getContent());
 
             switch ($jsonData->type) {
@@ -522,7 +525,11 @@ class CampaignController extends Controller
     public function updateMapEntity(string $campaignGuid, string $mapGuid, string $entityGuid, Request $request)
     {
         try {
-            $map = CampaignMap::where('guid', $mapGuid)->first();
+            $map = CampaignMap::where('guid', $mapGuid)
+                ->whereHas('Campaign', function ($query) use ($campaignGuid) {
+                    $query->where('guid', $campaignGuid);
+                })
+                ->first();
             $jsonData = json_decode($request->getContent());
 
             // TODO refactor this to avoid repetition
@@ -533,8 +540,8 @@ class CampaignController extends Controller
                     if ($entity)
                     {
                         $entity->update([
-                            'x' => $jsonData->x ?? $entity->x,
-                            'y' => $jsonData->y ?? $entity->y,
+                            'x' => max($jsonData->x ?? $entity->x, 0),
+                            'y' => max($jsonData->y ?? $entity->y, 0),
                             'highlight_colour' => $jsonData->highlight_colour ?? $entity->highlight_colour,
                         ]);
                         $entity->save();
@@ -546,8 +553,8 @@ class CampaignController extends Controller
                     if ($entity)
                     {
                         $entity->update([
-                            'x' => $jsonData->x ?? $entity->x,
-                            'y' => $jsonData->y ?? $entity->y,
+                            'x' => max($jsonData->x ?? $entity->x, 0),
+                            'y' => max($jsonData->y ?? $entity->y, 0),
                             'highlight_colour' => $jsonData->highlight_colour ?? $entity->highlight_colour,
                             'entity_name' => $jsonData->entity_name ?? $entity->entity_name,
                         ]);
@@ -560,8 +567,8 @@ class CampaignController extends Controller
                     if ($entity)
                     {
                         $entity->update([
-                            'x' => $jsonData->x ?? $entity->x,
-                            'y' => $jsonData->y ?? $entity->y,
+                            'x' => max($jsonData->x ?? $entity->x, 0),
+                            'y' => max($jsonData->y ?? $entity->y, 0),
                             'highlight_colour' => $jsonData->highlight_colour ?? $entity->highlight_colour,
                         ]);
 
@@ -585,7 +592,11 @@ class CampaignController extends Controller
 
     public function deleteMapEntity(string $campaignGuid, string $mapGuid, string $entityGuid, Request $request)
     {
-        $map = CampaignMap::where('guid', $mapGuid)->first();
+        $map = CampaignMap::where('guid', $mapGuid)
+            ->whereHas('Campaign', function ($query) use ($campaignGuid) {
+                $query->where('guid', $campaignGuid);
+            })
+            ->first();
         if (! $map)
             return response()->json(['error' => 'Campaign map not found'], 404);
 
