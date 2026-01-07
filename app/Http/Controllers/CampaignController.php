@@ -572,7 +572,7 @@ class CampaignController extends Controller
                             'highlight_colour' => $jsonData->highlight_colour ?? $entity->highlight_colour,
                         ]);
 
-                        if ($jsonData->stats->pattern)
+                        if (!empty($jsonData->stats->pattern))
                         {
                             $entityStatsData = json_decode($entity->stats, true);
                             $entityStatsData['pattern'] = $jsonData->stats->pattern;
