@@ -135,7 +135,7 @@ class CreatureService
         return [];
     }
 
-    private function processTraits($traits): array
+    public function processTraits($traits): array
     {
         if (empty($traits))
             return [];
@@ -151,7 +151,7 @@ class CreatureService
         return $newTraits;
     }
 
-    private function processSkills($skills): array
+    public function processSkills($skills): array
     {
         if (empty($skills))
             return [];
@@ -167,7 +167,7 @@ class CreatureService
         return $newSkills;
     }
 
-    private function processAbilities($abilities): array
+    public function processAbilities($abilities): array
     {
         if(empty($abilities))
             return [];
@@ -189,7 +189,7 @@ class CreatureService
         return $newAbilities;
     }
 
-    private function getCreatureHp(int $diceAmount, string $sides, int $additionalFixedValue): int
+    public function getCreatureHp(int $diceAmount, string $sides, int $additionalFixedValue): int
     {
         $hp = $additionalFixedValue;
         $sides = intval(substr($sides, 1));

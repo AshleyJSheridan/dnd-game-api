@@ -16,11 +16,7 @@ class CampaignMapCharacterResource extends JsonResource
             'x' => $this->x,
             'y' => $this->y,
             'highlight_colour' => $this->highlight_colour,
-            'player' => [
-                'name' => $this->Player->name,
-                'guid' => $this->Player->guid,
-                'custom_portrait' => $this->Player->custom_portrait ?? '',
-            ]
+            'entity' => CharacterResource::make($this->Player),
         ];
     }
 }

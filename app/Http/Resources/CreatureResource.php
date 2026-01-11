@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Services\CreatureService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -9,6 +10,9 @@ class CreatureResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
+        $creatureService = app(CreatureService::class);
+        $overrides = $this->additional['stats'] ?? [];
+
         return [
             'id' => $this->id,
             'guid' => $this->when(!is_null($this->guid), $this->guid),
@@ -25,6 +29,12 @@ class CreatureResource extends JsonResource
                 'dice_amount' => $this->hit_points_dice,
                 'dice_sides' => $this->hit_points_dice_sides,
                 'plus_fixed' => $this->hit_point_additional,
+                'max_hp' => $overrides->max_hp ?? $creatureService->getCreatureHp(
+                    $this->hit_points_dice,
+                    $this->hit_points_dice_sides,
+                    $this->hit_point_additional,
+                ),
+                'hp' => $overrides->hp ?? 0,
             ],
             'speed' => $this->getParsedSpeeds(),
             'challenge_rating' => $this->challenge_rating,
