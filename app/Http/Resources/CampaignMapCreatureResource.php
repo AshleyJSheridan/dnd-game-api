@@ -23,6 +23,7 @@ class CampaignMapCreatureResource extends JsonResource
             'x' => $this->x,
             'y' => $this->y,
             'highlight_colour' => $this->highlight_colour,
+            'visible' => $this->visible === 'yes',
             'entity' => CreatureResource::make($this->Creature)->additional(['stats' => json_decode($this->stats)]),
         ];
     }
