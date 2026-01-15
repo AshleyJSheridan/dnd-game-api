@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Resources\CampaignLoreGroupResource;
 use App\Http\Resources\CampaignLoreResource;
 use App\Http\Resources\CampaignMapResource;
+use App\Http\Resources\CampaignMapResourceForOwner;
 use App\Http\Resources\CampaignResourceForOwner;
 use App\Http\Resources\CampaignResourceForPlayer;
 use App\Models\Campaign;
@@ -326,6 +327,7 @@ class CampaignController extends Controller
 
     public function getMap(string $campaignGuid, string $mapGuid)
     {
+        $campaign = Campaign::where('guid', $campaignGuid)->first();
         $campaignMap = CampaignMap::where('guid', $mapGuid)
             ->whereHas('Campaign', function ($query) use ($campaignGuid) {
                 $query->where('guid', $campaignGuid);
@@ -335,7 +337,11 @@ class CampaignController extends Controller
         if (!$campaignMap)
             return response()->json(['error' => 'Campaign map not found'], Response::HTTP_NOT_FOUND);
 
-        return CampaignMapResource::make($campaignMap);
+        // Owner of a campaign map gets a slightly different response to a player.
+        if ($campaign->user_id === $this->user->id)
+            return CampaignMapResourceForOwner::make(CampaignMap::where('guid', $mapGuid)->first());
+        else
+            return CampaignMapResource::make(CampaignMap::where('guid', $mapGuid)->first());
     }
 
     public function getMapImage(string $guid)
@@ -443,6 +449,7 @@ class CampaignController extends Controller
     public function addEntityToMap(string $campaignGuid, string $mapGuid, Request $request)
     {
         try {
+            $campaign = Campaign::where('guid', $campaignGuid)->first();
             $map = CampaignMap::where('guid', $mapGuid)
                 ->whereHas('Campaign', function ($query) use ($campaignGuid) {
                     $query->where('guid', $campaignGuid);
@@ -515,7 +522,11 @@ class CampaignController extends Controller
                     // object
             }
 
-            return CampaignMapResource::make(CampaignMap::where('guid', $mapGuid)->first());
+            // Owner of a campaign map gets a slightly different response to a player.
+            if ($campaign->user_id === $this->user->id)
+                return CampaignMapResourceForOwner::make(CampaignMap::where('guid', $mapGuid)->first());
+            else
+                return CampaignMapResource::make(CampaignMap::where('guid', $mapGuid)->first());
 
         } catch (\Exception $e) {
             //var_dump($e->getMessage());
@@ -525,6 +536,7 @@ class CampaignController extends Controller
     public function updateMapEntity(string $campaignGuid, string $mapGuid, string $entityGuid, Request $request)
     {
         try {
+            $campaign = Campaign::where('guid', $campaignGuid)->first();
             $map = CampaignMap::where('guid', $mapGuid)
                 ->whereHas('Campaign', function ($query) use ($campaignGuid) {
                     $query->where('guid', $campaignGuid);
@@ -584,7 +596,11 @@ class CampaignController extends Controller
                     break;
             }
 
-            return CampaignMapResource::make(CampaignMap::where('guid', $mapGuid)->first());
+            // Owner of a campaign map gets a slightly different response to a player.
+            if ($campaign->user_id === $this->user->id)
+                return CampaignMapResourceForOwner::make(CampaignMap::where('guid', $mapGuid)->first());
+            else
+                return CampaignMapResource::make(CampaignMap::where('guid', $mapGuid)->first());
         } catch (\Exception $e) {
             //var_dump($e->getMessage());
         }
@@ -592,6 +608,7 @@ class CampaignController extends Controller
 
     public function deleteMapEntity(string $campaignGuid, string $mapGuid, string $entityGuid, Request $request)
     {
+        $campaign = Campaign::where('guid', $campaignGuid)->first();
         $map = CampaignMap::where('guid', $mapGuid)
             ->whereHas('Campaign', function ($query) use ($campaignGuid) {
                 $query->where('guid', $campaignGuid);
@@ -608,7 +625,11 @@ class CampaignController extends Controller
             $rawEntity->save();
         }
 
-        return CampaignMapResource::make(CampaignMap::where('guid', $mapGuid)->first());
+        // Owner of a campaign map gets a slightly different response to a player.
+        if ($campaign->user_id === $this->user->id)
+            return CampaignMapResourceForOwner::make(CampaignMap::where('guid', $mapGuid)->first());
+        else
+            return CampaignMapResource::make(CampaignMap::where('guid', $mapGuid)->first());
     }
 
     public function updateCampaign(string $campaignGuid, Request $request)
