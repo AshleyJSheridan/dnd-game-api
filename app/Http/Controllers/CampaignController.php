@@ -569,6 +569,7 @@ class CampaignController extends Controller
                             'y' => max($jsonData->y ?? $entity->y, 0),
                             'highlight_colour' => $jsonData->highlight_colour ?? $entity->highlight_colour,
                             'entity_name' => $jsonData->entity_name ?? $entity->entity_name,
+                            'visible' => isset($jsonData->visible) ? ($jsonData->visible ? 'yes' : 'no') : $entity->visible,
                         ]);
                         $entity->save();
                     }
