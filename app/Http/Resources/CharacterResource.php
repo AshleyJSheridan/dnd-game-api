@@ -21,6 +21,9 @@ class CharacterResource extends JsonResource
             'proficiency_bonus' => $this->getProficiencyBonus($this->level),
             'charClass' => $this->CharacterClass->name ?? '',
             'class_path_available' => $this->level >= ($this->CharacterClass->path_level ?? 20),
+            'class_path_name' => $this->CharacterClass->path_name ?? '',
+            'selected_class_path' => CharClassPathResource::make($this->CharacterClassPath),
+            'class_features' => CharFeatureResource::collection($this->CharacterClass->ClassFeatures),
             'saving_throws' => [
                 CharShortAbilityResource::make($this->CharacterClass->getSavingThrowProficiency1 ?? null),
                 CharShortAbilityResource::make($this->CharacterClass->getSavingThrowProficiency2 ?? null),

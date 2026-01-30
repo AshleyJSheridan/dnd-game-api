@@ -25,6 +25,11 @@ class Character extends Model
         return $this->hasOne(CharClass::class, 'id', 'class_id');
     }
 
+    public function CharacterClassPath(): HasOne
+    {
+        return $this->hasOne(CharClassPath::class, 'id', 'selected_path');
+    }
+
     public function CharacterRace(): HasOne
     {
         return $this->hasOne(CharRace::class, 'id', 'race_id');

@@ -23,6 +23,7 @@ class CharInventoryItemResource extends JsonResource
                 'unit' => $this->Item->cost_unit
             ],
             'rarity' => $this->Item->rarity,
+            'equipped' => $this->equipped,
             'proficiency' => $this->Item->proficiency_id,
             'armor_props' => json_decode($this->Item->armor_props),
             'weapon_props' => [
