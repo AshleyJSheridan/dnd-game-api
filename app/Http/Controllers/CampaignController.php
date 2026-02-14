@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\CampaignInviteResource;
 use App\Http\Resources\CampaignLoreGroupResource;
 use App\Http\Resources\CampaignLoreResource;
 use App\Http\Resources\CampaignMapResource;
@@ -9,6 +10,7 @@ use App\Http\Resources\CampaignMapResourceForOwner;
 use App\Http\Resources\CampaignResourceForOwner;
 use App\Http\Resources\CampaignResourceForPlayer;
 use App\Models\Campaign;
+use App\Models\CampaignInvite;
 use App\Models\CampaignLore;
 use App\Models\CampaignLoreGroup;
 use App\Models\CampaignMap;
@@ -21,6 +23,7 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Spatie\Image\Enums\ImageDriver;
 use Spatie\Image\Image;
@@ -47,10 +50,21 @@ class CampaignController extends Controller
         } catch (JWTException $e) {}
     }
 
-    public function getCampaigns()
+    public function getOwnCampaigns()
     {
         return CampaignResourceForOwner::collection(Campaign::where('user_id', $this->user->id)->get());
     }
+
+    public function getJoinedCampaigns()
+    {
+        // get all campaigns where the current user is a player
+        $campaigns = Campaign::whereHas('Characters', function ($query) {
+            $query->where('user_id', $this->user->id);
+        })->get();
+
+        return CampaignResourceForPlayer::collection($campaigns);
+    }
+
 
     public function createCampaign(Request $request)
     {
@@ -374,7 +388,7 @@ class CampaignController extends Controller
 
     public function updateMap(string $campaignGuid, string $mapGuid, Request $request)
     {
-        $allowedUpdates = ['show_grid', 'grid_size', 'grid_colour', 'height', 'width'];
+        $allowedUpdates = ['show_grid', 'grid_size', 'grid_colour', 'height', 'width', 'hidden'];
         $data = [];
         $campaignMap = CampaignMap::where('guid', $mapGuid)
             ->whereHas('Campaign', function ($query) use ($campaignGuid) {
@@ -385,16 +399,52 @@ class CampaignController extends Controller
         if (!$campaignMap)
             return response()->json(['error' => 'Campaign map not found'], Response::HTTP_NOT_FOUND);
 
-        // only allow certain fields to be updated
         $jsonData = json_decode($request->getContent());
-        foreach ($jsonData as $key => $value) {
-            if (in_array($key, $allowedUpdates)) {
-                $data[$key] = $value;
-            }
-        }
-        $campaignMap->update($data);
 
+        // special case for setting maps active, as all others in campaign need to be inactive
+        if (isset($jsonData->active) && $jsonData->active === 1)
+        {
+            $campaignMap->Campaign->Maps()->update(['active' => 0]);
+            $campaignMap->update(['active' => 1]);
+        }
+        else
+        {
+            // only allow certain fields to be updated
+            foreach ($jsonData as $key => $value) {
+                if (in_array($key, $allowedUpdates)) {
+                    $data[$key] = $value;
+                }
+            }
+            $campaignMap->update($data);
+        }
+
+        // TODO does this need to return an owner cmpaign map resource for the owning user?
         return CampaignMapResource::make($campaignMap);
+    }
+
+    public function deleteMap(string $campaignGuid, string $mapGuid, Request $request)
+    {
+        // This will ensure that things still work with a detached map.
+        $campaign = Campaign::where('guid', $campaignGuid)->first();
+        if (!$campaign)
+            return response()->json(['error' => 'Campaign not found'], Response::HTTP_NOT_FOUND);
+
+        // Only the campaign owner can delete maps.
+        if ($campaign->user_id !== $this->user->id)
+            return response()->json(['error' => 'Bad goblin! Not your campaign.'], Response::HTTP_UNAUTHORIZED);
+
+        $campaignMap = CampaignMap::where('guid', $mapGuid)
+            ->whereHas('Campaign', function ($query) use ($campaignGuid) {
+                $query->where('guid', $campaignGuid);
+            })
+            ->first();
+
+        if (!$campaignMap)
+            return response()->json(['error' => 'Campaign map not found'], Response::HTTP_NOT_FOUND);
+
+        $campaignMap->delete();
+
+        return CampaignResourceForOwner::make($campaign);
     }
 
     public function addCharacterToCampaign(string $campaignGuid, Request $request)
@@ -657,6 +707,90 @@ class CampaignController extends Controller
         }
 
         return CampaignResourceForOwner::make($campaign);
+    }
+
+    public function sendInviteToPlayer(string $campaignGuid, Request $request)
+    {
+        try {
+            $campaign = Campaign::where('guid', $campaignGuid)->first();
+            if ($campaign->user_id !== $this->user->id)
+                return response()->json(['error' => 'Not your campaign'], Response::HTTP_UNAUTHORIZED);
+
+            $validator = Validator::make($request->all(), [
+                'email' => 'required|string|email|max:255',
+            ]);
+            if ($validator->fails())
+                return response()->json($validator->errors(), Response::HTTP_BAD_REQUEST);
+
+            $playerUser = User::where('email', $request->input('email'))->first();
+            if (!$playerUser)
+                return response()->json(['error' => 'No player with that email found'], Response::HTTP_NOT_FOUND);
+
+            // TODO send email to player with invite link
+
+            $invite = CampaignInvite::create([
+                'game_id' => $campaign->id,
+                'user_id' => $playerUser->id,
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
+                'status' => 'sent',
+            ]);
+
+            return response()->json(['message' => 'Invite sent successfully'], Response::HTTP_OK);
+
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Bad Request'], Response::HTTP_BAD_REQUEST);
+        }
+    }
+
+    public function getInvites(Request $request )
+    {
+        return CampaignInviteResource::collection(CampaignInvite::where('user_id', $this->user->id)->where('status', 'sent')->get());
+    }
+
+    public function declineInvite(int $inviteId, Request $request)
+    {
+        $invite = CampaignInvite::where('user_id', $this->user->id)->where('id', $inviteId)->first();
+        if (!$invite)
+            return response()->json(['error' => 'Invite not found'], Response::HTTP_NOT_FOUND);
+
+        $invite->status = 'declined';
+        $invite->save();
+
+        return CampaignInviteResource::collection(CampaignInvite::where('user_id', $this->user->id)->where('status', 'sent')->get());
+    }
+
+    public function acceptInvite(int $inviteId, Request $request)
+    {
+        $invite = CampaignInvite::where('user_id', $this->user->id)->where('id', $inviteId)->first();
+        if (!$invite)
+            return response()->json(['error' => 'Invite not found'], Response::HTTP_NOT_FOUND);
+
+        // accept the invite.
+        $invite->status = 'accepted';
+        $invite->save();
+
+        $charGuids = $request->input('characterGuids');
+        $characterIds = Character::whereIn('guid', $charGuids)->get('id')->pluck('id')->toArray();
+        $gameId = $invite->game_id;
+
+        $campaign = Campaign::where('id', $invite->game_id)->first();
+        if (!$campaign)
+            return response()->json(['error' => 'Campaign not found'], Response::HTTP_NOT_FOUND);
+
+        // add characters to campaign, ignoring any that are already added
+        foreach ($characterIds as $characterId)
+        {
+            $campaign->Characters()->attach($characterId);
+        }
+        $campaign->save();
+
+        // get all campaigns where the current user is a player
+        $campaigns = Campaign::whereHas('Characters', function ($query) {
+            $query->where('user_id', $this->user->id);
+        })->get();
+
+        return CampaignResourceForPlayer::collection($campaigns);
     }
 
     // TODO move this to a helper or something

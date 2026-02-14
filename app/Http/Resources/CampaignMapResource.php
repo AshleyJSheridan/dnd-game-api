@@ -20,6 +20,8 @@ class CampaignMapResource extends JsonResource
             'show_grid' => $this->show_grid,
             'grid_size' => $this->grid_size,
             'grid_colour' => $this->grid_colour,
+            'hidden' => $this->hidden == 1,
+            'active' => $this->active == 1,
             'players' => CampaignMapCharacterResource::collection($this->Players),
             'creatures' => CampaignMapCreatureResource::collection($this->Creatures->where('visible', 'yes')),
             'drawings' => CampaignMapDrawingResource::collection($this->Drawings->where('visible', 'yes')),

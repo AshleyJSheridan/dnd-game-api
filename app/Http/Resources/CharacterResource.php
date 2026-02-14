@@ -23,7 +23,7 @@ class CharacterResource extends JsonResource
             'class_path_available' => $this->level >= ($this->CharacterClass->path_level ?? 20),
             'class_path_name' => $this->CharacterClass->path_name ?? '',
             'selected_class_path' => CharClassPathResource::make($this->CharacterClassPath),
-            'class_features' => CharFeatureResource::collection($this->CharacterClass->ClassFeatures),
+            'class_features' => CharFeatureResource::collection($this->CharacterClass->ClassFeatures ?? []),
             'saving_throws' => [
                 CharShortAbilityResource::make($this->CharacterClass->getSavingThrowProficiency1 ?? null),
                 CharShortAbilityResource::make($this->CharacterClass->getSavingThrowProficiency2 ?? null),
@@ -151,8 +151,9 @@ class CharacterResource extends JsonResource
         }
 
         return [
-            'max' => $hitPoints,
-            'current' => max(0, $this->hit_points),
+            'max' => $hitPoints + $this->hit_points_temp,
+            'current' => max(0, min($this->hit_points, $hitPoints)) + $this->hit_points_temp,
+            'hit_points_temp' => $this->hit_points_temp,
         ];
     }
 }

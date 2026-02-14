@@ -96,6 +96,7 @@ Route::middleware([JwtMiddleware::class])->group(function () {
     Route::post('/campaigns/{guid}/maps', [CampaignController::class, 'createMap']);
     Route::get('/campaigns/{campaignGuid}/maps/{mapGuid}', [CampaignController::class, 'getMap']);
     Route::patch('/campaigns/{campaignGuid}/maps/{mapGuid}', [CampaignController::class, 'updateMap']);
+    Route::delete('/campaigns/{campaignGuid}/maps/{mapGuid}', [CampaignController::class, 'deleteMap']);
     Route::post('/campaigns/{campaignGuid}/maps/{mapGuid}/entities', [CampaignController::class, 'addEntityToMap']);
     Route::patch('/campaigns/{campaignGuid}/maps/{mapGuid}/entities/{entityGuid}', [CampaignController::class, 'updateMapEntity']);
     Route::delete('/campaigns/{campaignGuid}/maps/{mapGuid}/entities/{entityGuid}', [CampaignController::class, 'deleteMapEntity']);
@@ -108,12 +109,17 @@ Route::middleware([JwtMiddleware::class])->group(function () {
     Route::patch('/campaigns/{guid}/lore/{loreGuid}', [CampaignController::class, 'editCampaignLoreItem']);
 
     // campaigns
-    Route::get('/campaigns', [CampaignController::class, 'getCampaigns']);
+    Route::get('/campaigns/own', [CampaignController::class, 'getOwnCampaigns']);
+    Route::get('/campaigns', [CampaignController::class, 'getJoinedCampaigns']);
     Route::post('/campaigns', [CampaignController::class, 'createCampaign']);
+    Route::get('/campaigns/invites', [CampaignController::class, 'getInvites']);
+    Route::delete('/campaigns/invites/{inviteId}', [CampaignController::class, 'declineInvite']);
+    Route::post('/campaigns/invites/{inviteId}', [CampaignController::class, 'acceptInvite']);
     Route::get('/campaigns/{guid}', [CampaignController::class, 'getCampaign']);
     Route::patch('/campaigns/{guid}', [CampaignController::class, 'updateCampaign']);
     Route::post('/campaigns/{guid}/characters', [CampaignController::class, 'addCharacterToCampaign']);
     Route::delete('/campaigns/{campaignGuid}/characters/{charGuid}', [CampaignController::class, 'removeCharacterFromCampaign']);
+    Route::post('/campaigns/{guid}/invite', [CampaignController::class, 'sendInviteToPlayer']);
 });
 
 // images - no auth required so the images can be used in <img> tags
@@ -123,7 +129,6 @@ Route::get('/characters/{guid}/portrait', [CharactersController::class, 'getPort
 
 Route::get('/campaigns/{guid}/lore/{loreGuid}/thumb', [CampaignController::class, 'getCampaignLoreThumb']);
 Route::get('/campaigns/{guid}/lore/{loreGuid}', [CampaignController::class, 'getCampaignLoreItem']);
-
 
 // locations
 Route::any('/location/create/{type}', [LocationController::class, 'generateLocation'])

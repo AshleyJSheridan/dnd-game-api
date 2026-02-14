@@ -14,7 +14,6 @@ class DiceController extends Controller
 
     public function rollDice(Request $request)
     {
-        var_dump($request->getContent());
         if ($request->getContent() === '')
             return response()->json(['error' => 'No dice'], Response::HTTP_BAD_REQUEST);
 
