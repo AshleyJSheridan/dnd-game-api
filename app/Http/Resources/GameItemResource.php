@@ -21,7 +21,7 @@ class GameItemResource extends JsonResource
                 'unit' => $this->cost_unit
             ],
             'rarity' => $this->rarity,
-            'proficiency' => $this->proficiency_id,
+            'proficiency' => $this->Proficiency->name ?? null,
             'armor_props' => json_decode($this->armor_props),
             'weapon_props' => [
                 'ammo_type' => $this->ammo_type ? AmmoTypeEnum::from($this->ammo_type)->name : null,
