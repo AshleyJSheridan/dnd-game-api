@@ -13,12 +13,18 @@ class ProjectileItemService extends BaseItemService implements iItemService
         '20' => 'very rare',
     ];
 
-    public function getItem(int $rarity): GameItem
+    public function getRandomItem(): GameItem
     {
+        $rarity = rand(1, 20);
         $rarityStr = $this->getRarityString($rarity, $this->rarityTable);
 
         return GameItem::where('type', 'projectile')
             ->where('rarity', $rarityStr)
             ->inRandomOrder()->first();
+    }
+
+    public function getRandomItemByRarity(string $rarity): GameItem
+    {
+        return $this->getRandomItemByTypeAndRarity('projectile', $rarity);
     }
 }

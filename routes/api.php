@@ -65,7 +65,9 @@ Route::middleware([JwtMiddleware::class])->group(function () {
     Route::get('/game/items/{itemType}', [ItemController::class, 'getItems'])
         ->where('itemType', '(armor|book|clothing|food|other|pack|potion|projectile|weapon|gemstone|art object|bag|artisan|instrument|gaming)');
     Route::get('/game/items/{itemType}/random', [ItemController::class, 'getRandomItem'])
-        ->where('itemType', '(armor|book|clothing|food|other|potion|projectile|weapon|gemstone|art object)');
+        ->where('itemType', '(armor|art object|book|clothing|food|gemstone|other|potion|projectile|weapon|)');
+    Route::get('/game/items/{itemType}/random/{rarity}', [ItemController::class, 'getRandomItemByTypeAndRarity'])
+        ->where('itemType', '(armor|art object|book|clothing|food|gemstone|other|potion|projectile|weapon|)');
 
     // spells
     Route::get('/game/spells', [SpellController::class, 'getSpells']);

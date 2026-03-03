@@ -39,9 +39,15 @@ class ItemController extends Controller
 
     public function getRandomItem(string $itemType)
     {
+        // TODO refactor whatever the fuck I was thinking of here.
         $rarity = rand(1, 100);
 
-        return GameItemResource::make(ItemFactory::create($itemType)->getItem($rarity));
+        return GameItemResource::make(ItemFactory::create($itemType)->getRandomItem($rarity));
+    }
+
+    public function getRandomItemByTypeAndRarity(string $itemType, string $rarity)
+    {
+        return GameItemResource::make(ItemFactory::create($itemType)->getRandomItemByRarity($rarity));
     }
 
     public function getStartingEquipment(string $guid)

@@ -6,12 +6,12 @@ use App\Models\CharProficiency;
 use App\Models\GameItem;
 use Illuminate\Http\Request;
 
-class ArmorItemService implements iItemService
+class ArmorItemService extends BaseItemService implements iItemService
 {
     public function __construct(private Request $request)
     {}
 
-    public function getItem(int $rarity): GameItem
+    public function getRandomItem(): GameItem
     {
         $armor = $this->getBaseArmor();
 
@@ -36,6 +36,11 @@ class ArmorItemService implements iItemService
         }
 
         return $armor;
+    }
+
+    public function getRandomItemByRarity(string $rarity): GameItem
+    {
+        return $this->getRandomItemByTypeAndRarity('armor', $rarity);
     }
 
     private function getBaseArmor(string $rarity = 'common'): GameItem

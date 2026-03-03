@@ -6,5 +6,7 @@ use App\Models\GameItem;
 
 interface iItemService
 {
-    public function getItem(int $rarity): GameItem;
+    public function getRandomItem(): GameItem;
+
+    public function getRandomItemByRarity(string $rarity): GameItem;
 }

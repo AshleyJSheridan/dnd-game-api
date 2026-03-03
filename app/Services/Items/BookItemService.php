@@ -5,45 +5,54 @@ namespace App\Services\Items;
 use App\Models\GameItem;
 use App\Models\GameSpell;
 
-class BookItemService implements iItemService
+class BookItemService extends BaseItemService implements iItemService
 {
-    public function getItem(int $rarity)
+    public function getRandomItem(): GameItem
     {
         $rarity = 1;
 
         if ($rarity >= 1 && $rarity <= 64)
-        {
-            // regular book
-            $bookType = $this->getRandomBookType();
-            $bookAdjective = $this->getRandomBookAdjective();
-            $indefiniteArticle = in_array(strtolower(mb_substr($bookType, 0, 1)), ['a', 'e', 'i', 'o', 'u']) ? 'An' : 'A';
-
-            $bookTitle = $this->getRandomBookTitle($bookType, $bookAdjective);
-            $bookDescription = "$indefiniteArticle $bookType " . $this->getRandomDescription();
-
-            $book = GameItem::where('name', $bookTitle)->first();
-            if (!is_null($book))
-                return $book;
-
-            return GameItem::create([
-                'name' => $bookTitle,
-                'description' => $bookDescription,
-                'cost' => 5,
-                'cost_unit' => 'gp',
-                'type' => 'book',
-                'rarity' => 'common',
-                'generated' => 'yes',
-                'weight' => 0,
-            ]);
-        }
+            return $this->getRandomCommonBook();
         else
         {
             // spell scroll
             $curvedSpellScrollLevel = $this->getSpellScrollLevel();
 
             $item = $this->getRandomSpellScrollByLevel($curvedSpellScrollLevel);
-        }
 
+            return GameItem::make($item);
+        }
+    }
+
+    public function getRandomItemByRarity(string $rarity): GameItem
+    {
+        return $this->getRandomItemByTypeAndRarity('book', $rarity);
+    }
+
+    private function getRandomCommonBook(): GameItem
+    {
+        // regular book
+        $bookType = $this->getRandomBookType();
+        $bookAdjective = $this->getRandomBookAdjective();
+        $indefiniteArticle = in_array(strtolower(mb_substr($bookType, 0, 1)), ['a', 'e', 'i', 'o', 'u']) ? 'An' : 'A';
+
+        $bookTitle = $this->getRandomBookTitle($bookType, $bookAdjective);
+        $bookDescription = "$indefiniteArticle $bookType " . $this->getRandomDescription();
+
+        $book = GameItem::where('name', $bookTitle)->first();
+        if (!is_null($book))
+            return $book;
+
+        return GameItem::create([
+            'name' => $bookTitle,
+            'description' => $bookDescription,
+            'cost' => 5,
+            'cost_unit' => 'gp',
+            'type' => 'book',
+            'rarity' => 'common',
+            'generated' => 'yes',
+            'weight' => 0,
+        ]);
     }
 
     private function getRandomDescription(): string

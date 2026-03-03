@@ -7,12 +7,12 @@ use App\Models\GameItem;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
-class WeaponItemService implements iItemService
+class WeaponItemService extends BaseItemService implements iItemService
 {
     public function __construct(private Request $request)
     {}
 
-    public function getItem(int $rarity): GameItem
+    public function getRandomItem(): GameItem
     {
         $weapon = $this->getBaseWeapon();
         $originalName = $weapon->name;
@@ -80,6 +80,11 @@ class WeaponItemService implements iItemService
         }
 
         return $weapon;
+    }
+
+    public function getRandomItemByRarity(string $rarity): GameItem
+    {
+        return $this->getRandomItemByTypeAndRarity('weapon', $rarity);
     }
 
     private function applyDamageEffect(GameItem &$weapon, string &$damageType): void
