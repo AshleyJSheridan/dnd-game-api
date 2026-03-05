@@ -47,6 +47,8 @@ class ItemController extends Controller
 
     public function getRandomItemByTypeAndRarity(string $itemType, string $rarity)
     {
+        return GameItemResource::make(GameItem::where('id', 406)->first());
+
         return GameItemResource::make(ItemFactory::create($itemType)->getRandomItemByRarity($rarity));
     }
 

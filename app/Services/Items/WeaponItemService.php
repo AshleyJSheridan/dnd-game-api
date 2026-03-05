@@ -49,6 +49,7 @@ class WeaponItemService extends BaseItemService implements iItemService
                 $this->applySlayingEffect($weapon, $monster);
                 $weapon->name .= " of $monster slaying";
                 $weapon->rarity = 'rare';
+                $weapon->description .= " This weapon was made for one purpose, for slaying each and every $monster, and it does this job remarkably well.";
             }
             else
             {
@@ -56,6 +57,7 @@ class WeaponItemService extends BaseItemService implements iItemService
                 $this->applyDamageEffect($weapon, $damageType);
                 $weapon->name = ($damageType === 'radiant') ? "Radiant {$weapon->name}" : "{$weapon->name} of $damageType";
                 $weapon->rarity = 'rare';
+                $weapon->description .= getDamageExtraDescription($damageType);
             }
 
             // check if weapon has already been generated and exists in DB
@@ -95,6 +97,37 @@ class WeaponItemService extends BaseItemService implements iItemService
         // add this in as a special affect rather than overriding the existing damage type of the weapon to preserve
         // the original type to allow total damage to be calculated correctly
         $weapon->special = json_encode(["extra_damage" => "1d6", "damage_type" => $damageType]);
+    }
+
+    private function getDamageExtraDescription($damageType): string
+    {
+        $extraDescription = '';
+        switch ($damageType)
+        {
+            case 'fire':
+                $extraDescription .= ' This weapon burns with an intense flame, and can ignite flammable objects on hit.';
+                break;
+            case 'poison':
+                $extraDescription .= ' This weapon behaves as if coated with a potent toxin, and can poison creatures on hit.';
+                break;
+            case 'ice':
+                $extraDescription .= ' This weapon is cold to the touch, and can slow creatures on hit.';
+                break;
+            case 'acid':
+                $extraDescription .= ' This weapon sizzles with corrosive energy, but yet remains immune to its corrosive energy.';
+                break;
+            case 'thunder':
+                $extraDescription .= ' This weapon emits a booming sound on hit, able to deafen creatures.';
+                break;
+            case 'lightning':
+                $extraDescription .= ' This weapon crackles with electrical energy, yet conveys none of it back to its own wielder.';
+                break;
+            case 'radiant':
+                $extraDescription .= ' This weapon shines with a holy light, and is particularly effective against undead and fiends.';
+                break;
+        }
+
+        return $extraDescription;
     }
 
     private function applySlayingEffect(GameItem &$weapon, string &$monster): void

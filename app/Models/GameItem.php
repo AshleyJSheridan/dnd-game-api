@@ -14,7 +14,7 @@ class GameItem extends Model
 
     protected $table = 'game_items';
     protected $primaryKey = 'id';
-    protected $fillable = ['name', 'description', 'cost', 'cost_unit', 'type', 'rarity', 'special', 'generated', 'weight'];
+    protected $fillable = ['name', 'base_name', 'description', 'cost', 'cost_unit', 'type', 'rarity', 'special', 'generated', 'weight'];
 
     public function isContainer(): bool
     {
