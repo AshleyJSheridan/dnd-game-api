@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use App\Enums\AmmoTypeEnum;
+use App\Models\CharAbility;
 use App\Models\CharClass;
 use App\Models\DamageType;
 use App\Models\GameSpell;
@@ -13,8 +14,8 @@ use Illuminate\Http\Resources\Json\JsonResource;
 class GameItemResource extends JsonResource
 {
     static array $damageTypes = [];
-    static  $classes = [];
-    static Collection $itemSpells;
+    static  $classes = [];  // TODO type this.
+    static Collection $abilities;
 
     public function toArray(Request $request): array
     {
@@ -77,6 +78,11 @@ class GameItemResource extends JsonResource
                     $specialProperties[$key] = GameSpellResource::collection($this->getSpellsFromKeys($specialPropertiesRaw[$key]));
                     continue;
                 }
+                if ($key === 'spell')
+                {
+                    $specialProperties[$key] = GameSpellResource::make($this->getSpellsFromKeys([$specialPropertiesRaw[$key]])[0] ?? null);
+                    continue;
+                }
 
                 // parse any class limits this item may have
                 if ($key === 'classes')
@@ -90,6 +96,10 @@ class GameItemResource extends JsonResource
                 {
                     $specialPropertiesRaw[$key]['damage_type'] = $this->getDamageTypesFromKeys([$specialPropertiesRaw[$key]['damage_type']])[0] ?? [];
                 }
+                if ($key === 'ability' && is_int($specialPropertiesRaw[$key]))
+                {
+                    $specialPropertiesRaw[$key] = $this->getAbilityFromKey($specialPropertiesRaw[$key]) ?? '';
+                }
 
                 $specialProperties[$key] = $specialPropertiesRaw[$key];
             }
@@ -98,6 +108,14 @@ class GameItemResource extends JsonResource
         }
 
         return $specialProperties;
+    }
+
+    private function getAbilityFromKey(int $abilityId): ?CharAbility {
+        if (empty(self::$abilities)) {
+            self::$abilities = CharAbility::all()->keyBy('id');
+        }
+
+        return isset(self::$abilities[$abilityId]) ? self::$abilities[$abilityId] : null;
     }
 
     private function getClassesFromKeys(array $ids): array
