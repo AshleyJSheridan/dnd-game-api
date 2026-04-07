@@ -40,6 +40,7 @@ class BaseItemService
             $currentRarity = $this->rarityLevels[$currentRarityIndex];
             $item = GameItem::where('type', $type)
                 ->where('rarity', $currentRarity)
+                ->where('generated', 'no')
                 ->inRandomOrder()->first();
 
             if ($item)

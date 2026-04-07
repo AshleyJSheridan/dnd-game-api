@@ -47,6 +47,7 @@ Route::middleware([JwtMiddleware::class])->group(function () {
     Route::post('/characters/{guid}/startingEquipment', [ItemController::class, 'setStartingEquipment']);
     Route::get('/characters/{guid}/inventory', [ItemController::class, 'getPlayerInventory']);
     Route::post('/characters/{guid}/inventory', [ItemController::class, 'addItemsToPlayerInventory']);
+    Route::post('/characters/{guid}/inventory/customItem', [ItemController::class, 'addCustomItemToPlayerInventory']);
     Route::get('/characters/{guid}/spells/available', [CharactersController::class, 'getCharacterAvailableSpells']);
     Route::post('/characters/{guid}/portrait', [CharactersController::class, 'uploadPortrait']);
     Route::patch('/characters/{charGuid}/inventory/{itemGuid}', [ItemController::class, 'updateInventoryItem']);
@@ -62,6 +63,7 @@ Route::middleware([JwtMiddleware::class])->group(function () {
 
     // items
     Route::get('/game/items', [ItemController::class, 'getItems']);
+    Route::get('/game/items/generated', [ItemController::class, 'getGeneratedItems']);
     Route::get('/game/items/{itemType}', [ItemController::class, 'getItems'])
         ->where('itemType', '(armor|book|clothing|food|other|pack|potion|projectile|weapon|gemstone|art object|bag|artisan|instrument|gaming)');
     Route::get('/game/items/{itemType}/random', [ItemController::class, 'getRandomItem'])
