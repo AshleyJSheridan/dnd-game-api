@@ -94,7 +94,13 @@ Route::middleware([JwtMiddleware::class])->group(function () {
 
     // encounters
     Route::post('/encounters/', [EncountersController::class, 'createEncounter']);
+    Route::get('/encounters', [EncountersController::class, 'getUserEncounters']);
     Route::get('encounters/{guid}', [EncountersController::class, 'getEncounterByGuid']);
+    Route::patch('/encounters/{guid}', [EncountersController::class, 'updateEncounter']);
+    Route::delete('/encounters/{guid}', [EncountersController::class, 'deleteEncounter']);
+    Route::post('/encounters/{guid}/creatures', [EncountersController::class, 'addCreatureToEncounter']);
+    Route::patch('/encounters/{guid}/creatures/{creatureGuid}', [EncountersController::class, 'updateEncounterCreature']);
+    Route::delete('/encounters/{guid}/creatures/{creatureGuid}', [EncountersController::class, 'removeEncounterCreature']);
 
     // campaign maps
     Route::post('/campaigns/{guid}/maps', [CampaignController::class, 'createMap']);

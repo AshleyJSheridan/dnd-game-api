@@ -5,11 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class GameEncounter extends Model
 {
     /** @use HasFactory<\Database\Factories\GameEncounterFactory> */
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $table = 'game_encounters';
     protected $primaryKey = 'id';

@@ -65,62 +65,66 @@ class CreatureService
 
     public function createEncounter(array $charLevels, int $difficulty, string $environment): array | null
     {
-        $differenceThreshold = 0.2; // to allow for a ± difference around matching creatures to characters challenge ratings
-        $difficulty = max(min($difficulty, 4), 1);
+        // to allow for a ± difference around matching creatures to characters challenge ratings
+        $differenceThresholdMax = 0.1;
+        $difficulty = max(min($difficulty, 4), 1); // clamp the difficulty between 1 and 4.
         $expThreshold = array_reduce($charLevels, function ($carry, $charLevel) use ($difficulty) {
             return $carry + $this->difficulties[$charLevel][$difficulty - 1];
         });
 
+        $maxExpThreshold = $expThreshold + ($expThreshold * $differenceThresholdMax);
+
         $creaturesForEnvironment = $this->getCreaturesForEnvironment($environment, $expThreshold);
+
+        // sort the creatures by exp to make it more efficient to create an encounter.
+        usort($creaturesForEnvironment, function ($a, $b) {
+            return $a->exp <=> $b->exp;
+        });
 
         if (count($creaturesForEnvironment) === 0)
             return [];
 
+        $encounterCreatures = [];
+        $encounterComplete = false;
+        $maxLoops = count($charLevels) * 10; // fail-safe to prevent infinite loops, should be more than enough iterations to find a suitable encounter.
+        $currentLoop = 1;
+        $currentTotalExp = 0;
 
-        $possibleEncounterCreatures = [];
+        // start the encounter around this creature.
+        $startingCreature = $creaturesForEnvironment[rand(0, count($creaturesForEnvironment) - 1)];
+        $startingCreature->hp = $this->getCreatureHp(
+            $startingCreature->hit_points_dice,
+            $startingCreature->hit_points_dice_sides,
+            $startingCreature->hit_point_additional
+        );
+        $encounterCreatures[] = $startingCreature;
 
-        // TODO allow for more complex encounters including mixes of creatures and creature sub-types
-        for ($amount = 1; $amount <= 15; $amount ++)
-        {
-            $difficultyMultiplier = $this->difficultyMultipliers[$amount];
+        while (!$encounterComplete) {
+            $possibleCreature = $creaturesForEnvironment[rand(0, count($creaturesForEnvironment) - 1)];
 
-            foreach ($creaturesForEnvironment as $creature)
-            {
-                $min = ($amount * $creature->exp * $difficultyMultiplier * (1 - $differenceThreshold));
-                $max = ($amount * $creature->exp * $difficultyMultiplier * (1 + $differenceThreshold));
+            if ($currentTotalExp + $possibleCreature->exp < $maxExpThreshold) {
+                $possibleCreature->hp = $this->getCreatureHp(
+                    $possibleCreature->hit_points_dice,
+                    $possibleCreature->hit_points_dice_sides,
+                    $possibleCreature->hit_point_additional
+                );
+                $encounterCreatures[] = $possibleCreature;
+                $currentTotalExp += $possibleCreature->exp;
+            }
 
-                if ($min <= $expThreshold && $expThreshold <= $max)
-                {
-                    $possibleEncounterCreatures[] = [
-                        'creatures' => $this->getGroupOfCreatures($creature, $amount),
-                        'difficulty' => intval(round($amount * $creature->exp * $difficultyMultiplier)),
-                        'partyDifficulty' => $expThreshold,
-                        'environment' => $environment,
-                    ];
-                }
+            $currentLoop ++;
+
+            if ($currentLoop >= $maxLoops || $currentTotalExp >= $expThreshold) {
+                $encounterComplete = true;
             }
         }
 
-        return $possibleEncounterCreatures[array_rand($possibleEncounterCreatures)];
-    }
-
-    private function getGroupOfCreatures(GameCreature $creature, int $amount): array
-    {
-        $clones = [];
-
-        for ($i = 0; $i < $amount; $i ++)
-        {
-            $clonedCreature = clone $creature;
-            $clonedCreature->guid = Str::uuid()->toString();
-            $clonedCreature->hp = $this->getCreatureHp(
-                $clonedCreature->hit_points_dice,
-                $clonedCreature->hit_points_dice_sides,
-                $clonedCreature->hit_point_additional
-            );
-            $clones[] = $clonedCreature;
-        }
-
-        return $clones;
+        return [
+            'creatures' => $encounterCreatures,
+            'difficulty' => $currentTotalExp,
+            'partyDifficulty' => $expThreshold,
+            'environment' => $environment,
+        ];
     }
 
     private function getCreaturesForEnvironment(string $environment, int $exp)//: Collection | array
