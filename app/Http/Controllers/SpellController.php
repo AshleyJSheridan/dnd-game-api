@@ -10,10 +10,11 @@ class SpellController extends Controller
 {
     public function getSpells(int $level = null)
     {
+        // hide spells with a school value of 0 as these are special cases to attach to items.
         if (is_null($level))
-            return GameSpellResource::collection(GameSpell::all());
+            return GameSpellResource::collection(GameSpell::whereNot('school', 0)->get());
 
-        return GameSpellResource::collection(GameSpell::where('level', $level)->get());
+        return GameSpellResource::collection(GameSpell::where('level', $level)->whereNot('school', 0)->get());
     }
 
     public function getSpellsBySchool(string $school, int $level = null)

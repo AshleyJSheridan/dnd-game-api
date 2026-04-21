@@ -14,10 +14,14 @@ class GameSpellResource extends JsonResource
             'name' => $this->name,
             'level' => $this->level,
             'school' => GameSpellSchoolResource::make($this->SpellSchool),
+            'classes' => collect($this->CharClasses)->map(function ($charClass) {
+                return $charClass->name;
+            }),
             'cast_time' => $this->getParsedCastTime($this->cast_time),
             'duration' => $this->getParsedDuration($this->duration),
             'range' => $this->range,
             'components' => $this->parseSpellComponents($this->components),
+            'component_materials' => GameSpellMaterialResource::collection($this->Materials),
             'concentration' => $this->concentration,
             'ritual' => $this->ritual,
             'description' => $this->description,
