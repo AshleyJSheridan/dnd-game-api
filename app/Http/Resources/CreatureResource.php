@@ -44,6 +44,7 @@ class CreatureResource extends JsonResource
             'resistances' => json_decode($this->resistances) ?? [],
             'senses' => $this->senses,
             'languages' => CharLanguageResource::collection($this->Languages ?? []),
+            'environments' => collect($this->Environment->pluck('environment')) ?? [],
         ];
     }
 

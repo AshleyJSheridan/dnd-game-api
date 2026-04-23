@@ -15,13 +15,15 @@ class CreaturesController extends Controller
     {
         return CreatureResource::collection(
             $this->creatureService->addProcessedFields(
-                GameCreature::where('type', $creatureType)->get()
+                GameCreature::where('type', $creatureType)
+                    ->orderBy('name')
+                    ->get()
             )
         );
     }
 
     public function getAllCreatures()
     {
-        return CreatureResource::collection($this->creatureService->addProcessedFields(GameCreature::all()));
+        return CreatureResource::collection($this->creatureService->addProcessedFields(GameCreature::all()->sortBy('name')));
     }
 }
