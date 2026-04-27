@@ -7,6 +7,7 @@ use App\Http\Controllers\CharBackgroundController;
 use App\Http\Controllers\CharRaceController;
 use App\Http\Controllers\CreatureAlignmentController;
 use App\Http\Controllers\CreaturesController;
+use App\Http\Controllers\DeityController;
 use App\Http\Controllers\DiceController;
 use App\Http\Controllers\EncountersController;
 use App\Http\Controllers\HeartbeatController;
@@ -91,6 +92,9 @@ Route::middleware([JwtMiddleware::class])->group(function () {
     Route::get('/creatures', [CreaturesController::class, 'getAllCreatures']);
     Route::get('/creatures/{creatureType}', [CreaturesController::class, 'getCreatures'])
         ->where('creatureType', '(aberration|beast|celestial|construct|demon|devil|dragon|elemental|fey|giant|humanoid|monstrosity|ooze|plant|undead)');
+
+    // deities
+    Route::get('/game/deities', [DeityController::class, 'getDeities']);
 
     // encounters
     Route::post('/encounters/', [EncountersController::class, 'createEncounter']);
