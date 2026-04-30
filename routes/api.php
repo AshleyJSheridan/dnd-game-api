@@ -5,6 +5,7 @@ use App\Http\Controllers\CampaignController;
 use App\Http\Controllers\CharactersController;
 use App\Http\Controllers\CharBackgroundController;
 use App\Http\Controllers\CharRaceController;
+use App\Http\Controllers\ConditionsController;
 use App\Http\Controllers\CreatureAlignmentController;
 use App\Http\Controllers\CreaturesController;
 use App\Http\Controllers\DeityController;
@@ -95,6 +96,9 @@ Route::middleware([JwtMiddleware::class])->group(function () {
 
     // deities
     Route::get('/game/deities', [DeityController::class, 'getDeities']);
+
+    // conditions
+    Route::get('game/conditions', [ConditionsController::class, 'getConditions']);
 
     // encounters
     Route::post('/encounters/', [EncountersController::class, 'createEncounter']);
