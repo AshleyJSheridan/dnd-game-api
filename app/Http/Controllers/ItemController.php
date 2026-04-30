@@ -34,9 +34,9 @@ class ItemController extends Controller
     public function getItems(string $itemType = null)
     {
         if (!$itemType)
-            return GameItemResource::collection(GameItem::where('generated', 'no')->get());
+            return GameItemResource::collection(GameItem::where('generated', 'no')->orderBy('name')->get());
 
-        return GameItemResource::collection(GameItem::where('generated', 'no')->where('type', $itemType)->get());
+        return GameItemResource::collection(GameItem::where('generated', 'no')->where('type', $itemType)->orderBy('name')->get());
     }
 
     public function getRandomItem(string $itemType)
