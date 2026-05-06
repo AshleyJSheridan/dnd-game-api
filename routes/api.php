@@ -100,6 +100,9 @@ Route::middleware([JwtMiddleware::class])->group(function () {
     // conditions
     Route::get('game/conditions', [ConditionsController::class, 'getConditions']);
 
+    // damage types
+    Route::get('game/damage-types', [\App\Http\Controllers\DamageTypesController::class, 'getDamageTypes']);
+
     // encounters
     Route::post('/encounters/', [EncountersController::class, 'createEncounter']);
     Route::get('/encounters', [EncountersController::class, 'getUserEncounters']);
