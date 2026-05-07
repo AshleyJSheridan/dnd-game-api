@@ -124,13 +124,13 @@ class CharacterResource extends JsonResource
     private function getCharSkills()
     {
         $racialSkillIds = json_decode($this->CharacterRace->skills ?? "[]");
-        $ClassSkillDetails = json_decode($this->CharacterClass->skill_options ?? '{"max":2,"skills":[]}');
+        $classSkillDetails = json_decode($this->CharacterClass->skill_options ?? '{"max":2,"skills":[]}');
 
         return [
             'known' => CharSkillResource::collection($this->Skills),
             'racial_known' => CharSkillResource::collection(CharSkill::whereIn('id', $racialSkillIds)->get()),
-            'available_count' => $ClassSkillDetails->max,
-            'available' => CharSkillResource::collection(CharSkill::whereIn('id', $ClassSkillDetails->skills)->get()),
+            'available_count' => $classSkillDetails->max,
+            'available' => CharSkillResource::collection(CharSkill::whereIn('id', $classSkillDetails->skills)->get()),
         ];
     }
 
