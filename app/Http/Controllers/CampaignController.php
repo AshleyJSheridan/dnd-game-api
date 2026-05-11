@@ -402,11 +402,11 @@ class CampaignController extends Controller
 
         $jsonData = json_decode($request->getContent());
 
-        // special case for setting maps active, as all others in campaign need to be inactive
+        // special case for setting maps active, as all others in campaign need to be inactive, and active map should always be visible
         if (isset($jsonData->active) && $jsonData->active === 1)
         {
             $campaignMap->Campaign->Maps()->update(['active' => 0]);
-            $campaignMap->update(['active' => 1]);
+            $campaignMap->update(['active' => 1, 'hidden' => 0]);
         }
         else
         {
