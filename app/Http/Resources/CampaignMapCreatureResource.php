@@ -2,12 +2,26 @@
 
 namespace App\Http\Resources;
 
+use App\Models\User;
 use App\Services\CreatureService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Tymon\JWTAuth\Exceptions\JWTException;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class CampaignMapCreatureResource extends JsonResource
 {
+    private User $user;
+
+    public function __construct($resource)
+    {
+        parent::__construct($resource);
+
+        try {
+            $this->user = JWTAuth::parseToken()->authenticate();
+        } catch (JWTException $e) {}
+    }
+
     public function toArray(Request $request): array
     {
         $creatureService = app(CreatureService::class);
@@ -25,6 +39,7 @@ class CampaignMapCreatureResource extends JsonResource
             'highlight_colour' => $this->highlight_colour,
             'visible' => $this->visible === 'yes',
             'entity' => CreatureResource::make($this->Creature)->additional(['stats' => json_decode($this->stats)]),
+            'editable' => $this->added_by === $this->user->id,
         ];
     }
 }
