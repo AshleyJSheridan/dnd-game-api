@@ -143,6 +143,10 @@ class CampaignController extends Controller
         if (!$campaign)
             return response()->json(['error' => 'Campaign not found'], Response::HTTP_NOT_FOUND);
 
+        // Only the campaign owner can delete campaign lore items.
+        if ($campaign->user_id !== $this->user->id)
+            return response()->json(['error' => 'Bad goblin! Not your campaign.'], Response::HTTP_UNAUTHORIZED);
+
         $loreItem = CampaignLore::where('guid', $loreGuid)
             ->where('game_id', $campaign->id)
             ->first();
@@ -501,6 +505,10 @@ class CampaignController extends Controller
     {
         try {
             $campaign = Campaign::where('guid', $campaignGuid)->first();
+
+            if ($campaign->user_id !== $this->user->id)
+                return response()->json(['error' => 'Not your campaign'], Response::HTTP_UNAUTHORIZED);
+
             $map = CampaignMap::where('guid', $mapGuid)
                 ->whereHas('Campaign', function ($query) use ($campaignGuid) {
                     $query->where('guid', $campaignGuid);
@@ -521,6 +529,7 @@ class CampaignController extends Controller
                             'x' => $jsonData->x,
                             'y' => $jsonData->y,
                             'created_at' => Carbon::now(),
+                            'added_by' => $this->user->id,
                         ]);
                     }
 
@@ -543,6 +552,7 @@ class CampaignController extends Controller
                         'y' => $jsonData->y,
                         'created_at' => Carbon::now(),
                         'stats' => json_encode(['hp' => $hitPoints, 'max_hp' => $hitPoints]),
+                        'added_by' => $this->user->id,
                     ]);
 
                     break;
@@ -566,6 +576,7 @@ class CampaignController extends Controller
                             'pattern' => $jsonData->fillSymbol ?? 'none',
                         ]),
                         'created_at' => Carbon::now(),
+                        'added_by' => $this->user->id,
                     ]);
 
                     break;
@@ -600,6 +611,9 @@ class CampaignController extends Controller
                 case 'character':
                     $entity = CampaignMapCharacterEntity::where('guid', $entityGuid)->where('map_id', $map->id)->first();
 
+                    if ($campaign->user_id !== $this->user->id && $entity->added_by !== $this->user->id)
+                        return response()->json(['error' => 'Not your campaign or entity.'], Response::HTTP_UNAUTHORIZED);
+
                     if ($entity)
                     {
                         $entity->update([
@@ -612,6 +626,9 @@ class CampaignController extends Controller
                     break;
                 case 'creature':
                     $entity = CampaignMapCreatureEntity::where('guid', $entityGuid)->where('map_id', $map->id)->first();
+
+                    if ($campaign->user_id !== $this->user->id && $entity->added_by !== $this->user->id)
+                        return response()->json(['error' => 'Not your campaign or entity.'], Response::HTTP_UNAUTHORIZED);
 
                     if ($entity)
                     {
@@ -627,6 +644,9 @@ class CampaignController extends Controller
                     break;
                 case 'drawing':
                     $entity = CampaignMapDrawingEntity::where('guid', $entityGuid)->where('map_id', $map->id)->first();
+
+                    if ($campaign->user_id !== $this->user->id && $entity->added_by !== $this->user->id)
+                        return response()->json(['error' => 'Not your campaign or entity.'], Response::HTTP_UNAUTHORIZED);
 
                     if ($entity)
                     {
@@ -670,6 +690,11 @@ class CampaignController extends Controller
             return response()->json(['error' => 'Campaign map not found'], 404);
 
         $rawEntity = $map->RawEntities()->where('guid', $entityGuid)->first();
+
+        // Only allow the campaign owner or the player that added the entity to delete it.
+        if ($campaign->user_id !== $this->user->id && $rawEntity->added_by !== $this->user->id)
+            return response()->json(['error' => 'Not your campaign or entity.'], Response::HTTP_UNAUTHORIZED);
+
         if ($rawEntity)
         {
             // TODO possibly make a raw entity model to allow delete() method instead of setting the date manually?
