@@ -9,6 +9,7 @@ use App\Http\Resources\CampaignMapResource;
 use App\Http\Resources\CampaignMapResourceForOwner;
 use App\Http\Resources\CampaignResourceForOwner;
 use App\Http\Resources\CampaignResourceForPlayer;
+use App\Http\Resources\CampaignResourceForPlayerSimple;
 use App\Models\Campaign;
 use App\Models\CampaignInvite;
 use App\Models\CampaignLore;
@@ -62,7 +63,7 @@ class CampaignController extends Controller
             $query->where('user_id', $this->user->id);
         })->get();
 
-        return CampaignResourceForPlayer::collection($campaigns);
+        return CampaignResourceForPlayerSimple::collection($campaigns);
     }
 
 
