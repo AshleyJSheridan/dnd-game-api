@@ -506,9 +506,6 @@ class CampaignController extends Controller
         try {
             $campaign = Campaign::where('guid', $campaignGuid)->first();
 
-            if ($campaign->user_id !== $this->user->id)
-                return response()->json(['error' => 'Not your campaign'], Response::HTTP_UNAUTHORIZED);
-
             $map = CampaignMap::where('guid', $mapGuid)
                 ->whereHas('Campaign', function ($query) use ($campaignGuid) {
                     $query->where('guid', $campaignGuid);
