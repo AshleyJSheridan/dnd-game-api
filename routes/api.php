@@ -151,9 +151,3 @@ Route::get('/characters/{guid}/portrait', [CharactersController::class, 'getPort
 
 Route::get('/campaigns/{guid}/lore/{loreGuid}/thumb', [CampaignController::class, 'getCampaignLoreThumb']);
 Route::get('/campaigns/{guid}/lore/{loreGuid}', [CampaignController::class, 'getCampaignLoreItem']);
-
-// locations
-Route::any('/location/create/{type}', [LocationController::class, 'generateLocation'])
-    ->where('type', '(tavern)');
-Route::get('/location/{guid}/map', [LocationController::class, 'getMap']);
-Route::get('/location/{guid}/map/{floor}', [LocationController::class, 'getMap']);
