@@ -66,6 +66,7 @@ Route::middleware([JwtMiddleware::class])->group(function () {
     // items
     Route::get('/game/items', [ItemController::class, 'getItems']);
     Route::get('/game/items/generated', [ItemController::class, 'getGeneratedItems']);
+    Route::post('/game/items/generated', [ItemController::class, 'addGeneratedItem']);
     Route::get('/game/items/{itemType}', [ItemController::class, 'getItems'])
         ->where('itemType', '(armor|book|clothing|food|other|pack|potion|projectile|weapon|gemstone|art object|bag|artisan|instrument|gaming)');
     Route::get('/game/items/{itemType}/random', [ItemController::class, 'getRandomItem'])

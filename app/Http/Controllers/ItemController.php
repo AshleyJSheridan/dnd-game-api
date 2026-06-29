@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\ItemConflictException;
 use App\Http\Factories\ItemFactory;
 use App\Http\Resources\CharacterResource;
 use App\Http\Resources\CharInventoryItemResource;
@@ -207,37 +208,7 @@ class ItemController extends Controller
             // If the item is marked as tainted, it means it might be custom. If so, it needs a unique name (against the user) before it can be saved.
             if (isset($rawItemData->tainted) && $rawItemData->tainted === true)
             {
-                // Before trying to insert the item, check to see if an item of this same name already exists and return an error if so.
-                $existingItem = GameItem::where('name', $rawItemData->name)->where('generated_by', $this->user->id)->first();
-                if ($existingItem) {
-                    return response()->json(['error' => 'You have already created an item with this name. Change the name and try again.'], Response::HTTP_CONFLICT);
-                }
-
-                $proficiency = CharProficiency::where('name', $rawItemData->proficiency ?? '')->first() ?? null;
-
-                $item = GameItem::create([
-                    'name' => $rawItemData->name,
-                    'base_name' => $rawItemData->base_name,
-                    'description' => $rawItemData->description,
-                    'cost' => $rawItemData->cost->value,
-                    'cost_unit' => $rawItemData->cost->unit,
-                    'type' => $rawItemData->type,
-                    'weight' => $rawItemData->weight,
-                    'rarity' => $rawItemData->rarity,
-                    'proficiency_id' => $proficiency ? $proficiency->id : null,
-                    'ammo_type' => $rawItemData->weapon_props->ammo_type ?? null,
-                    'damage' => $rawItemData->weapon_props->damage->amount ?? null,
-                    'damage_type' => $rawItemData->weapon_props->damage->type ?? null,
-                    'range_normal' => $rawItemData->weapon_props->range->normal ?? null,
-                    'range_long' => $rawItemData->weapon_props->range->long ?? null,
-                    'weapon_versatility' => $rawItemData->weapon_props->weapon_versatility ?? null,
-                    'armor_props' => $rawItemData->armor_props ? json_encode($rawItemData->armor_props) : null,
-                    'special' => $rawItemData->special_properties ? $this->getParsedItemSpecialPropertiesJson($rawItemData->special_properties) : null,
-                    'generated' => 'yes',
-                    'generated_by' => $this->user->id,
-                    'created_at' => Carbon::now(),
-                    'updated_at' => Carbon::now(),
-                ]);
+                $item = $this->attemptCustomItemInsert($rawItemData);
             }
             else
             {
@@ -261,6 +232,8 @@ class ItemController extends Controller
             ]);
 
             return response()->json(['message' => 'Item added to inventory successfully'], Response::HTTP_CREATED);
+        } catch (ItemConflictException $e) {
+            return response()->json(['error' => 'You have already created an item with this name. Change the name and try again.'], Response::HTTP_CONFLICT);
         } catch (\Exception $e) {
             var_dump($e->getMessage());
         }
@@ -274,6 +247,102 @@ class ItemController extends Controller
             return response()->json(['error' => 'No generated items found for this user.'], Response::HTTP_NOT_FOUND);
 
         return GameItemResource::collection($items);
+    }
+
+    public function addGeneratedItem(Request $request)
+    {
+        try {
+            $jsonData = json_decode($request->getContent());
+            $rawItemData = $jsonData->item;
+
+            if (isset($rawItemData->tainted) && $rawItemData->tainted === true)
+            {
+                $item = $this->attemptCustomItemInsert($rawItemData);
+
+                // no need to check for generated items here, as there must be at least 1.
+                $items = GameItem::where('generated', 'yes')->where('generated_by', $this->user->id)->get();
+                return GameItemResource::collection($items);
+            }
+            else
+            {
+                // Only custom items should exist in the user generated items list.
+                return response()->json(['error' => 'Only custom items can be added to the generated items list.'], Response::HTTP_BAD_REQUEST);
+            }
+        } catch (ItemConflictException $e) {
+            return response()->json(['error' => 'You have already created an item with this name. Change the name and try again.'], Response::HTTP_CONFLICT);
+        } catch (\Exception $e) {
+            var_dump($e->getMessage());
+        }
+    }
+
+    public function updateInventoryItem(string $charGuid, string $itemGuid, Request $request)
+    {
+        try {
+            $character = Character::where('guid', $charGuid)->where('user_id', $this->user->id)->first();
+            $inventoryItem = CharInventoryItem::where('char_id', $character->id)->where('guid', $itemGuid)->first();
+
+            $jsonData = json_decode($request->getContent());
+
+            foreach ($jsonData as $property => $value)
+            {
+                $inventoryItem->{$property} = $value;
+            }
+            $inventoryItem->save();
+
+            return CharInventoryItemResource::collection($character->Inventory);
+        } catch (\Exception $e) {
+
+        }
+    }
+
+    public function removeInventoryItem(string $charGuid, string $itemGuid)
+    {
+        try {
+            $character = Character::where('guid', $charGuid)->where('user_id', $this->user->id)->first();
+            $inventoryItem = CharInventoryItem::where('char_id', $character->id)->where('guid', $itemGuid)->first();
+
+            $inventoryItem->delete();
+
+            return CharInventoryItemResource::collection($character->Inventory);
+        } catch (\Exception $e) {
+
+        }
+    }
+
+    private function attemptCustomItemInsert($rawItemData): GameItem
+    {
+        // Before trying to insert the item, check to see if an item of this same name already exists and return an error if so.
+        $existingItem = GameItem::where('name', $rawItemData->name)->where('generated_by', $this->user->id)->first();
+        if ($existingItem)
+            throw new ItemConflictException(sprintf("Custom item name conflict: %s", $rawItemData->name));
+
+        $proficiency = CharProficiency::where('name', $rawItemData->proficiency ?? '')->first() ?? null;
+
+        $item = GameItem::create([
+            'name' => $rawItemData->name,
+            'base_name' => $rawItemData->base_name,
+            'description' => $rawItemData->description,
+            'cost' => $rawItemData->cost->value,
+            'cost_unit' => $rawItemData->cost->unit,
+            'type' => $rawItemData->type,
+            'weight' => $rawItemData->weight,
+            'rarity' => $rawItemData->rarity,
+            'proficiency_id' => $proficiency ? $proficiency->id : null,
+            'ammo_type' => $rawItemData->weapon_props->ammo_type ?? null,
+            'damage' => $rawItemData->weapon_props->damage->amount ?? null,
+            'damage_type' => $rawItemData->weapon_props->damage->type ?? null,
+            'range_normal' => $rawItemData->weapon_props->range->normal ?? null,
+            'range_long' => $rawItemData->weapon_props->range->long ?? null,
+            'weapon_versatility' => $rawItemData->weapon_props->weapon_versatility ?? null,
+            'armor_props' => $rawItemData->armor_props ? json_encode($rawItemData->armor_props) : null,
+            'special' => $rawItemData->special_properties ? $this->getParsedItemSpecialPropertiesJson($rawItemData->special_properties) : null,
+            'generated' => 'yes',
+            'generated_by' => $this->user->id,
+            'created_at' => Carbon::now(),
+            'updated_at' => Carbon::now(),
+        ]);
+
+        return $item;
     }
 
     private function getParsedItemSpecialPropertiesJson($specialProps): string
@@ -363,39 +432,5 @@ class ItemController extends Controller
         }
 
         return json_encode($parsedProps);
-    }
-
-    public function updateInventoryItem(string $charGuid, string $itemGuid, Request $request)
-    {
-        try {
-            $character = Character::where('guid', $charGuid)->where('user_id', $this->user->id)->first();
-            $inventoryItem = CharInventoryItem::where('char_id', $character->id)->where('guid', $itemGuid)->first();
-
-            $jsonData = json_decode($request->getContent());
-
-            foreach ($jsonData as $property => $value)
-            {
-                $inventoryItem->{$property} = $value;
-            }
-            $inventoryItem->save();
-
-            return CharInventoryItemResource::collection($character->Inventory);
-        } catch (\Exception $e) {
-
-        }
-    }
-
-    public function removeInventoryItem(string $charGuid, string $itemGuid)
-    {
-        try {
-            $character = Character::where('guid', $charGuid)->where('user_id', $this->user->id)->first();
-            $inventoryItem = CharInventoryItem::where('char_id', $character->id)->where('guid', $itemGuid)->first();
-
-            $inventoryItem->delete();
-
-            return CharInventoryItemResource::collection($character->Inventory);
-        } catch (\Exception $e) {
-
-        }
     }
 }

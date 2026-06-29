@@ -581,6 +581,10 @@ class CampaignController extends Controller
                     // object
             }
 
+            // force the updated_at on the campaign map to be updated.
+            $map->touch();
+            $map->save();
+
             // Owner of a campaign map gets a slightly different response to a player.
             if ($campaign->user_id === $this->user->id)
                 return CampaignMapResourceForOwner::make(CampaignMap::where('guid', $mapGuid)->first());
@@ -665,6 +669,10 @@ class CampaignController extends Controller
                     break;
             }
 
+            // force the updated_at on the campaign map to be updated.
+            $map->touch();
+            $map->save();
+
             // Owner of a campaign map gets a slightly different response to a player.
             if ($campaign->user_id === $this->user->id)
                 return CampaignMapResourceForOwner::make(CampaignMap::where('guid', $mapGuid)->first());
@@ -699,11 +707,30 @@ class CampaignController extends Controller
             $rawEntity->save();
         }
 
+        // force the updated_at on the campaign map to be updated.
+        $map->touch();
+        $map->save();
+
         // Owner of a campaign map gets a slightly different response to a player.
         if ($campaign->user_id === $this->user->id)
             return CampaignMapResourceForOwner::make(CampaignMap::where('guid', $mapGuid)->first());
         else
             return CampaignMapResource::make(CampaignMap::where('guid', $mapGuid)->first());
+    }
+
+    public function getMapLastUpdateTime(string $campaignGuid, string $mapGuid)
+    {
+        $campaignMap = CampaignMap::where('guid', $mapGuid)
+            ->whereHas('Campaign', function ($query) use ($campaignGuid) {
+                $query->where('guid', $campaignGuid);
+            })
+            ->first();
+
+        // As this is only intended to return a response for a HEAD request, only return headers and not a body.
+        if (!$campaignMap)
+            return response(null, Response::HTTP_NOT_FOUND);
+
+        return response(null, Response::HTTP_OK)->header('Last-Modified', $campaignMap->updated_at->toRfc7231String());
     }
 
     public function updateCampaign(string $campaignGuid, Request $request)
