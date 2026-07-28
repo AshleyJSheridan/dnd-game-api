@@ -17,7 +17,7 @@ class CampaignResourceForPlayer extends JsonResource
             'lore' => CampaignLoreResource::collection($this->PlayerLore),
             'maps' => CampaignMapResource::collection($this->Maps->where('hidden', 0)),
             'owner' => false,
-            'players' => CharacterResource::collection($this->Characters),
+            'players' => CharacterCampaignResource::collection($this->Characters),
         ];
     }
 }

@@ -14,7 +14,6 @@ use App\Http\Controllers\EncountersController;
 use App\Http\Controllers\HeartbeatController;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\LanguageController;
-use App\Http\Controllers\LocationController;
 use App\Http\Controllers\SpellController;
 use App\Http\Middleware\JwtMiddleware;
 use Illuminate\Support\Facades\Route;
@@ -33,6 +32,7 @@ Route::middleware([JwtMiddleware::class])->group(function () {
     Route::get('user', [AuthController::class, 'getUser']);
     Route::post('user/logout', [AuthController::class, 'logout']);
     Route::delete('user', [AuthController::class, 'deleteUser']);
+    Route::patch('user', [AuthController::class, 'updateUser']);
 
     // characters
     Route::get('/characters', [CharactersController::class, 'getUserCharacters']);
@@ -139,6 +139,7 @@ Route::middleware([JwtMiddleware::class])->group(function () {
     Route::post('/campaigns/invites/{inviteId}', [CampaignController::class, 'acceptInvite']);
     Route::get('/campaigns/{guid}', [CampaignController::class, 'getCampaign']);
     Route::patch('/campaigns/{guid}', [CampaignController::class, 'updateCampaign']);
+    Route::delete('/campaigns/{guid}', [CampaignController::class, 'deleteCampaign']);
     Route::post('/campaigns/{guid}/characters', [CampaignController::class, 'addCharacterToCampaign']);
     Route::delete('/campaigns/{campaignGuid}/characters/{charGuid}', [CampaignController::class, 'removeCharacterFromCampaign']);
     Route::post('/campaigns/{guid}/invite', [CampaignController::class, 'sendInviteToPlayer']);

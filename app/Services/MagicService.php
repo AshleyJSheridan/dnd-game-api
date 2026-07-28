@@ -36,6 +36,8 @@ class MagicService
         {
             $availableSpells['spells']->merge($raceSpells['spells']);
         }
+        // sort the spells by name
+        $availableSpells['spells'] = $availableSpells['spells']->sortBy('name')->values();
 
         foreach ($raceSpells as $key => $value)
         {

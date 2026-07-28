@@ -759,6 +759,21 @@ class CampaignController extends Controller
         return CampaignResourceForOwner::make($campaign);
     }
 
+    public function deleteCampaign(string $campaignGuid, Request $request)
+    {
+        try {
+            $campaign = Campaign::where('guid', $campaignGuid)->first();
+            if ($campaign->user_id !== $this->user->id)
+                return response()->json(['error' => 'Not your campaign'], Response::HTTP_UNAUTHORIZED);
+
+            $campaign->delete();
+
+            return CampaignResourceForOwner::collection(Campaign::where('user_id', $this->user->id)->get());
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Bad Request'], Response::HTTP_BAD_REQUEST);
+        }
+    }
+
     public function sendInviteToPlayer(string $campaignGuid, Request $request)
     {
         try {

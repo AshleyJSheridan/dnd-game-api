@@ -2,9 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\UserResource;
+use App\Mail\SignupMail;
+use App\Models\Signup;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Tymon\JWTAuth\Exceptions\JWTException;
@@ -30,6 +34,10 @@ class AuthController extends Controller
                 'email' => $request->get('email'),
                 'password' => Hash::make($request->get('password')),
             ]);
+
+            $signup = Signup::where('id', $user->id)->first();
+
+            Mail::to($signup->email)->send(new SignupMail($signup));
 
             return response()->json(['message' => 'User created successfully'], Response::HTTP_OK);
         } catch (\Exception $e) {
@@ -73,11 +81,11 @@ class AuthController extends Controller
         try {
             if (! $user = JWTAuth::parseToken()->authenticate())
                 return response()->json(['error' => 'User not found'], Response::HTTP_NOT_FOUND);
+
+            return UserResource::make($user);
         } catch (JWTException $e) {
             return response()->json(['error' => 'Token not valid'], Response::HTTP_UNAUTHORIZED);
         }
-
-        return response()->json(compact('user'));
     }
 
     public function logout()
@@ -143,6 +151,47 @@ class AuthController extends Controller
             ]);
         } catch (\Exception $e) {
             return response()->json(['error' => 'Invalid refresh token'], Response::HTTP_UNAUTHORIZED);
+        }
+    }
+
+    public function updateUser(Request $request)
+    {
+        try {
+            $user = JWTAuth::parseToken()->authenticate();
+
+            // always validate user and email, as these are required by the original form.
+            $validator = Validator::make($request->all(), [
+                'name' => 'sometimes|required|string|max:255',
+                'email' => 'sometimes|required|string|email|max:255|unique:users,email,' . $user->id,
+            ]);
+
+            // optionally require password if it is present in the request, and verify it against the password_confirm.
+            if ($request->has('password')) {
+                $validator->addRules([
+                    'password' => 'required|string|min:8|confirmed',
+                ]);
+            }
+
+            if ($validator->fails())
+                return response()->json($validator->errors(), Response::HTTP_BAD_REQUEST);
+
+            if ($request->has('name')) {
+                $user->name = $request->get('name');
+            }
+
+            if ($request->has('email')) {
+                $user->email = $request->get('email');
+            }
+
+            if ($request->has('password')) {
+                $user->password = Hash::make($request->get('password'));
+            }
+
+            $user->save();
+
+            return UserResource::make($user);
+        } catch (JWTException $e) {
+            return response()->json(['error' => 'Token not valid'], Response::HTTP_UNAUTHORIZED);
         }
     }
 }

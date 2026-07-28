@@ -12,7 +12,6 @@ use App\Models\User;
 use App\Services\MagicService;
 use App\Services\NameGeneratorService;
 use Carbon\Carbon;
-use Dompdf\Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Str;
@@ -173,12 +172,29 @@ class CharactersController extends Controller
                     $character->Spells()->sync($spellIds);
 
                     break;
+                case 'property':
+                    // TODO break this logic out into a service.
+                    $property = $jsonData->property;
+                    $value = $jsonData->value;
+
+                    if (in_array($property, ['hit_points', 'hit_points_temp']))
+                    {
+                        $character->$property = $value;
+                    }
+                    if (in_array($property, ['str', 'dex', 'con', 'int', 'wis', 'cha']))
+                    {
+                        $abilities = json_decode($character->abilities, true);
+                        $abilities[$property] = $value;
+                        $character->abilities = json_encode($abilities);
+                    }
+                    break;
             }
 
             $character->save();
 
             // retrieve character again as calculated and related values may have changed since update
-            return CharacterResource::make(Character::where('guid', $guid)->where('user_id', $this->user->id)->first());
+            //return CharacterResource::make(Character::where('guid', $guid)->where('user_id', $this->user->id)->first());
+            return CharacterResource::make($character);
         } catch (\Exception $e) {
             return response()->json(['error' => 'Bad Request ' . $e->getMessage()], Response::HTTP_BAD_REQUEST);
         }
@@ -219,7 +235,7 @@ class CharactersController extends Controller
         return AvailableSpellsResource::make(collect($availableSpells));
     }
 
-    public function uploadPortrait(string $guid)
+    public function uploadPortrait(string $guid, Request $request)
     {
         $character = Character::where('guid', $guid)->where('user_id', $this->user->id)->first();
         if (!$character)
@@ -229,6 +245,16 @@ class CharactersController extends Controller
             return response()->json(['error' => 'No image provided'], Response::HTTP_BAD_REQUEST);
 
         $portraitSize = 200; // square image
+
+        $validated = $request->validate([
+            'image' => [
+                'exclude_unless:type,file',
+                'required',
+                'file',
+                'mimetypes:image/jpeg,image/png',
+                'max:20480',
+            ],
+        ]);
 
         $imageName = Str::uuid()->toString() . '.' . request()->image->getClientOriginalExtension();
         request()->image->move(storage_path('portraits'), $imageName);

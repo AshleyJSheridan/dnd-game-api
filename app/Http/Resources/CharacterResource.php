@@ -151,8 +151,8 @@ class CharacterResource extends JsonResource
         }
 
         return [
-            'max' => $hitPoints + $this->hit_points_temp,
-            'current' => max(0, min($this->hit_points, $hitPoints)) + $this->hit_points_temp,
+            'max' => $hitPoints,
+            'current' => $this->hit_points,
             'hit_points_temp' => $this->hit_points_temp,
         ];
     }
