@@ -52,6 +52,7 @@ Route::middleware([JwtMiddleware::class])->group(function () {
     Route::post('/characters/{guid}/inventory/customItem', [ItemController::class, 'addCustomItemToPlayerInventory']);
     Route::get('/characters/{guid}/spells/available', [CharactersController::class, 'getCharacterAvailableSpells']);
     Route::post('/characters/{guid}/portrait', [CharactersController::class, 'uploadPortrait']);
+    Route::post('/characters/{charGuid}/inventory/{itemGuid}', [CharactersController::class, 'updateInventoryEquippedState']);
     Route::patch('/characters/{charGuid}/inventory/{itemGuid}', [ItemController::class, 'updateInventoryItem']);
     Route::delete('/characters/{charGuid}/inventory/{itemGuid}', [ItemController::class, 'removeInventoryItem']);
 

@@ -7,6 +7,7 @@ use App\Http\Resources\CharacterResource;
 use App\Http\Resources\NameSuggestionsResource;
 use App\Models\CharAbility;
 use App\Models\Character;
+use App\Models\CharInventoryItem;
 use App\Models\DiceRoll;
 use App\Models\User;
 use App\Services\MagicService;
@@ -77,6 +78,8 @@ class CharactersController extends Controller
             $jsonData = json_decode($request->getContent());
 
             $character = Character::where('guid', $guid)->where('user_id', $this->user->id)->first();
+            if (!$character)
+                return response()->json(['error' => 'Character not found'], Response::HTTP_NOT_FOUND);
 
             // TODO: pass this off to something else, shouldn't be doing it in the controller!
             switch ($jsonData->updateType)
@@ -187,13 +190,15 @@ class CharactersController extends Controller
                         $abilities[$property] = $value;
                         $character->abilities = json_encode($abilities);
                     }
+                    if ($property === 'money')
+                    {
+                        $character->money = json_encode($value);
+                    }
                     break;
             }
 
             $character->save();
 
-            // retrieve character again as calculated and related values may have changed since update
-            //return CharacterResource::make(Character::where('guid', $guid)->where('user_id', $this->user->id)->first());
             return CharacterResource::make($character);
         } catch (\Exception $e) {
             return response()->json(['error' => 'Bad Request ' . $e->getMessage()], Response::HTTP_BAD_REQUEST);
@@ -282,5 +287,74 @@ class CharactersController extends Controller
             return response()->json(['error' => 'Portrait image not found'], 404);
 
         return response()->file($portraitPath);
+    }
+
+    public function updateInventoryEquippedState(string $guid, string $itemGuid, Request $request)
+    {
+        $character = Character::where('guid', $guid)->where('user_id', $this->user->id)->first();
+        if (!$character)
+            return response()->json(['error' => 'Character not found'], Response::HTTP_NOT_FOUND);
+
+        try {
+            $jsonData = json_decode($request->getContent());
+
+            $item = CharInventoryItem::where('guid', $itemGuid)->where('char_id', $character->id)->first();
+
+            if (!$item)
+                return response()->json(['error' => 'Item not found'], Response::HTTP_NOT_FOUND);
+
+            // Now, do some checks for equipping items where one of that type is already equipped.
+            if ($jsonData->equipped)
+            {
+                $equippedItems = $character->Inventory->where('equipped', true)->where('Item.type', $item->Item->type);
+
+                // First, check if any shield is already equipped, and if so, unequip it before equipping the new one.
+                if ($item->Item->type === 'armor')
+                {
+                    if (strstr($item->Item->Proficiency->name, 'Shield') )
+                    {
+                        foreach ($equippedItems as $equippedItem)
+                        {
+                            if (strstr($equippedItem->Item->Proficiency->name, 'Shield'))
+                            {
+                                $equippedItem->equipped = 0;
+                                $equippedItem->save();
+                            }
+                        }
+                    }
+                    else
+                    {
+                        // the item is standard armor, remove all other armor that might be equipped (except shields!) and equip this one.
+                        foreach ($equippedItems as $equippedItem)
+                        {
+                            if (!strstr($equippedItem->Item->Proficiency->name, 'Shield'))
+                            {
+                                $equippedItem->equipped = 0;
+                                $equippedItem->save();
+                            }
+                        }
+                    }
+
+                    $item->equipped = 1;
+                }
+                // TODO - consider similar for weapons?
+            }
+            else
+            {
+                $item->equipped = 0;
+            }
+
+            $item->save();
+
+            // Seems to be a bug with the character now refreshing with the new items as they've already been loaded, so just reload the character and return it.
+            $character = Character::where('guid', $guid)->where('user_id', $this->user->id)->first();
+
+            return CharacterResource::make($character);
+
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Bad Request'], Response::HTTP_BAD_REQUEST);
+        }
+        // First, validate the request data to ensure the item exists and belongs to the character
+
     }
 }

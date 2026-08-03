@@ -30,4 +30,9 @@ class CharInventoryItem extends Model
     {
         return $this->hasMany(CharInventoryItem::class, 'parent_id', 'id');
     }
+
+    public function Proficiency(): HasOne
+    {
+        return $this->hasOne(CharProficiency::class, 'id', 'proficiency_id');
+    }
 }

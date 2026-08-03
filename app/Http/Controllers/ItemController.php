@@ -88,7 +88,13 @@ class ItemController extends Controller
                 return response()->json(['error' => 'Selected set does not belong to your chosen class'], Response::HTTP_BAD_REQUEST);
 
             // starter equipment only has starting gold, no other denominations
-            $character->money = ['gold' => $backgroundEquipment->gold + $classEquipment->gold];
+            $character->money = [
+                'copper' => 0,
+                'silver' => 0,
+                'electrum' => 0,
+                'gold' => $backgroundEquipment->gold + $classEquipment->gold,
+                'platinum' => 0,
+            ];
             $character->save();
 
             // add all starter items, including those within starter packs

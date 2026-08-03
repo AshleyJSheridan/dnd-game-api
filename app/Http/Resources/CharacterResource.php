@@ -48,12 +48,98 @@ class CharacterResource extends JsonResource
             ],
             'custom_portrait' => $this->custom_portrait ?? '',
             'inventory' => [
-                'money' => json_decode($this->money) ?? ['gold' => 0],
+                'money' => $this->formatMoney($this->money),
                 'items' => CharInventoryItemResource::collection($this->Inventory)
             ],
             'alignment' => AlignmentResource::make($this->CharAlignment),
+            'ac' => $this->calculateArmorClass(),
             'created_at' => $this->created_at,
         ];
+    }
+
+    private function calculateArmorClass()
+    {
+        $response = [
+            'base' => 10,
+            'modifiers' => [],
+            'armor_bonus' => 0,
+            'shield_bonus' => 0,
+            'total' => 10
+        ];
+
+        $parsedAbilities = $this->parseAbilities($this->abilities);
+        $dex = $parsedAbilities->where('short_name', 'dex')->first();
+        $response['modifiers']['dex'] = ($dex ? $dex->modifier : 0) + ($dex ? $dex->racialModifier : 0);
+
+        $equippedArmour = $this->Inventory->where('equipped', true)->where('Item.type', 'armor');
+        if (count($equippedArmour))
+        {
+            foreach ($equippedArmour as $amour)
+            {
+                $armourProps = json_decode($amour->Item->armor_props);
+                if (property_exists($armourProps, 'ac'))
+                {
+                    // Add the armour AC to the appropriate bonus. Enforcement of only one type of armour of a type is handled by the equipping of items.
+                    $armourType = $amour->Item->Proficiency->name ?? '';
+                    if (strstr($armourType, 'Shield'))
+                    {
+                        $response['shield_bonus'] = $armourProps->ac;
+                    }
+                    else
+                    {
+                        $response['armor_bonus'] = $armourProps->ac;
+                    }
+                }
+            }
+        }
+
+        // Calculate normal total AC, but it can be overwritten by specific classes
+        $response['total'] = ($response['armor_bonus'] > 0 ? $response['armor_bonus'] : $response['base'])
+            + $response['modifiers']['dex']
+            + $response['shield_bonus'];
+
+        // Only add this if the character is *not* wearing armor (shield is fine).
+        if ($this->CharacterClass->name === 'Barbarian' && $response['armor_bonus'] === 0)
+        {
+            $con = $parsedAbilities->where('short_name', 'con')->first();
+            $response['modifiers']['con'] = ($con ? $con->modifier : 0) + ($con ? $con->racialModifier : 0);
+
+            $response['total'] = 10 + $response['modifiers']['dex'] + $response['modifiers']['con'] + $response['shield_bonus'];
+        }
+
+        // Only add this if the character is *not* wearing armor (shield is fine).
+        if ($this->CharacterClass->name === 'Monk' && $response['armor_bonus'] === 0)
+        {
+            $wis = $parsedAbilities->where('short_name', 'con')->first();
+            $response['modifiers']['wis'] = ($wis ? $wis->modifier : 0) + ($wis ? $wis->racialModifier : 0);
+
+            $response['total'] = 10 + $response['modifiers']['dex'] + $response['modifiers']['wis'] + $response['shield_bonus'];
+        }
+
+        return $response;
+    }
+
+    private function formatMoney($money)
+    {
+        $moneyArray = json_decode($money, true);
+
+        if (!is_array($moneyArray)) {
+            return [
+                'copper' => 0,
+                'silver' => 0,
+                'electrum' => 0,
+                'gold' => 0,
+                'platinum' => 0,
+            ];
+        }
+
+        return array_merge([
+            'copper' => 0,
+            'silver' => 0,
+            'electrum' => 0,
+            'gold' => 0,
+            'platinum' => 0,
+        ], $moneyArray);
     }
 
     private function parseAbilities($abilitiesJsonStr): Collection
