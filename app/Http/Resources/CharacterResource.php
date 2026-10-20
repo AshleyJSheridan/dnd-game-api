@@ -22,6 +22,10 @@ class CharacterResource extends JsonResource
             'charClass' => $this->CharacterClass->name ?? '',
             'class_path_available' => $this->level >= ($this->CharacterClass->path_level ?? 20),
             'class_path_name' => $this->CharacterClass->path_name ?? '',
+            'proficiencies' => [
+                'weapons' => CharProficiencyResource::collection($this->CharacterClass->WeaponProficiencies ?? []),
+                'armour' => CharProficiencyResource::collection($this->CharacterClass->ArmourProficiencies ?? []),
+            ],
             'selected_class_path' => CharClassPathResource::make($this->CharacterClassPath),
             'class_features' => CharFeatureResource::collection($this->CharacterClass->ClassFeatures ?? []),
             'saving_throws' => [
@@ -98,23 +102,26 @@ class CharacterResource extends JsonResource
             + $response['modifiers']['dex']
             + $response['shield_bonus'];
 
-        // Only add this if the character is *not* wearing armor (shield is fine).
-        if ($this->CharacterClass->name === 'Barbarian' && $response['armor_bonus'] === 0)
-        {
-            $con = $parsedAbilities->where('short_name', 'con')->first();
-            $response['modifiers']['con'] = ($con ? $con->modifier : 0) + ($con ? $con->racialModifier : 0);
+        if ($this->CharacterClass) {
+            // Only add this if the character is *not* wearing armor (shield is fine).
+            if ($this->CharacterClass->name === 'Barbarian' && $response['armor_bonus'] === 0)
+            {
+                $con = $parsedAbilities->where('short_name', 'con')->first();
+                $response['modifiers']['con'] = ($con ? $con->modifier : 0) + ($con ? $con->racialModifier : 0);
 
-            $response['total'] = 10 + $response['modifiers']['dex'] + $response['modifiers']['con'] + $response['shield_bonus'];
+                $response['total'] = 10 + $response['modifiers']['dex'] + $response['modifiers']['con'] + $response['shield_bonus'];
+            }
+
+            // Only add this if the character is *not* wearing armor (shield is fine).
+            if ($this->CharacterClass->name === 'Monk' && $response['armor_bonus'] === 0)
+            {
+                $wis = $parsedAbilities->where('short_name', 'con')->first();
+                $response['modifiers']['wis'] = ($wis ? $wis->modifier : 0) + ($wis ? $wis->racialModifier : 0);
+
+                $response['total'] = 10 + $response['modifiers']['dex'] + $response['modifiers']['wis'] + $response['shield_bonus'];
+            }
         }
 
-        // Only add this if the character is *not* wearing armor (shield is fine).
-        if ($this->CharacterClass->name === 'Monk' && $response['armor_bonus'] === 0)
-        {
-            $wis = $parsedAbilities->where('short_name', 'con')->first();
-            $response['modifiers']['wis'] = ($wis ? $wis->modifier : 0) + ($wis ? $wis->racialModifier : 0);
-
-            $response['total'] = 10 + $response['modifiers']['dex'] + $response['modifiers']['wis'] + $response['shield_bonus'];
-        }
 
         return $response;
     }

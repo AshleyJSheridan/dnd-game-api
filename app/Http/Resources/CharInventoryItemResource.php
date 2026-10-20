@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use App\Enums\AmmoTypeEnum;
+use App\Models\GameItem;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class CharInventoryItemResource extends JsonResource
@@ -25,7 +26,7 @@ class CharInventoryItemResource extends JsonResource
             ],
             'rarity' => $this->Item->rarity,
             'equipped' => $this->equipped,
-            'proficiency' => $this->Item->proficiency_id,
+            'proficiency' => CharProficiencyResource::make($this->Item->Proficiency),
             'armor_props' => json_decode($this->Item->armor_props),
             'weapon_props' => [
                 'ammo_type' => $this->Item->ammo_type ? AmmoTypeEnum::from($this->Item->ammo_type)->name : null,
@@ -38,9 +39,15 @@ class CharInventoryItemResource extends JsonResource
                     'long' => $this->Item->range_long,
                 ],
                 'weapon_versatility' => $this->Item->weapon_versatility,
+                'finesse' => $this->isFinesseWeapon($this->Item),
             ],
             'isContainer' => $this->Item->isContainer(),
             'items' => $this->Item->isContainer() ? CharInventoryItemResource::collection($this->Items) : null,
         ];
+    }
+
+    private function isFinesseWeapon(GameItem $item): bool
+    {
+        return in_array($item->base_name, ['Dagger', 'Rapier', 'Scimitar', 'Shortsword', 'Whip', 'Dart']);
     }
 }

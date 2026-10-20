@@ -6,6 +6,7 @@ use App\Enums\AmmoTypeEnum;
 use App\Models\CharAbility;
 use App\Models\CharClass;
 use App\Models\DamageType;
+use App\Models\GameItem;
 use App\Models\GameSpell;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
@@ -31,7 +32,7 @@ class GameItemResource extends JsonResource
                 'unit' => $this->cost_unit
             ],
             'rarity' => $this->rarity,
-            'proficiency' => $this->Proficiency->name ?? null,
+            'proficiency' => CharProficiencyResource::make($this->Proficiency),
             'armor_props' => json_decode($this->armor_props),
             'weapon_props' => [
                 'ammo_type' => $this->ammo_type ? AmmoTypeEnum::from($this->ammo_type)->name : null,
@@ -44,9 +45,15 @@ class GameItemResource extends JsonResource
                     'long' => $this->range_long,
                 ],
                 'weapon_versatility' => $this->weapon_versatility,
+                'finesse' => $this->isFinesseWeapon(),
             ],
             'special_properties' => $this->getParsedSpecialProperties(),
         ];
+    }
+
+    private  function isFinesseWeapon(): bool
+    {
+        return in_array($this->base_name, ['Dagger', 'Rapier', 'Scimitar', 'Shortsword', 'Whip', 'Dart']);
     }
 
     private function getParsedSpecialProperties(): array
