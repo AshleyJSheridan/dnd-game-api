@@ -334,10 +334,26 @@ class CharactersController extends Controller
                             }
                         }
                     }
-
-                    $item->equipped = 1;
                 }
-                // TODO - consider similar for weapons?
+                if ($item->Item->type === 'weapon')
+                {
+                    // can only equip one bow at a time, so remove any other bows that might be equipped
+                    if (strstr($item->Item->Proficiency->name, 'bow') )
+                    {
+                        foreach ($equippedItems as $equippedItem)
+                        {
+                            if (strstr($equippedItem->Item->Proficiency->name, 'bow'))
+                            {
+                                $equippedItem->equipped = 0;
+                                $equippedItem->save();
+                            }
+                        }
+                    }
+
+                    // dnd doesn't really have any rules for how many weapons can be "equipped" per se, so just let the DM fight this battle
+                }
+
+                $item->equipped = 1;
             }
             else
             {
