@@ -313,8 +313,8 @@ class CampaignController extends Controller
         if ($campaign->user_id !== $this->user->id)
             return response()->json(['error' => 'Not your campaign'], Response::HTTP_UNAUTHORIZED);
 
-        $width = 200;
-        $height = 200;
+        $thumbWidth = 200;
+        $thumbHeight = 200;
 
         request()->validate([
             'image' => 'required|image|mimes:jpeg,png,jpg|max:2048',
@@ -327,18 +327,19 @@ class CampaignController extends Controller
             ->loadFile(storage_path('images/' . $imageName));
 
         $image->save(storage_path('images/' . $imageName));
-        $image->resize($width, $height)
-            ->save(storage_path('thumbs/') . $imageName);
+        $originalHeight = $image->getHeight();
+        $originalWidth = $image->getWidth();
+        $image->resize($thumbWidth, $thumbHeight)->save(storage_path('thumbs/') . $imageName);
 
         $campaignMap = CampaignMap::create([
             'guid' => Str::uuid()->toString(),
             'name' => $request->input('name'),
-            'description' => $request->input('description'),
+            'description' => $request->input('description') ?? '',
             'image' => $imageName,
             'game_id' => $campaign->id,
             'created_at' => Carbon::now(),
-            'width' => $image->getWidth(),
-            'height' => $image->getHeight(),
+            'width' => $originalWidth,
+            'height' => $originalHeight,
         ]);
 
         return CampaignMapResource::make($campaignMap);
