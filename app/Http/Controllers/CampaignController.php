@@ -340,6 +340,7 @@ class CampaignController extends Controller
             'created_at' => Carbon::now(),
             'width' => $originalWidth,
             'height' => $originalHeight,
+            'grid_size' => 50,
         ]);
 
         return CampaignMapResource::make($campaignMap);
