@@ -75,7 +75,7 @@ class Character extends Model
     public function HasMagic(): bool
     {
         $classMagicCount = $this->CharacterClass ?
-            count($this->CharacterClass->ClassFeatures->where('type', 'magic')->where('level', '>=', $this->level)) : 0;
+            count($this->CharacterClass->ClassFeatures->where('type', 'magic')->where('level', '<=', $this->level)) : 0;
         $raceSpellCount = $this->CharacterRace ? count($this->CharacterRace->RaceTraits->where('type', 'spell')) : 0;
 
         // TODO add checks for feats when those are implemented

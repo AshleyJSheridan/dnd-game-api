@@ -34,7 +34,7 @@ class MagicService
         $availableSpells = $classSpells;
         if (!empty($availableSpells['spells']) && !empty($raceSpells['spells']))
         {
-            $availableSpells['spells']->merge($raceSpells['spells']);
+            $availableSpells['spells'] = $availableSpells['spells']->merge($raceSpells['spells']);
         }
         // sort the spells by name
         $availableSpells['spells'] = $availableSpells['spells']->sortBy('name')->values();
