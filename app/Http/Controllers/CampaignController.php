@@ -10,6 +10,7 @@ use App\Http\Resources\CampaignMapResourceForOwner;
 use App\Http\Resources\CampaignResourceForOwner;
 use App\Http\Resources\CampaignResourceForPlayer;
 use App\Http\Resources\CampaignResourceForPlayerSimple;
+use App\Http\Resources\MapObjectResource;
 use App\Models\Campaign;
 use App\Models\CampaignInvite;
 use App\Models\CampaignLore;
@@ -20,6 +21,7 @@ use App\Models\CampaignMapCreatureEntity;
 use App\Models\CampaignMapDrawingEntity;
 use App\Models\Character;
 use App\Models\GameCreature;
+use App\Models\MapObject;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -858,6 +860,11 @@ class CampaignController extends Controller
         })->get();
 
         return CampaignResourceForPlayer::collection($campaigns);
+    }
+
+    public function getAllMapObjects()
+    {
+        return MapObjectResource::collection(MapObject::all());
     }
 
     // TODO move this to a helper or something

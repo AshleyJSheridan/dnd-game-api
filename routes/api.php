@@ -123,6 +123,7 @@ Route::middleware([JwtMiddleware::class])->group(function () {
     Route::post('/campaigns/{campaignGuid}/maps/{mapGuid}/entities', [CampaignController::class, 'addEntityToMap']);
     Route::patch('/campaigns/{campaignGuid}/maps/{mapGuid}/entities/{entityGuid}', [CampaignController::class, 'updateMapEntity']);
     Route::delete('/campaigns/{campaignGuid}/maps/{mapGuid}/entities/{entityGuid}', [CampaignController::class, 'deleteMapEntity']);
+    Route::get('/campaigns/resource/mapObjects', [CampaignController::class, 'getAllMapObjects']);
 
     // campaign lore
     Route::get('/campaigns/lore-groups', [CampaignController::class, 'getLoreGroups']);
