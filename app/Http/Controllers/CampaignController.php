@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\CampaignMapUpdated;
 use App\Http\Resources\CampaignInviteResource;
 use App\Http\Resources\CampaignLoreGroupResource;
 use App\Http\Resources\CampaignLoreResource;
@@ -427,6 +428,8 @@ class CampaignController extends Controller
             $campaignMap->update($data);
         }
 
+        $this->broadcastMapUpdate($campaignMap, 'map.updated');
+
         // TODO does this need to return an owner cmpaign map resource for the owning user?
         return CampaignMapResource::make($campaignMap);
     }
@@ -516,6 +519,7 @@ class CampaignController extends Controller
                 })
                 ->first();
             $jsonData = json_decode($request->getContent());
+            $newEntityGuid = null;
 
             switch ($jsonData->type) {
                 case 'character':
@@ -532,6 +536,7 @@ class CampaignController extends Controller
                             'created_at' => Carbon::now(),
                             'added_by' => $this->user->id,
                         ]);
+                        $newEntityGuid = $player->guid;
                     }
 
                     break;
@@ -555,6 +560,7 @@ class CampaignController extends Controller
                         'stats' => json_encode(['hp' => $hitPoints, 'max_hp' => $hitPoints]),
                         'added_by' => $this->user->id,
                     ]);
+                    $newEntityGuid = $mapCreature->guid;
 
                     break;
                 case 'drawing':
@@ -579,6 +585,7 @@ class CampaignController extends Controller
                         'created_at' => Carbon::now(),
                         'added_by' => $this->user->id,
                     ]);
+                    $newEntityGuid = $mapDrawing->guid;
 
                     break;
                 default:
@@ -589,6 +596,10 @@ class CampaignController extends Controller
             $map->touch();
             $map->save();
 
+            // Only notify others if something was actually created (e.g. not a duplicate character).
+            if ($newEntityGuid)
+                $this->broadcastMapUpdate($map, 'entity.added', $newEntityGuid);
+
             // Owner of a campaign map gets a slightly different response to a player.
             if ($campaign->user_id === $this->user->id)
                 return CampaignMapResourceForOwner::make(CampaignMap::where('guid', $mapGuid)->first());
@@ -596,7 +607,8 @@ class CampaignController extends Controller
                 return CampaignMapResource::make(CampaignMap::where('guid', $mapGuid)->first());
 
         } catch (\Exception $e) {
-            //var_dump($e->getMessage());
+            report($e);
+            return response()->json(['error' => 'Could not add entity to map'], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -616,6 +628,9 @@ class CampaignController extends Controller
                 case 'character':
                     $entity = CampaignMapCharacterEntity::where('guid', $entityGuid)->where('map_id', $map->id)->first();
 
+                    if (! $entity)
+                        return response()->json(['error' => 'Map entity not found'], Response::HTTP_NOT_FOUND);
+
                     if ($campaign->user_id !== $this->user->id && $entity->added_by !== $this->user->id)
                         return response()->json(['error' => 'Not your campaign or entity.'], Response::HTTP_UNAUTHORIZED);
 
@@ -631,6 +646,9 @@ class CampaignController extends Controller
                     break;
                 case 'creature':
                     $entity = CampaignMapCreatureEntity::where('guid', $entityGuid)->where('map_id', $map->id)->first();
+
+                    if (! $entity)
+                        return response()->json(['error' => 'Map entity not found'], Response::HTTP_NOT_FOUND);
 
                     if ($campaign->user_id !== $this->user->id && $entity->added_by !== $this->user->id)
                         return response()->json(['error' => 'Not your campaign or entity.'], Response::HTTP_UNAUTHORIZED);
@@ -649,6 +667,9 @@ class CampaignController extends Controller
                     break;
                 case 'drawing':
                     $entity = CampaignMapDrawingEntity::where('guid', $entityGuid)->where('map_id', $map->id)->first();
+
+                    if (! $entity)
+                        return response()->json(['error' => 'Map entity not found'], Response::HTTP_NOT_FOUND);
 
                     if ($campaign->user_id !== $this->user->id && $entity->added_by !== $this->user->id)
                         return response()->json(['error' => 'Not your campaign or entity.'], Response::HTTP_UNAUTHORIZED);
@@ -677,13 +698,16 @@ class CampaignController extends Controller
             $map->touch();
             $map->save();
 
+            $this->broadcastMapUpdate($map, 'entity.updated', $entityGuid);
+
             // Owner of a campaign map gets a slightly different response to a player.
             if ($campaign->user_id === $this->user->id)
                 return CampaignMapResourceForOwner::make(CampaignMap::where('guid', $mapGuid)->first());
             else
                 return CampaignMapResource::make(CampaignMap::where('guid', $mapGuid)->first());
         } catch (\Exception $e) {
-            //var_dump($e->getMessage());
+            report($e);
+            return response()->json(['error' => 'Could not update map entity'], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -700,20 +724,22 @@ class CampaignController extends Controller
 
         $rawEntity = $map->RawEntities()->where('guid', $entityGuid)->first();
 
+        if (! $rawEntity)
+            return response()->json(['error' => 'Map entity not found'], Response::HTTP_NOT_FOUND);
+
         // Only allow the campaign owner or the player that added the entity to delete it.
         if ($campaign->user_id !== $this->user->id && $rawEntity->added_by !== $this->user->id)
             return response()->json(['error' => 'Not your campaign or entity.'], Response::HTTP_UNAUTHORIZED);
 
-        if ($rawEntity)
-        {
-            // TODO possibly make a raw entity model to allow delete() method instead of setting the date manually?
-            $rawEntity->deleted_at = Carbon::now();
-            $rawEntity->save();
-        }
+        // TODO possibly make a raw entity model to allow delete() method instead of setting the date manually?
+        $rawEntity->deleted_at = Carbon::now();
+        $rawEntity->save();
 
         // force the updated_at on the campaign map to be updated.
         $map->touch();
         $map->save();
+
+        $this->broadcastMapUpdate($map, 'entity.deleted', $entityGuid);
 
         // Owner of a campaign map gets a slightly different response to a player.
         if ($campaign->user_id === $this->user->id)
@@ -880,5 +906,27 @@ class CampaignController extends Controller
 
         // force the returned value to be a minimum of 1, as some creatures have a negative additional hp
         return max(1, $hp);
+    }
+
+    /**
+     * Notify other clients subscribed to this map that it has changed. Clients re-fetch the map
+     * themselves so owner/player visibility rules are still applied by the normal GET endpoint.
+     *
+     * Failures are reported but not rethrown: the change is already saved, so the request should
+     * still succeed even if the Reverb server is unavailable.
+     */
+    private function broadcastMapUpdate(CampaignMap $map, string $action, ?string $entityGuid = null): void
+    {
+        try {
+            broadcast(new CampaignMapUpdated(
+                mapGuid: $map->guid,
+                action: $action,
+                entityGuid: $entityGuid,
+                byUserId: $this->user->id,
+                updatedAt: $map->fresh()->updated_at->toIso8601String(),
+            ))->toOthers();
+        } catch (\Throwable $e) {
+            report($e);
+        }
     }
 }
