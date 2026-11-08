@@ -16,8 +16,9 @@ class CampaignMapUpdated implements ShouldBroadcastNow
         public string $mapGuid,
         public string $action,        // 'entity.added' | 'entity.updated' | 'entity.deleted' | 'map.updated'
         public ?string $entityGuid,
-        public int $byUserId,
+        public string $byUserGuid,
         public string $updatedAt,
+        public ?array $entity = null,
     ) {}
 
     public function broadcastOn(): array

@@ -918,12 +918,40 @@ class CampaignController extends Controller
     private function broadcastMapUpdate(CampaignMap $map, string $action, ?string $entityGuid = null): void
     {
         try {
+            // Include soft-deleted rows so removal events retain the entity's final state.
+            $entity = $entityGuid
+                ? $map->RawEntities()->withTrashed()->where('guid', $entityGuid)->first()
+                : null;
+            // Hidden entities are updated locally by the owner and must not be broadcast.
+            if ($entity && $entity->visible === 'no') {
+                return;
+            }
+
+            $entityData = $entity ? [
+                'guid' => $entity->guid,
+                'type' => $entity->type,
+                'entity_name' => $entity->type === 'character'
+                    ? Character::find($entity->linked_id)?->name
+                    : $entity->entity_name,
+                'x' => $entity->x,
+                'y' => $entity->y,
+                'orientation' => $entity->orientation,
+                'highlight_colour' => $entity->highlight_colour,
+                'visible' => $entity->visible === 'yes',
+                'stats' => json_decode($entity->stats ?? 'null'),
+                'added_by_guid' => User::find($entity->added_by)?->guid,
+                'created_at' => $entity->created_at?->toIso8601String(),
+                'updated_at' => $entity->updated_at?->toIso8601String(),
+                'deleted_at' => $entity->deleted_at?->toIso8601String(),
+            ] : null;
+
             broadcast(new CampaignMapUpdated(
                 mapGuid: $map->guid,
                 action: $action,
                 entityGuid: $entityGuid,
-                byUserId: $this->user->id,
+                byUserGuid: $this->user->guid,
                 updatedAt: $map->fresh()->updated_at->toIso8601String(),
+                entity: $entityData,
             ))->toOthers();
         } catch (\Throwable $e) {
             report($e);
